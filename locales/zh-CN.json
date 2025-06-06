@@ -1,0 +1,60 @@
+{
+  "title": "PmpoliDev 作品集",
+  "nav": {
+    "home": "首页",
+    "about": "关于",
+    "projects": "项目",
+    "games": "游戏",
+    "store": "商店",
+    "contact": "联系"
+  },
+  "home": {
+    "title": "你好，我是 PmpoliDev",
+    "subtitle": "拥有 3 年以上经验的 Roblox 开发者 • 精通 Lua（Roblox Studio）"
+  },
+  "about": {
+    "title": "关于我",
+    "description": "我是一名拥有超过三年经验的 Roblox 开发者。我可以创建逼真的波浪系统，优化脚本和游戏，并为 NPC 开发 PvP 能力。",
+    "expLabel": "经验年限：",
+    "experience": "+3",
+    "years": "年",
+    "languagesLabel": "主要语言与引擎：",
+    "secondaryLabel": "次要语言与引擎：",
+    "moreLabel": "能力与角色：",
+    "founder": "Multi Game Inc 创始人",
+    "point1": "使用 DataStore 开发数据保存系统",
+    "point2": "创建自定义 GUI、动画以及基于物理的系统"
+  },
+  "projects": {
+    "title": "我的作品 / 示例",
+    "project1": {
+      "title": "Roblox 游戏 “SuperPark”",
+      "desc": "一个带有自定义动画和 GUI 的跑酷风格游戏。"
+    },
+    "project2": {
+      "title": "滑板系统",
+      "desc": "使用 Raycasts 的自定义物理和流畅动画。"
+    }
+  },
+  "games": {
+    "title": "我制作的游戏"
+  },
+  "store": {
+    "title": "产品 / 商店",
+    "product1": {
+      "name": "定制 Roblox 头像",
+      "desc": "为你的 Roblox 个人资料设计个性化头像。",
+      "price": "$5 USD"
+    },
+    "product2": {
+      "name": "游戏脚本包",
+      "desc": "一组 Lua 脚本（冷却时间、GUI 等）的打包。",
+      "price": "$10 USD"
+    },
+    "buyButton": "立即购买"
+  },
+  "contact": {
+    "title": "联系方式 & 社交媒体",
+    "text": "欢迎通过以下任一平台与我联系："
+  }
+}

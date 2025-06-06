@@ -1,0 +1,41 @@
+{
+  "title": "Portafolio de PmpoliDev",
+  "nav": {
+    "home": "Inicio",
+    "about": "Sobre mí",
+    "projects": "Proyectos",
+    "games": "Juegos",
+    "store": "Tienda",
+    "contact": "Contacto"
+  },
+  "home": {
+    "title": "Hola, soy PmpoliDev",
+    "subtitle": "Desarrollador de Roblox con +3 años de experiencia • Especializado en Lua (Roblox Studio)"
+  },
+  "about": {
+    "title": "Sobre mí",
+    "description": "Soy un desarrollador en Roblox con más de tres años de experiencia. Puedo crear sistemas de olas procedurales realistas, optimizar scripts y juegos, y desarrollar poderes PvP para NPC.",
+    "expLabel": "Años de experiencia:",
+    "experience": "+3",
+    "years": "años",
+    "languagesLabel": "Lenguaje y motor principal:",
+    "secondaryLabel": "Lenguaje y motor secundario:",
+    "moreLabel": "Habilidades y roles:",
+    "founder": "Fundador de Multi Game Inc",
+    "point1": "Desarrollar sistemas de guardado con DataStore",
+    "point2": "Crear GUIs personalizadas, animaciones y sistemas basados en físicas"
+  },
+  "projects": {
+    "title": "Mi trabajo / Ejemplos",
+    "project1": { "title": "Juego Roblox “SuperPark”", "desc": "Un juego estilo parkour con animaciones personalizadas y GUI." },
+    "project2": { "title": "Sistema de Skateboard", "desc": "Física personalizada con Raycasts y animaciones fluidas." }
+  },
+  "games": { "title": "Juegos que he creado" },
+  "store": {
+    "title": "Productos / Tienda",
+    "product1": { "name": "Avatar personalizado de Roblox", "desc": "Diseño de avatar personalizado para tu perfil de Roblox.", "price": "$5 USD" },
+    "product2": { "name": "Paquete de scripts para juegos", "desc": "Paquete de scripts en Lua (cooldowns, GUI, etc.).", "price": "$10 USD" },
+    "buyButton": "Comprar"
+  },
+  "contact": { "title": "Contacto y redes sociales", "text": "No dudes en contactarme a través de cualquiera de estas plataformas:" }
+}

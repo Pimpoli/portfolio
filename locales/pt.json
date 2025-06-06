@@ -1,0 +1,60 @@
+{
+  "title": "Portfólio PmpoliDev",
+  "nav": {
+    "home": "Início",
+    "about": "Sobre",
+    "projects": "Projetos",
+    "games": "Jogos",
+    "store": "Loja",
+    "contact": "Contato"
+  },
+  "home": {
+    "title": "Olá, sou PmpoliDev",
+    "subtitle": "Desenvolvedor Roblox com +3 anos de experiência • Especialista em Lua (Roblox Studio)"
+  },
+  "about": {
+    "title": "Sobre Mim",
+    "description": "Sou um desenvolvedor Roblox com mais de três anos de experiência. Posso criar sistemas de ondas realistas, otimizar scripts e jogos, e desenvolver poderes PvP para NPCs.",
+    "expLabel": "Anos de Experiência:",
+    "experience": "+3",
+    "years": "anos",
+    "languagesLabel": "Linguagem & Motor Principal:",
+    "secondaryLabel": "Linguagem & Motor Secundário:",
+    "moreLabel": "Habilidades & Funções:",
+    "founder": "Fundador da Multi Game Inc",
+    "point1": "Desenvolver sistemas de salvamento com DataStore",
+    "point2": "Criar GUIs personalizadas, animações e sistemas baseados em física"
+  },
+  "projects": {
+    "title": "Meu Trabalho / Exemplos",
+    "project1": {
+      "title": "Jogo Roblox “SuperPark”",
+      "desc": "Um jogo estilo parkour com animações personalizadas e GUI."
+    },
+    "project2": {
+      "title": "Sistema de Skateboard",
+      "desc": "Física personalizada com Raycasts e animações suaves."
+    }
+  },
+  "games": {
+    "title": "Jogos que Criei"
+  },
+  "store": {
+    "title": "Produtos / Loja",
+    "product1": {
+      "name": "Avatar Personalizado Roblox",
+      "desc": "Design de avatar personalizado para o seu perfil no Roblox.",
+      "price": "$5 USD"
+    },
+    "product2": {
+      "name": "Pacote de Scripts para Jogos",
+      "desc": "Pacote de scripts personalizados em Lua (cooldowns, GUI, etc.).",
+      "price": "$10 USD"
+    },
+    "buyButton": "Comprar Agora"
+  },
+  "contact": {
+    "title": "Contato & Mídias Sociais",
+    "text": "Sinta-se à vontade para entrar em contato através de qualquer uma dessas plataformas:"
+  }
+}

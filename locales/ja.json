@@ -1,0 +1,60 @@
+{
+  "title": "PmpoliDev ポートフォリオ",
+  "nav": {
+    "home": "ホーム",
+    "about": "概要",
+    "projects": "プロジェクト",
+    "games": "ゲーム",
+    "store": "ストア",
+    "contact": "連絡先"
+  },
+  "home": {
+    "title": "こんにちは、PmpoliDev です",
+    "subtitle": "3年以上の経験を持つ Roblox 開発者 • Lua（Roblox Studio） に精通"
+  },
+  "about": {
+    "title": "私について",
+    "description": "私は 3年以上の経験を持つ Roblox 開発者です。リアルな波システムを作成し、スクリプトやゲームを最適化し、NPC向けのPvP能力を開発できます。",
+    "expLabel": "経験年数：",
+    "experience": "+3",
+    "years": "年",
+    "languagesLabel": "主な言語＆エンジン：",
+    "secondaryLabel": "第二言語＆エンジン：",
+    "moreLabel": "能力＆役割：",
+    "founder": "Multi Game Inc 創設者",
+    "point1": "DataStoreを使用してデータ保存システムを開発",
+    "point2": "カスタムGUI、アニメーション、物理ベースシステムを作成"
+  },
+  "projects": {
+    "title": "私の作品 / 例",
+    "project1": {
+      "title": "Robloxゲーム “SuperPark”",
+      "desc": "カスタムアニメーションとGUIを備えたパルクールスタイルのゲーム。"
+    },
+    "project2": {
+      "title": "スケートボードシステム",
+      "desc": "Raycastsを使用したカスタム物理と滑らかなアニメーション。"
+    }
+  },
+  "games": {
+    "title": "私が作ったゲーム"
+  },
+  "store": {
+    "title": "製品 / ストア",
+    "product1": {
+      "name": "カスタム Roblox アバター",
+      "desc": "あなたの Roblox プロフィールのためのパーソナライズされたアバターデザイン。",
+      "price": "$5 USD"
+    },
+    "product2": {
+      "name": "ゲームスクリプトパック",
+      "desc": "カスタムLuaスクリプト（クールダウン、GUIなど）のパッケージ。",
+      "price": "$10 USD"
+    },
+    "buyButton": "今すぐ購入"
+  },
+  "contact": {
+    "title": "連絡先 & ソーシャルメディア",
+    "text": "以下のいずれかのプラットフォームからお気軽にご連絡ください："
+  }
+}

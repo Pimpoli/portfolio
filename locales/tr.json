@@ -1,0 +1,60 @@
+{
+  "title": "PmpoliDev Portföy",
+  "nav": {
+    "home": "Ana Sayfa",
+    "about": "Hakkımda",
+    "projects": "Projeler",
+    "games": "Oyunlar",
+    "store": "Mağaza",
+    "contact": "İletişim"
+  },
+  "home": {
+    "title": "Merhaba, ben PmpoliDev",
+    "subtitle": "3+ yıllık deneyime sahip Roblox Geliştiricisi • Lua (Roblox Studio) Uzmanı"
+  },
+  "about": {
+    "title": "Hakkımda",
+    "description": "Üç yılı aşkın deneyime sahip bir Roblox geliştiricisiyim. Gerçekçi dalga sistemleri oluşturabilir, script ve oyunları optimize edebilir ve NPC’ler için PvP yetenekleri geliştirebilirim.",
+    "expLabel": "Deneyim Yılı:",
+    "experience": "+3",
+    "years": "yıl",
+    "languagesLabel": "Birincil Dil & Motor:",
+    "secondaryLabel": "İkincil Dil & Motor:",
+    "moreLabel": "Yetenekler & Roller:",
+    "founder": "Multi Game Inc Kurucusu",
+    "point1": "DataStore kullanarak veri kaydetme sistemleri geliştirme",
+    "point2": "Özel GUI’ler, animasyonlar ve fizik tabanlı sistemler oluşturma"
+  },
+  "projects": {
+    "title": "Benim İşlerim / Örnekler",
+    "project1": {
+      "title": "Roblox Oyunu “SuperPark”",
+      "desc": "Özel animasyonlar ve GUI ile parkur tarzı bir oyun."
+    },
+    "project2": {
+      "title": "Kaykay Sistemi",
+      "desc": "Raycasts ile özel fizik ve akıcı animasyonlar."
+    }
+  },
+  "games": {
+    "title": "Yarattığım Oyunlar"
+  },
+  "store": {
+    "title": "Ürünler / Mağaza",
+    "product1": {
+      "name": "Özel Roblox Karakteri",
+      "desc": "Roblox profiliniz için kişiselleştirilmiş avatar tasarımı.",
+      "price": "$5 USD"
+    },
+    "product2": {
+      "name": "Oyun Script Paketi",
+      "desc": "Özel Lua scriptleri paketi (cooldown, GUI vb.).",
+      "price": "$10 USD"
+    },
+    "buyButton": "Şimdi Satın Al"
+  },
+  "contact": {
+    "title": "İletişim & Sosyal Medya",
+    "text": "Aşağıdaki platformlardan herhangi biriyle iletişime geçmekten çekinmeyin:"
+  }
+}

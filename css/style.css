@@ -1,0 +1,805 @@
+/* ===============================
+   Variables y configuración básica
+   =============================== */
+:root {
+  /* Colores modo oscuro por defecto */
+  --color-bg-dark: #121212;
+  --color-text-dark: #e0e0e0;
+  --color-accent: #ff4500;
+  --color-bg-light: #f5f5f5;
+  --color-text-light: #1e1e1e;
+  --color-outline-dark: rgba(0, 0, 0, 0.6);
+  --color-outline-light: rgba(255, 255, 255, 0.6);
+  --transition-fast: 0.3s;
+  --transition-medium: 0.6s;
+}
+
+/* ===============================
+   1) Body base
+   =============================== */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-dark);
+  font-family: 'Roboto', sans-serif;
+  position: relative;
+  z-index: 1;
+  overflow-x: hidden; /* evita barra horizontal */
+  text-shadow: 1px 1px var(--color-outline-dark);
+}
+
+/* ===============================
+   2) Pseudo-elementos de fondo animado
+   =============================== */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  background-image: url("../img/FondoRepetido.png");
+  background-repeat: repeat-x;
+  background-size: 1000px 1000px;
+  opacity: 0.15;
+  z-index: -2;
+  animation: scroll-left 40s linear infinite;
+}
+body::after {
+  z-index: -3;
+  transform: scaleX(-1); /* volteado */
+}
+@keyframes scroll-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ===============================
+   3) Modo claro
+   =============================== */
+body.light-mode {
+  background-color: var(--color-bg-light);
+  color: var(--color-text-light);
+  text-shadow: 1px 1px var(--color-outline-light);
+}
+body.light-mode,
+html {
+  overflow-x: hidden;
+}
+
+/* ===============================
+   Tipografías y encabezados
+   =============================== */
+h1, h2, h3 {
+  font-family: 'Fredoka One', cursive;
+}
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ===============================
+   Contenedor y secciones
+   =============================== */
+.container {
+  width: 90%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+.section {
+  padding: 4rem 0;
+}
+
+/* ===============================
+   Nav y header
+   =============================== */
+.header {
+  position: sticky;
+  top: 0;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-dark);
+  z-index: 1000;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+body.light-mode .header {
+  background-color: var(--color-bg-light);
+  color: var(--color-text-light);
+}
+
+/* ===============================
+   Logo y nombre del estudio
+   =============================== */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.logo-img {
+  height: 50px;
+}
+.logo-text {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.25rem;
+  color: var(--color-text-dark);
+  transition: color var(--transition-fast);
+  text-decoration: none; /* Elimina subrayado */
+}
+body.light-mode .logo-text {
+  color: var(--color-text-light);
+}
+/* Asegurarse de que el <a> dentro de .logo conserve el estilo flex */
+.logo a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ===============================
+   4) Scroll-triggered fade-in (oculto por defecto)
+   =============================== */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===============================
+   Menú y select de idioma
+   =============================== */
+.nav-list {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: 18rem;
+}
+.nav-list a {
+  text-decoration: none;
+  color: inherit;
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+.nav-list a:hover {
+  color: var(--color-accent);
+}
+
+/* ===============================
+   Selector de idioma (arrow dinámico)
+   =============================== */
+#languageSwitcher {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: transparent;
+  color: inherit;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  padding: 0.35rem 0.6rem;
+  font-family: 'Roboto', sans-serif;
+  background-image: url('../img/arrow-down.svg');
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 12px 12px;
+  padding-right: 2rem;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+/* Asegurar flecha blanca en modo oscuro y negra en modo claro */
+body:not(.light-mode) #languageSwitcher {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-dark);
+  border-color: var(--color-text-dark);
+  background-image: url('../img/arrow-down-white.svg'); /* versión blanca */
+}
+body.light-mode #languageSwitcher {
+  background-color: var(--color-bg-light);
+  color: var(--color-text-light);
+  border-color: var(--color-text-light);
+  background-image: url('../img/arrow-down-black.svg'); /* versión negra */
+}
+#languageSwitcher option {
+  background-color: inherit;
+  color: inherit;
+}
+
+/* ===============================
+   Menú hamburguesa
+   =============================== */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  gap: 5px;
+  z-index: 1001;
+}
+.hamburger span {
+  width: 25px;
+  height: 3px;
+  background-color: var(--color-text-dark);
+  border-radius: 2px;
+  transition: background-color var(--transition-fast);
+}
+body.light-mode .hamburger span {
+  background-color: var(--color-text-light);
+}
+.hamburger:hover span {
+  background-color: #fff;
+}
+body.light-mode .hamburger:hover span {
+  background-color: #000;
+}
+
+/* ===============================
+   Botón toggle de tema (sol/luna)
+   =============================== */
+.theme-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #ffffff;
+  color: #000000;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+.theme-toggle:hover {
+  transform: scale(1.1);
+}
+body.light-mode .theme-toggle {
+  background-color: #000000;  /* botón negro */
+  color: #ffffff;             /* texto/ícono blanco si usaras un <i> */
+}
+.theme-icon {
+  width: 60px;
+  height: 60px;
+}
+
+/* ===============================
+   Avatar Container: contorno dinámico y hover
+   =============================== */
+.avatar-container {
+  display: inline-block;
+  padding: 4px;
+  border-radius: 50%;
+  border: 4px solid gray; /* color inicial (offline) */
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+.avatar-img {
+  display: block;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+}
+/* Hover: agrandar un poco */
+.avatar-container:hover {
+  transform: scale(1.05);
+}
+/* Colores según estado */
+.avatar-offline  { border-color: gray; }
+.avatar-online   { border-color: blue; }
+.avatar-inGame   { border-color: green; }
+.avatar-studio   { border-color: orange; }
+
+/* ===============================
+   Sección Home
+   =============================== */
+.home-section {
+  text-align: center;
+  background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('../img/fondo-roblox.jpg') no-repeat center/cover;
+  color: #fff;
+  position: relative;
+  padding: 6rem 0;
+}
+
+/* ===============================
+   Sección About
+   =============================== */
+.about-section .info-list {
+  list-style: none;
+  margin-top: 1rem;
+}
+.info-list li {
+  margin-bottom: 0.8rem;
+}
+.group-link {
+  margin-left: 8px;
+  color: var(--color-text-dark);
+  font-size: 1.3rem;
+  vertical-align: middle;
+  transition: color var(--transition-fast);
+}
+/* Reducir tamaño al 50% de la imagen de MultiGameInc bajo "Fundador de Multi Game Inc" */
+.small-icon {
+  width: 25px;
+  height: 25px;
+}
+
+body.light-mode .group-link {
+  color: var(--color-text-light);
+}
+
+/* ===============================
+   SECCIÓN PROJECTS: GRID PRINCIPAL
+   =============================== */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Tarjeta de proyecto (imagen o video) */
+.project-card {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-dark);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: transform var(--transition-fast);
+  padding: 0.5rem;
+}
+body.light-mode .project-card {
+  background-color: var(--color-bg-light);
+  color: var(--color-text-light);
+}
+.project-card h3 {
+  margin: 0.8rem 0 0.5rem;
+  font-size: 1.2rem;
+}
+.project-card p {
+  margin: 0 0.8rem 1rem;
+  font-size: 0.95rem;
+}
+.project-card img,
+.project-card video {
+  width: 100%;
+  display: block;
+  border-radius: 4px;
+}
+.project-card:hover {
+  transform: translateY(-5px);
+}
+
+/* ===============================
+   BOTÓN “+” / “−” PARA EXPANDIR PROYECTOS
+   =============================== */
+.expand-btn {
+  display: block;
+  margin: 1.5rem auto;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-dark);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: background-color var(--transition-fast),
+              transform var(--transition-fast),
+              color var(--transition-fast);
+}
+body.light-mode .expand-btn {
+  background-color: var(--color-bg-light);
+  color: var(--color-text-light);
+}
+.expand-btn:hover {
+  transform: scale(1.1);
+}
+
+/* ===============================
+   CONTENEDOR “MÁS PROYECTOS” (OCULTO/VISIBLE)
+   =============================== */
+
+/* Por defecto, oculto */
+#more-projects {
+  display: none;
+  margin-top: 1rem; /* espacio sobre el botón “+” */
+}
+
+/* Cuando tenga la clase .visible-content, se muestra como grid */
+#more-projects.visible-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(1000px, 1fr));
+  gap: 1.5rem;      /* separación entre tarjetas de video */
+  margin-top: 1rem; /* mantiene el espacio sobre el botón */
+}
+
+/* Si dentro hay un .projects-grid, reforzamos el gap */
+#more-projects.visible-content .projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+
+/* ===============================
+   Sección Games (tarjetas manuales)
+   =============================== */
+/* Contenedor padre de todas las tarjetas */
+.games-grid {
+  display: flex;
+  flex-direction: column;  /* Cada tarjeta en su propia fila */
+  gap: 1rem;
+  align-items: center;     /* Centrar horizontalmente cada tarjeta */
+}
+
+/* ——————————————————
+   Tarjeta de juego
+   —————————————————— */
+.game-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-dark);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  width: 550px;             /* Ancho fijo para todas las tarjetas */
+  transition: transform var(--transition-fast);
+}
+body.light-mode .game-card {
+  background-color: var(--color-bg-light);
+  color: var(--color-text-light);
+}
+.game-card:hover {
+  transform: scale(1.02);
+}
+
+/* Agrupa icono + portada dentro del enlace */
+.game-card a {
+  display: flex;
+  width: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ——————————————————
+   Icono (lado izquierdo)
+   —————————————————— */
+.game-icon {
+  flex-shrink: 0;          /* No se reduce */
+}
+.game-icon img {
+  width: 150px;            /* Icono escalado de 1000×1000 a 150×150 */
+  height: 150px;
+  object-fit: cover;       /* Cubre el recuadro, recorta si hace falta */
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+/* ——————————————————
+   Portada (lado derecho)
+   —————————————————— */
+.game-cover {
+  position: relative;
+  flex-grow: 2;            /* Ocupa el espacio restante */
+  height: 150px;           /* Misma altura que icono */
+  overflow: hidden;
+}
+.game-cover img {
+  width: auto;             /* Mantiene proporción al ajustar ancho */
+  height: 225px;           /* Escala de 1920×1080 */
+  object-fit: cover;       /* Cubre el contenedor, recorta si hace falta */
+}
+/* Degradado superpuesto sobre la portada */
+.game-cover .gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+}
+
+/* ——————————————————
+   Título debajo de la tarjeta
+   —————————————————— */
+.game-title {
+  width: 100%;
+  padding: 0.75rem 0;
+  text-align: center;
+  font-weight: bold;
+  background-color: var(--color-bg-dark);
+}
+
+.games-additional {
+  display: flex;
+  flex-direction: column;
+  align-items: center;  /* Centra las tarjetas horizontalmente */
+  gap: 1rem;
+}
+
+body.light-mode .game-title {
+  background-color: var(--color-bg-light);
+}
+
+/* ——————————————————
+   Contenedor de “más juegos” (oculto/visible)
+   —————————————————— */
+.more-content {
+  display: none;           /* Oculto por defecto */
+  /* Ahí queremos apilado vertical, centrado */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.more-content.visible-content {
+  display: flex;           /* Se muestra cuando tiene esta clase */
+  flex-direction: column;
+  align-items: center;
+}
+
+#games-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(225px, 1fr));
+  gap: 1.5rem;
+  justify-items: center;
+}
+
+/* 
+  Contenedor de “más juegos” (oculto inicialmente). 
+  Cuando tenga la clase .visible-content, se mostrará como flex-column centrado.
+*/
+#more-games {
+  display: none;           /* Siempre oculto hasta que se añada .visible-content */
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+#more-games.visible-content {
+  display: flex;           /* Lo mostramos en flex-column cuando se despliega */
+}
+/* —————————————
+   SECCIÓN STORE
+   ————————————— */
+
+/* 1) Grid para los primeros productos */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+/* 2) Estilo de cada tarjeta */
+.product-card {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-dark);
+  border: 1px solid #444;
+  border-radius: 8px;
+  text-align: center;
+  padding: 1rem;
+  margin-bottom: 1rem; /* separación vertical */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  transition: transform var(--transition-fast);
+}
+body.light-mode .product-card {
+  background-color: var(--color-bg-light);
+  color: var(--color-text-light);
+  border-color: #ddd;
+}
+.product-card img {
+  width: 100%;
+  border-bottom: 1px solid #444;
+  margin-bottom: 0.8rem;
+}
+body.light-mode .product-card img {
+  border-color: #ddd;
+}
+.product-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+.product-card p {
+  font-size: 0.9rem;
+  margin-bottom: 0.8rem;
+}
+.product-card .price {
+  color: var(--color-accent);
+  font-weight: bold;
+  display: block;
+  margin-bottom: 0.8rem;
+}
+.product-card .buy-btn {
+  background-color: var(--color-accent);
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+.product-card .buy-btn:hover {
+  background-color: #e03e00;
+}
+
+/* 3) Botón “+” para cargar más productos */
+#load-more-products {
+  display: block;
+  margin: 1.5rem auto;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-dark);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: background-color var(--transition-fast),
+              transform var(--transition-fast),
+              color var(--transition-fast);
+}
+body.light-mode #load-more-products {
+  background-color: var(--color-bg-light);
+  color: var(--color-text-light);
+}
+#load-more-products:hover {
+  transform: scale(1.1);
+}
+
+/* 4) Contenedor oculto para productos extra */
+#more-products {
+  display: none;  /* Oculto por defecto */
+  margin-top: 1rem;
+  gap: 1rem;      /* separación interna */
+  flex-direction: column; 
+  align-items: center;
+}
+
+/* 5) Cuando tenga .visible-content, mostrar grid igual que los primeros */
+#more-products.visible-content {
+  display: grid; 
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+/* ===============================
+   Sección Contact
+   =============================== */
+.contact-section .social-icons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.contact-section .social-icons a {
+  display: inline-flex;
+  width: 50px;
+  height: 50px;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0.5rem; /* separa un poco entre sí */
+}
+body.light-mode .contact-section .social-icons a {
+  color: var(--color-text-light);
+}
+.contact-section .social-icons a:hover {
+  color: var(--color-accent);
+}
+.contact-section .social-icons a img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* ===============================
+   Footer
+   =============================== */
+.footer {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-dark);
+  text-align: center;
+  padding: 1rem 0;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+body.light-mode .footer {
+  background-color: var(--color-bg-light);
+  color: var(--color-text-light);
+}
+
+/* ===============================
+   Botón “+” para expandir contenido
+   =============================== */
+.expand-btn {
+  display: block;
+  margin: 1.5rem auto;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-dark);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), transform var(--transition-fast), color var(--transition-fast);
+}
+body.light-mode .expand-btn {
+  background-color: var(--color-bg-light);
+  color: var(--color-text-light);
+}
+.expand-btn:hover {
+  transform: scale(1.1);
+}
+
+/* ===============================
+   Contenido adicional oculto
+   =============================== */
+.more-content {
+  display: none;
+  margin-top: 1rem;
+}
+.more-content.visible-content {
+  display: block;
+}
+
+/* ===============================
+   Scroll suave habilitado en CSS
+   =============================== */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ===============================
+   Responsive: móvil
+   =============================== */
+@media screen and (max-width: 768px) {
+  .nav-list {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    height: 100vh;
+    width: 60%;
+    background-color: var(--color-bg-dark);
+    color: var(--color-text-dark);
+    flex-direction: column;
+    align-items: flex-start;
+    padding-top: 4rem;
+    transition: right var(--transition-fast) ease-in-out, background-color var(--transition-fast), color var(--transition-fast);
+  }
+  body.light-mode .nav-list {
+    background-color: var(--color-bg-light);
+    color: var(--color-text-light);
+  }
+  .nav-list.active {
+    right: 0;
+  }
+  .nav-list li {
+    margin: 1rem 0 0 1.5rem;
+  }
+  .hamburger {
+    display: flex;
+  }
+  .games-grid {
+    grid-template-columns: 1fr;
+  }
+}

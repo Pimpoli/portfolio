@@ -1,0 +1,60 @@
+{
+  "title": "Kisanduku cha PmpoliDev",
+  "nav": {
+    "home": "Nyumbani",
+    "about": "Kuhusu",
+    "projects": "Miradi",
+    "games": "Michezo",
+    "store": "Duka",
+    "contact": "Wasiliana"
+  },
+  "home": {
+    "title": "Habari, mimi ni PmpoliDev",
+    "subtitle": "Msimamizi wa Roblox mwenye uzoefu wa miaka 3+ • Mtaalam wa Lua (Roblox Studio)"
+  },
+  "about": {
+    "title": "Kuhusu Mimi",
+    "description": "Mimi ni msimamizi wa Roblox mwenye uzoefu wa zaidi ya miaka mitatu. Ninaweza kuunda mifumo halisi ya mawimbi, kuboresha maandiko na michezo, na kukuza uwezo wa PvP kwa NPC.",
+    "expLabel": "Miaka ya Uzoefu:",
+    "experience": "+3",
+    "years": "miaka",
+    "languagesLabel": "Lugha & Injini Kuu:",
+    "secondaryLabel": "Lugha & Injini Sekondari:",
+    "moreLabel": "Uwezo & Nafasi:",
+    "founder": "Mwenyekiti wa Multi Game Inc",
+    "point1": "Kuendeleza mifumo ya kuhifadhi data kwa kutumia DataStore",
+    "point2": "Kuunda GUI maalum, michoro, na mifumo inayotegemea fizikia"
+  },
+  "projects": {
+    "title": "Kazi Zangu / Mifano",
+    "project1": {
+      "title": "Mchezo wa Roblox “SuperPark”",
+      "desc": "Mchezo wa mtindo wa parkour wenye michoro maalum na GUI."
+    },
+    "project2": {
+      "title": "Mfumo wa Skateboard",
+      "desc": "Fizikia maalum kwa kutumia Raycasts na michoro laini."
+    }
+  },
+  "games": {
+    "title": "Michezo Niliyounda"
+  },
+  "store": {
+    "title": "Bidhaa / Duka",
+    "product1": {
+      "name": "Avatar ya Roblox iliyobinafsishwa",
+      "desc": "Ubunifu wa avatar iliyobinafsishwa kwa wasifu wako wa Roblox.",
+      "price": "$5 USD"
+    },
+    "product2": {
+      "name": "Kifurushi cha Skripti za Mchezo",
+      "desc": "Kifurushi cha skripti maalum za Lua (viwango vya baridi, GUI, nk).",
+      "price": "$10 USD"
+    },
+    "buyButton": "Nunua Sasa"
+  },
+  "contact": {
+    "title": "Wasiliana & Mitandao ya Kijamii",
+    "text": "Usisite kuwasiliana nami kupitia mojawapo ya majukwaa haya:"
+  }
+}

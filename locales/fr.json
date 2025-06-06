@@ -1,0 +1,60 @@
+{
+  "title": "Portfolio de PmpoliDev",
+  "nav": {
+    "home": "Accueil",
+    "about": "À Propos",
+    "projects": "Projets",
+    "games": "Jeux",
+    "store": "Boutique",
+    "contact": "Contact"
+  },
+  "home": {
+    "title": "Bonjour, je suis PmpoliDev",
+    "subtitle": "Développeur Roblox avec plus de 3 ans d'expérience • Expert en Lua (Roblox Studio)"
+  },
+  "about": {
+    "title": "À Propos de Moi",
+    "description": "Je suis un développeur Roblox avec plus de trois ans d'expérience. Je peux créer des systèmes de vagues réalistes, optimiser des scripts et des jeux, et développer des pouvoirs PvP pour les PNJ.",
+    "expLabel": "Années d'expérience :",
+    "experience": "+3",
+    "years": "ans",
+    "languagesLabel": "Langage & Moteur Principal :",
+    "secondaryLabel": "Langage & Moteur Secondaire :",
+    "moreLabel": "Compétences & Rôles :",
+    "founder": "Fondateur de Multi Game Inc",
+    "point1": "Développer des systèmes de sauvegarde avec DataStore",
+    "point2": "Créer des interfaces GUI personnalisées, des animations et des systèmes basés sur la physique"
+  },
+  "projects": {
+    "title": "Mon Travail / Exemples",
+    "project1": {
+      "title": "Jeu Roblox “SuperPark”",
+      "desc": "Un jeu de type parkour avec animations personnalisées et interface GUI."
+    },
+    "project2": {
+      "title": "Système de Skateboard",
+      "desc": "Physique personnalisée utilisant des Raycasts et animations fluides."
+    }
+  },
+  "games": {
+    "title": "Jeux que j'ai Créés"
+  },
+  "store": {
+    "title": "Produits / Boutique",
+    "product1": {
+      "name": "Avatar Roblox personnalisé",
+      "desc": "Conception d'avatar personnalisé pour votre profil Roblox.",
+      "price": "$5 USD"
+    },
+    "product2": {
+      "name": "Pack de Scripts de Jeu",
+      "desc": "Pack de scripts Lua personnalisés (cooldowns, GUI, etc.).",
+      "price": "$10 USD"
+    },
+    "buyButton": "Acheter"
+  },
+  "contact": {
+    "title": "Contact & Réseaux Sociaux",
+    "text": "N'hésitez pas à me contacter via l'une de ces plateformes :"
+  }
+}

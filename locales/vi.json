@@ -1,0 +1,60 @@
+{
+  "title": "Hồ Sơ PmpoliDev",
+  "nav": {
+    "home": "Trang Chủ",
+    "about": "Giới Thiệu",
+    "projects": "Dự Án",
+    "games": "Trò Chơi",
+    "store": "Cửa Hàng",
+    "contact": "Liên Hệ"
+  },
+  "home": {
+    "title": "Xin chào, tôi là PmpoliDev",
+    "subtitle": "Nhà phát triển Roblox với hơn 3 năm kinh nghiệm • Thành thạo Lua (Roblox Studio)"
+  },
+  "about": {
+    "title": "Về Tôi",
+    "description": "Tôi là một nhà phát triển Roblox với hơn ba năm kinh nghiệm. Tôi có thể tạo hệ thống sóng chân thực, tối ưu hóa kịch bản và trò chơi, và phát triển năng lực PvP cho NPC.",
+    "expLabel": "Số Năm Kinh Nghiệm:",
+    "experience": "+3",
+    "years": "năm",
+    "languagesLabel": "Ngôn Ngữ & Engine Chính:",
+    "secondaryLabel": "Ngôn Ngữ & Engine Phụ:",
+    "moreLabel": "Kỹ Năng & Vai Trò:",
+    "founder": "Người sáng lập Multi Game Inc",
+    "point1": "Phát triển hệ thống lưu trữ dữ liệu với DataStore",
+    "point2": "Tạo GUI tùy chỉnh, hoạt ảnh và hệ thống dựa trên vật lý"
+  },
+  "projects": {
+    "title": "Công Việc của Tôi / Ví Dụ",
+    "project1": {
+      "title": "Trò Chơi Roblox “SuperPark”",
+      "desc": "Một trò chơi phong cách parkour với hoạt ảnh tùy chỉnh và GUI."
+    },
+    "project2": {
+      "title": "Hệ Thống Trượt Ván",
+      "desc": "Vật lý tùy chỉnh với Raycasts và hoạt ảnh mượt mà."
+    }
+  },
+  "games": {
+    "title": "Các Trò Chơi Tôi Tạo"
+  },
+  "store": {
+    "title": "Sản Phẩm / Cửa Hàng",
+    "product1": {
+      "name": "Avatar Roblox Tùy Chỉnh",
+      "desc": "Thiết kế avatar tùy chỉnh cho hồ sơ Roblox của bạn.",
+      "price": "$5 USD"
+    },
+    "product2": {
+      "name": "Gói Script Trò Chơi",
+      "desc": "Gói script Lua tùy chỉnh (cooldowns, GUI, v.v.).",
+      "price": "$10 USD"
+    },
+    "buyButton": "Mua Ngay"
+  },
+  "contact": {
+    "title": "Liên Hệ & Mạng Xã Hội",
+    "text": "Hãy liên hệ với tôi qua bất kỳ nền tảng nào sau đây:"
+  }
+}

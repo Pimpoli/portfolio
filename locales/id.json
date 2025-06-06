@@ -1,0 +1,60 @@
+{
+  "title": "Portofolio PmpoliDev",
+  "nav": {
+    "home": "Beranda",
+    "about": "Tentang",
+    "projects": "Proyek",
+    "games": "Game",
+    "store": "Toko",
+    "contact": "Kontak"
+  },
+  "home": {
+    "title": "Halo, saya PmpoliDev",
+    "subtitle": "Pengembang Roblox dengan pengalaman +3 tahun • Ahli Lua (Roblox Studio)"
+  },
+  "about": {
+    "title": "Tentang Saya",
+    "description": "Saya adalah pengembang Roblox dengan pengalaman lebih dari tiga tahun. Saya dapat membuat sistem gelombang realistis, mengoptimalkan skrip dan game, dan mengembangkan kemampuan PvP untuk NPC.",
+    "expLabel": "Tahun Pengalaman:",
+    "experience": "+3",
+    "years": "tahun",
+    "languagesLabel": "Bahasa & Mesin Utama:",
+    "secondaryLabel": "Bahasa & Mesin Sekunder:",
+    "moreLabel": "Kemampuan & Peran:",
+    "founder": "Pendiri Multi Game Inc",
+    "point1": "Mengembangkan sistem penyimpanan data dengan DataStore",
+    "point2": "Membuat GUI kustom, animasi, dan sistem berbasis fisika"
+  },
+  "projects": {
+    "title": "Karya Saya / Contoh",
+    "project1": {
+      "title": "Game Roblox “SuperPark”",
+      "desc": "Game gaya parkour dengan animasi kustom dan GUI."
+    },
+    "project2": {
+      "title": "Sistem Skateboard",
+      "desc": "Fisika kustom dengan Raycasts dan animasi halus."
+    }
+  },
+  "games": {
+    "title": "Game yang Saya Buat"
+  },
+  "store": {
+    "title": "Produk / Toko",
+    "product1": {
+      "name": "Avatar Roblox Kustom",
+      "desc": "Desain avatar kustom untuk profil Roblox Anda.",
+      "price": "$5 USD"
+    },
+    "product2": {
+      "name": "Paket Skrip Game",
+      "desc": "Paket skrip Lua kustom (cooldowns, GUI, dll.).",
+      "price": "$10 USD"
+    },
+    "buyButton": "Beli Sekarang"
+  },
+  "contact": {
+    "title": "Kontak & Media Sosial",
+    "text": "Jangan ragu untuk menghubungi melalui salah satu platform ini:"
+  }
+}

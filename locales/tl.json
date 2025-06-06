@@ -1,0 +1,60 @@
+{
+  "title": "PmpoliDev Portfolio",
+  "nav": {
+    "home": "Bahay",
+    "about": "Tungkol",
+    "projects": "Mga Proyekto",
+    "games": "Mga Laro",
+    "store": "Tindahan",
+    "contact": "Makipag-ugnay"
+  },
+  "home": {
+    "title": "Kumusta, ako si PmpoliDev",
+    "subtitle": "Roblox Developer na may 3+ taon na karanasan • Eksperto sa Lua (Roblox Studio)"
+  },
+  "about": {
+    "title": "Tungkol sa Akin",
+    "description": "Ako ay isang Roblox developer na may higit sa tatlong taong karanasan. Kaya kong gumawa ng mga realistic wave system, mag-optimize ng scripts at games, at mag-develop ng PvP abilities para sa NPC.",
+    "expLabel": "Taon ng Karanasan:",
+    "experience": "+3",
+    "years": "taon",
+    "languagesLabel": "Pangunahing Wika & Engine:",
+    "secondaryLabel": "Pangalawang Wika & Engine:",
+    "moreLabel": "Kakayahan & Papel:",
+    "founder": "Tagapagtatag ng Multi Game Inc",
+    "point1": "Gumawa ng data saving systems gamit ang DataStore",
+    "point2": "Gumawa ng custom GUI, animation, at physics-based systems"
+  },
+  "projects": {
+    "title": "Ang Aking Gawain / Mga Halimbawa",
+    "project1": {
+      "title": "Roblox Game “SuperPark”",
+      "desc": "Isang parkour-style game na may custom animations at GUI."
+    },
+    "project2": {
+      "title": "Skateboard System",
+      "desc": "Custom physics gamit ang Raycasts at makinis na animations."
+    }
+  },
+  "games": {
+    "title": "Mga Larong Nilikha Ko"
+  },
+  "store": {
+    "title": "Mga Produkto / Tindahan",
+    "product1": {
+      "name": "Custom Roblox Avatar",
+      "desc": "Personalized avatar design para sa iyong Roblox profile.",
+      "price": "$5 USD"
+    },
+    "product2": {
+      "name": "Game Script Pack",
+      "desc": "Package ng custom Lua scripts (cooldowns, GUI, atbp.).",
+      "price": "$10 USD"
+    },
+    "buyButton": "Bumili Ngayon"
+  },
+  "contact": {
+    "title": "Makipag-ugnay & Social Media",
+    "text": "Huwag mag-atubiling makipag-ugnay sa kahit alin sa mga platform na ito:"
+  }
+}

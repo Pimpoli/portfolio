@@ -1,0 +1,41 @@
+{
+  "title": "PmpoliDev Portfolio",
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "projects": "Projects",
+    "games": "Games",
+    "store": "Store",
+    "contact": "Contact"
+  },
+  "home": {
+    "title": "Hello, I'm PmpoliDev",
+    "subtitle": "Roblox Developer with +3 years experience • Expertise in Lua (Roblox Studio)"
+  },
+  "about": {
+    "title": "About Me",
+    "description": "I’m a Roblox developer with over three years of experience. I can create realistic wave systems, optimize scripts and games, and develop PvP powers for NPCs.",
+    "expLabel": "Years of Experience:",
+    "experience": "+3",
+    "years": "years",
+    "languagesLabel": "Primary Language & Engine:",
+    "secondaryLabel": "Secondary Language & Engine:",
+    "moreLabel": "Abilities & Roles:",
+    "founder": "Founder of Multi Game Inc",
+    "point1": "Develop data saving systems with DataStore",
+    "point2": "Create custom GUIs, animations, and physics-based systems"
+  },
+  "projects": {
+    "title": "My Work / Examples",
+    "project1": { "title": "Roblox Game “SuperPark”", "desc": "A parkour-style game with custom animations and GUI." },
+    "project2": { "title": "Skateboard System", "desc": "Custom physics with Raycasts and smooth animations." }
+  },
+  "games": { "title": "Games I've Created" },
+  "store": {
+    "title": "Products / Store",
+    "product1": { "name": "Custom Roblox Avatar", "desc": "Personalized avatar design for your Roblox profile.", "price": "$5 USD" },
+    "product2": { "name": "Game Script Pack", "desc": "Package of custom Lua scripts (cooldowns, GUI, etc.).", "price": "$10 USD" },
+    "buyButton": "Buy Now"
+  },
+  "contact": { "title": "Contact & Social Media", "text": "Feel free to reach out via any of these platforms:" }
+}

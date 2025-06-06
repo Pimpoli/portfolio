@@ -1,0 +1,60 @@
+{
+  "title": "PmpoliDev Portfolio",
+  "nav": {
+    "home": "Startseite",
+    "about": "Über Mich",
+    "projects": "Projekte",
+    "games": "Spiele",
+    "store": "Shop",
+    "contact": "Kontakt"
+  },
+  "home": {
+    "title": "Hallo, ich bin PmpoliDev",
+    "subtitle": "Roblox-Entwickler mit über 3 Jahren Erfahrung • Experte in Lua (Roblox Studio)"
+  },
+  "about": {
+    "title": "Über Mich",
+    "description": "Ich bin ein Roblox-Entwickler mit mehr als drei Jahren Erfahrung. Ich kann realistische Wellensysteme erstellen, Skripte und Spiele optimieren und PvP-Fähigkeiten für NPCs entwickeln.",
+    "expLabel": "Erfahrung in Jahren:",
+    "experience": "+3",
+    "years": "Jahre",
+    "languagesLabel": "Primäre Sprache & Engine:",
+    "secondaryLabel": "Sekundäre Sprache & Engine:",
+    "moreLabel": "Fähigkeiten & Rollen:",
+    "founder": "Gründer von Multi Game Inc",
+    "point1": "Entwicklung von Datensicherungssystemen mit DataStore",
+    "point2": "Erstellen benutzerdefinierter GUIs, Animationen und physikbasierter Systeme"
+  },
+  "projects": {
+    "title": "Meine Arbeit / Beispiele",
+    "project1": {
+      "title": "Roblox Spiel “SuperPark”",
+      "desc": "Ein Parkour-Stil-Spiel mit benutzerdefinierten Animationen und GUI."
+    },
+    "project2": {
+      "title": "Skateboard-System",
+      "desc": "Benutzerdefinierte Physik mit Raycasts und flüssigen Animationen."
+    }
+  },
+  "games": {
+    "title": "Von mir erstellte Spiele"
+  },
+  "store": {
+    "title": "Produkte / Shop",
+    "product1": {
+      "name": "Benutzerdefinierter Roblox-Avatar",
+      "desc": "Personalisierte Avatar-Gestaltung für dein Roblox-Profil.",
+      "price": "$5 USD"
+    },
+    "product2": {
+      "name": "Game-Skript-Paket",
+      "desc": "Paket mit benutzerdefinierten Lua-Skripten (Cooldowns, GUI usw.).",
+      "price": "$10 USD"
+    },
+    "buyButton": "Jetzt kaufen"
+  },
+  "contact": {
+    "title": "Kontakt & Soziale Medien",
+    "text": "Zögere nicht, mich über eine dieser Plattformen zu kontaktieren:"
+  }
+}
