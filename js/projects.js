@@ -60,25 +60,36 @@ document.addEventListener('DOMContentLoaded', () => {
   moreContent.id = 'more-projects';
   moreContent.className = 'more-content';
   moreContent.innerHTML = `
-     <div class="projects-grid">
+    <div class="projects-grid">
       <div class="project-card fade-in">
-        <video controls width="100%" poster="img/Bloxidextro_Cover.jpg">
+        <video controls width="100%" poster="img/MultiGameInc.jpg">
           <source src="img/Sea.mp4" type="video/mp4" />
           Tu navegador no soporta video HTML5.
         </video>
-        <h3>Sea</h3>
-        <p>Video que muestra olas realistas.</p>
+        <h3>Olas realistas</h3>
+        <p>Intento de simular olas de forma realista.</p>
       </div>
     </div>
 
     <div class="projects-grid">
       <div class="project-card fade-in">
-        <video controls width="100%" poster="img/MultiGameInc.jpg">
-          <source src="img/Menu-de-Pausa.mp4" type="video/mp4" />
+        <video controls width="100%" poster="img/Bloxidextro_Cover.jpg">
+          <source src="img/Menu-de-Bloxidextro.mp4" type="video/mp4" />
           Tu navegador no soporta video HTML5.
         </video>
-        <h3>Demostración: Menú de Pausa</h3>
-        <p>Video que muestra el menú de pausa implementado.</p>
+        <h3>Menú Personalizado para "Bloxidextro"</h3>
+        <p>Menú Personalizado para "Bloxidextro"->Juego desarrollado por (Multi Game Inc).</p>
+      </div>
+    </div>
+    
+    <div class="projects-grid">
+      <div class="project-card fade-in">
+        <video controls width="100%" poster="img/Bloxidextro_Cover.jpg">
+          <source src="img/Trampolin-coperativo.mp4" type="video/mp4" />
+          Tu navegador no soporta video HTML5.
+        </video>
+        <h3>Trampolín cooperativo</h3>
+        <p>Trampolín que necesita que algo con un Humanoid lo presione para inflar al otro trampolín y hacer saltar al otro Humanoid.</p>
       </div>
     </div>
   `;

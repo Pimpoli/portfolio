@@ -21,10 +21,22 @@ document.addEventListener('DOMContentLoaded', () => {
       {
         label: 'Secondary Language & Engine:',
         value: 'GDScript / Godot (nivel básico)'
-      }
+      },
+      {
+        label: 'My Skills:',
+        value: ''
+      },
+      {
+        label: 'UIs:',
+        value: 'Poder interactuar con las UIs, Animaciones y transiciones, Organización de estructura, Diseño y estilo, Compatibilidad con todo tipo de pantallas.'
+      },
+      {
+        label: 'Skill Design:',
+        value: 'Custom powers like those from (Blox Fruits or The Strongest Battlefields) with the ability to do combos or parrin with camera effects like making the camera shake or impact the frame.'
+      },
     ],
     founder: {
-      text: 'Fundador de Multi Game Inc',
+      text: 'Founder of Multi Game Inc',
       iconSrc: 'img/MultiGameInc.png',
       iconAlt: 'Roblox Group',
       iconLink: 'https://www.roblox.com/es/communities/17387910/Multi-Game-Inc#!/about'
