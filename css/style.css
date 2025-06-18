@@ -289,23 +289,23 @@ body.light-mode .theme-toggle {
   display: inline-block;
   padding: 4px;
   border-radius: 50%;
-  border: 4px solid gray; /* color inicial (offline) */
+  border: 4px solid gray;
   transition: border-color 0.3s ease, transform 0.3s ease;
 }
-.avatar-img {
-  display: block;
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
+
+#avatar-img {
+  border: none !important;
 }
+
 /* Hover: agrandar un poco */
 .avatar-container:hover {
   transform: scale(1.05);
 }
+
 /* Colores según estado */
-.avatar-offline  { border-color: gray; }
-.avatar-online   { border-color: blue; }
-.avatar-inGame   { border-color: green; }
+.avatar-offline  { border-color: gray;  }
+.avatar-online   { border-color: rgb(32, 109, 250);  }
+.avatar-inGame   { border-color: rgb(0, 255, 0); }
 .avatar-studio   { border-color: orange; }
 
 /* ===============================
