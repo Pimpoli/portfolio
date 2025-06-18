@@ -48,7 +48,7 @@
 <body>
   <!-- BOTÓN MODO OSCURO / CLARO -->
   <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
-    <img id="theme-icon-img" src="img/moon.png" alt="Theme Icon" class="theme-icon" />
+    <img id="theme-icon-img" src="img/moon.webp" alt="Theme Icon" class="theme-icon" />
   </button>
 
   <!-- CABECERA / NAVEGACIÓN -->
@@ -58,7 +58,7 @@
         <!-- Logo envuelto en enlace al grupo de Roblox -->
         <a href="https://www.roblox.com/es/communities/17387910/Multi-Game-Inc#!/about"
            target="_blank" rel="noopener">
-          <img src="img/MultiGameInc.png" alt="Logo MultiGame Inc" class="logo-img" />
+          <img src="img/MultiGameInc.webp" alt="Logo MultiGame Inc" class="logo-img" />
           <span class="logo-text">Multi Game Inc</span>
         </a>
       </div>
@@ -189,20 +189,20 @@
       </p>                                            
       <div class="social-icons fade-in scroll-delay-2"> 
         <a href="https://discord.gg/SgjguUvTwE" target="_blank" rel="noopener" title="Discord"> 
-          <img src="img/discord.png" alt="Discord" class="social-icon" /> 
+          <img src="img/discord.webp" alt="Discord" class="social-icon" /> 
         </a>                                         
         <a href="https://twitter.com/PmpoliDev" target="_blank" rel="noopener" title="Twitter/X"> 
-          <img src="img/twitter.png" alt="Twitter" class="social-icon" />
+          <img src="img/twitter.webp" alt="Twitter" class="social-icon" />
         </a>                                          
         <a href="https://www.roblox.com/es/users/3404416545/profile" target="_blank" rel="noopener" title="Roblox Profile">  
-          <img src="img/roblox.png" alt="Roblox" class="social-icon" /> 
+          <img src="img/roblox.webp" alt="Roblox" class="social-icon" /> 
         </a>                                         
         <a href="https://www.roblox.com/es/communities/17387910/Multi-Game-Inc#!/about"  
            target="_blank" rel="noopener" title="Multi Game Inc (Grupo)"> 
-          <img src="img/MultiGameInc.png" alt="Multi Game Inc" class="social-icon" /> 
+          <img src="img/MultiGameInc.webp" alt="Multi Game Inc" class="social-icon" /> 
         </a>                                          
         <a href="https://www.youtube.com/@PmpoliDev" target="_blank" rel="noopener" title="YouTube"> 
-          <img src="img/youtube.png" alt="YouTube" class="social-icon" />
+          <img src="img/youtube.webp" alt="YouTube" class="social-icon" />
         </a>                                         
       </div>                                        
     </div>                                          
@@ -239,7 +239,7 @@
 
     // (2) OBTENER URL DEL AVATAR (headshot) vía RoProxy
     fetch(
-      `https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`
+      `https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Webp&isCircular=false`
     )
     .then(res => {
       if (!res.ok) throw new Error(`Avatar fetch failed: ${res.status}`);

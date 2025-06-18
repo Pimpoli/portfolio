@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ],
     founder: {
       text: 'Founder of Multi Game Inc',
-      iconSrc: 'img/MultiGameInc.png',
+      iconSrc: 'img/MultiGameInc.webp',
       iconAlt: 'Roblox Group',
       iconLink: 'https://www.roblox.com/es/communities/17387910/Multi-Game-Inc#!/about'
     }

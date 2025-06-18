@@ -17,20 +17,20 @@ document.addEventListener('DOMContentLoaded', () => {
     {
       id: 16125269940,
       name: 'Anime Color Block Run',
-      iconUrl: 'img/AnimeColor_icon.png',
-      coverUrl: 'img/AnimeColor_Cover.png'
+      iconUrl: 'img/AnimeColor_icon.webp',
+      coverUrl: 'img/AnimeColor_Cover.webp'
     },
     {
       id: 71541333892738,
       name: 'Bloxidextro',
-      iconUrl: 'img/Bloxidextro_icon.png',
-      coverUrl: 'img/Bloxidextro_Cover.png'
+      iconUrl: 'img/Bloxidextro_icon.webp',
+      coverUrl: 'img/Bloxidextro_Cover.webp'
     },
     {
       id: 17166282321,
       name: 'Next Game Soon',
-      iconUrl: 'img/NextGame_icon.png',
-      coverUrl: 'img/NextGame_Cover.png'
+      iconUrl: 'img/NextGame_icon.webp',
+      coverUrl: 'img/NextGame_Cover.webp'
     }
     // …puedes agregar más objetos aquí si quieres
   ];

@@ -7,34 +7,34 @@ document.addEventListener('DOMContentLoaded', () => {
   const projectsContent = {
     title: 'My Work / Examples',
     items: [
-      { type: 'img', src: 'img/Nodos.png',           title: 'Nodes System', desc: '' },
-      { type: 'img', src: 'img/MultiGameInc.png',    title: 'Próximamente', desc: 'Próximamente' }
+      { type: 'img', src: 'img/Nodos.webp',           title: 'Nodes System', desc: '' },
+      { type: 'img', src: 'img/MultiGameInc.webp',    title: 'Próximamente', desc: 'Próximamente' }
     ],
     moreItems: [
       {
         type: 'video',
-        src: 'img/Sea.mp4',
-        poster: 'img/MultiGameInc.png',
+        src: 'img/Sea.webm',
+        poster: 'img/MultiGameInc.webp',
         title: 'Olas realistas',
         desc: 'Intento de simular olas de forma realista.'
       },
       {
         type: 'video',
-        src: 'img/Menu-de-Bloxidextro.mp4',
-        poster: 'img/Bloxidextro_Cover.png',
+        src: 'img/Menu-de-Bloxidextro.webm',
+        poster: 'img/Bloxidextro_Cover.webp',
         title: 'Menú Personalizado para "Bloxidextro"',
         desc: 'Menú Personalizado para "Bloxidextro" → Juego desarrollado por Multi Game Inc.'
       },
       {
         type: 'video',
-        src: 'img/Trampolin-coperativo.mp4',
-        poster: 'img/Bloxidextro_Cover.png',
+        src: 'img/Trampolin-coperativo.webm',
+        poster: 'img/Bloxidextro_Cover.webp',
         title: 'Trampolín coperativo',
         desc: 'Trampolín que necesita que un Humanoid lo presione para inflar el otro y hacer saltar al segundo Humanoid.'
       },
       {
         type: 'img',
-        src: 'img/NodosDemostracion.png',
+        src: 'img/NodosDemostracion.webp',
         title: 'Nodes System',
         desc: 'Conexión visual entre nodos para sistemas futuros, como un sistema cinemático avanzado.'
       }

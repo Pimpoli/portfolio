@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const gameName = gameInfo.name || 'Juego sin nombre';
 
         // Obtener ícono del juego usando la API de thumbnails
-        fetch(`https://thumbnails.roblox.com/v1/games/icons?universeIds=${universeId}&size=150x150&format=Png&isCircular=false`)
+        fetch(`https://thumbnails.roblox.com/v1/games/icons?universeIds=${universeId}&size=150x150&format=Webp&isCircular=false`)
           .then(res => res.json())
           .then(iconData => {
             let iconUrl = '';
