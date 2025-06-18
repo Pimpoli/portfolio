@@ -40,7 +40,7 @@ body::after {
   left: 0;
   width: 200%;
   height: 200%;
-  background-image: url("../img/FondoRepetido.png");
+  background-image: url("../img/FondoRepetido.webp");
   background-repeat: repeat-x;
   background-size: 1000px 1000px;
   opacity: 0.15;
