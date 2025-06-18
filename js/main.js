@@ -75,7 +75,7 @@ async function fetchRobloxGameInfo(gameId) {
     const name = infoData.data[0].name || null;
 
     const thumbRes = await fetch(
-      `https://thumbnails.roblox.com/v1/games/icons?universeIds=${gameId}&size=100x100&format=Web&isCircular=false`
+      `https://thumbnails.roblox.com/v1/games/icons?universeIds=${gameId}&size=100x100&format=Webp&isCircular=false`
     );
     const thumbData = await thumbRes.json();
     const iconUrl = (thumbData.data && thumbData.data[0] && thumbData.data[0].imageUrl) || null;
