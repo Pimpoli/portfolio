@@ -143,40 +143,40 @@ function initFadeInObserver() {
 // ===============================
 async function updateAvatarStatus(userId) {
   try {
-    // Si quieres mantener el estado en tiempo real, esta sección queda igual.
-    // Sin embargo, no tiene relación con la carga de juegos, y no arroja esos mensajes de error.
-    const response = await fetch(
-      `https://presence.roblox.com/v1/users/status?userIds=${userId}`,
-      { mode: "cors" }
-    );
-    const data = await response.json();
-    const presence = data.userPresences[0];
-    const container = document.getElementById("avatar-container");
-    if (!container) return;
+    const res = await fetch('https://presence.roproxy.com/v1/presence/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userIds: [userId] })
+    });
+    const data = await res.json();
+    const p = data.userPresences?.[0];
+    if (!p) return;
 
-    container.classList.remove("avatar-online", "avatar-inGame", "avatar-studio", "avatar-offline");
-    if (presence.presenceType === 0) {
-      container.classList.add("avatar-offline");
-    } else if (presence.presenceType === 1) {
-      container.classList.add("avatar-online");
-    } else if (presence.presenceType === 2) {
-      const location = (presence.lastLocation || "").toLowerCase();
-      if (location.includes("studio")) {
-        container.classList.add("avatar-studio");
-      } else {
-        container.classList.add("avatar-inGame");
-      }
-    } else {
-      container.classList.add("avatar-offline");
+    const type = p.userPresenceType;  // <- CORRECCIÓN aquí
+    const container = document.getElementById('avatar-container');
+    container.classList.remove('avatar-offline','avatar-online','avatar-inGame','avatar-studio','avatar-invisible');
+
+    switch (type) {
+      case 1:
+        container.classList.add('avatar-online');
+        break;
+      case 2:
+        container.classList.add('avatar-inGame');
+        break;
+      case 3:
+        container.classList.add('avatar-studio');
+        break;
+      case 4:
+        container.classList.add('avatar-invisible');
+        break;
+      default:
+        container.classList.add('avatar-offline');
     }
   } catch (err) {
-    console.error("Error fetching Roblox presence:", err);
-    // Si falla (p. ej. bloqueo CORS), forzamos estado offline
-    const container = document.getElementById("avatar-container");
-    if (container) {
-      container.classList.remove("avatar-online", "avatar-inGame", "avatar-studio");
-      container.classList.add("avatar-offline");
-    }
+    console.error(err);
+    const container = document.getElementById('avatar-container');
+    container.classList.remove('avatar-online','avatar-inGame','avatar-studio');
+    container.classList.add('avatar-offline');
   }
 }
 
@@ -231,11 +231,15 @@ document.addEventListener("DOMContentLoaded", () => {
   initSmoothScroll();
   initFadeInObserver();
 
-  // Actualización de avatar cada 60 segundos (opcional)
-  updateAvatarStatus(3404416545);
-  setInterval(() => {
-    updateAvatarStatus(3404416545);
-  }, 60000);
+  // Cargar avatar por primera vez
+  loadAvatar(ROBLOX_USER_ID);
+
+  // Cargar juegos
+  loadGames();
+
+  // Actualizar estado de avatar cada 60s
+  updateAvatarStatus(ROBLOX_USER_ID);
+  setInterval(() => updateAvatarStatus(ROBLOX_USER_ID), 60000);
 
   initExpandButtons();
 });
