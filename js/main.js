@@ -24,10 +24,10 @@ const ROBLOX_USER_ID = 3404416545; // tu ID real de Roblox
 // =====================
 function applyTheme(theme) {
   if (theme === "light") {
-    themeIconImg.src = "img/moon.png"; // ícono de sol en modo light
+    themeIconImg.src = "img/moon.Webp"; // ícono de sol en modo light
     document.body.classList.add("light-mode");
   } else {
-    themeIconImg.src = "img/sun.png";  // ícono de luna en modo dark
+    themeIconImg.src = "img/sun.Webp";  // ícono de luna en modo dark
     document.body.classList.remove("light-mode");
   }
   localStorage.setItem("theme", theme);
@@ -75,7 +75,7 @@ async function fetchRobloxGameInfo(gameId) {
     const name = infoData.data[0].name || null;
 
     const thumbRes = await fetch(
-      `https://thumbnails.roblox.com/v1/games/icons?universeIds=${gameId}&size=100x100&format=Png&isCircular=false`
+      `https://thumbnails.roblox.com/v1/games/icons?universeIds=${gameId}&size=100x100&format=Web&isCircular=false`
     );
     const thumbData = await thumbRes.json();
     const iconUrl = (thumbData.data && thumbData.data[0] && thumbData.data[0].imageUrl) || null;
