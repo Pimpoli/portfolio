@@ -17,33 +17,33 @@ document.addEventListener('DOMContentLoaded', () => {
   const PRODUCTS = [
     {
       img: 'img/producto1.jpg',
-      name: 'Proximamente',
-      desc: 'Proximamente',
-      price: '$Proximamente USD'
+      name: 'Próximamente',
+      desc: 'Próximamente',
+      price: '$Próximamente USD'
     },
     {
       img: 'img/producto2.jpg',
-      name: 'Proximamente',
-      desc: 'Proximamente.',
-      price: '$Proximamente USD'
+      name: 'Próximamente',
+      desc: 'Próximamente.',
+      price: '$Próximamente USD'
     },
     {
       img: 'img/producto3.jpg',
-      name: 'Proximamente',
-      desc: 'Proximamente.',
-      price: '$Proximamente USD'
+      name: 'Próximamente',
+      desc: 'Próximamente.',
+      price: '$Próximamente USD'
     },
     {
       img: 'img/producto4.jpg',
-      name: 'Proximamente',
-      desc: 'Proximamente.',
-      price: '$Proximamente USD'
+      name: 'Próximamente',
+      desc: 'Próximamente.',
+      price: '$Próximamente USD'
     },
     {
       img: 'img/producto5.jpg',
-      name: 'Proximamente',
-      desc: 'Proximamente.',
-      price: '$Proximamente USD'
+      name: 'Próximamente',
+      desc: 'Próximamente.',
+      price: '$Próximamente USD'
     },
     // Si deseas agregar más productos, añade más objetos aquí:
     // {

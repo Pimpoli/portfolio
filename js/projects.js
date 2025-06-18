@@ -3,98 +3,136 @@
 document.addEventListener('DOMContentLoaded', () => {
   const projectsContainer = document.getElementById('projects-container');
 
-  // Objeto con contenido de Proyectos
+  // 1) Contenido principal
   const projectsContent = {
     title: 'My Work / Examples',
     items: [
+      { type: 'img', src: 'img/Nodos.png',           title: 'Nodes System', desc: '' },
+      { type: 'img', src: 'img/MultiGameInc.png',    title: 'Próximamente', desc: 'Próximamente' }
+    ],
+    moreItems: [
       {
-        img: 'img/MultiGameInc.png',
-        title: 'Proximamente',
-        desc: 'Proximamente'
+        type: 'video',
+        src: 'img/Sea.mp4',
+        poster: 'img/MultiGameInc.png',
+        title: 'Olas realistas',
+        desc: 'Intento de simular olas de forma realista.'
       },
       {
-        img: 'img/MultiGameInc.png',
-        title: 'Proximamente',
-        desc: 'Proximamente'
+        type: 'video',
+        src: 'img/Menu-de-Bloxidextro.mp4',
+        poster: 'img/Bloxidextro_Cover.png',
+        title: 'Menú Personalizado para "Bloxidextro"',
+        desc: 'Menú Personalizado para "Bloxidextro" → Juego desarrollado por Multi Game Inc.'
+      },
+      {
+        type: 'video',
+        src: 'img/Trampolin-coperativo.mp4',
+        poster: 'img/Bloxidextro_Cover.png',
+        title: 'Trampolín coperativo',
+        desc: 'Trampolín que necesita que un Humanoid lo presione para inflar el otro y hacer saltar al segundo Humanoid.'
+      },
+      {
+        type: 'img',
+        src: 'img/NodosDemostracion.png',
+        title: 'Nodes System',
+        desc: 'Conexión visual entre nodos para sistemas futuros, como un sistema cinemático avanzado.'
       }
-      // Si deseas agregar más proyectos, añade nuevos objetos aquí:
-      // e.g.
-      // {
-      //   img: 'img/otraImg.png',
-      //   title: 'Proyecto 3',
-      //   desc: 'Descripción Proyecto 3'
-      // }
     ]
   };
 
-  // Crear el encabezado de la sección
+  // 2) Encabezado de la sección
   const h2 = document.createElement('h2');
   h2.className = 'fade-in';
   h2.setAttribute('data-i18n', 'projects.title');
   h2.innerText = projectsContent.title;
   projectsContainer.appendChild(h2);
 
-  // Crear el grid de proyectos
+  // 3) Grid principal
   const grid = document.createElement('div');
   grid.className = 'projects-grid';
-
-  projectsContent.items.forEach((proj, index) => {
+  projectsContent.items.forEach((p, i) => {
     const card = document.createElement('div');
-    card.className = `project-card fade-in scroll-delay-${index + 1}`;
+    card.className = `project-card fade-in scroll-delay-${i + 1}`;
+
+    // Elegir etiqueta según tipo
+    const mediaHtml = p.type === 'img'
+      ? `<img src="${p.src}" alt="${p.title}" />`
+      : `<video controls width="100%" poster="${p.poster}">
+           <source src="${p.src}" type="video/mp4">
+           Tu navegador no soporta video HTML5.
+         </video>`;
+
     card.innerHTML = `
-      <img src="${proj.img}" alt="${proj.title}" />
-      <h3>${proj.title}</h3>
-      <p>${proj.desc}</p>
+      ${mediaHtml}
+      <h3>${p.title}</h3>
+      <p>${p.desc}</p>
     `;
     grid.appendChild(card);
   });
+  projectsContainer.appendChild(grid);
 
-  // Añadir el botón para expandir más (si en un futuro quieres tener contenido oculto)
+  // 4) Botón “ver más”
   const expandBtn = document.createElement('button');
   expandBtn.className = 'expand-btn fade-in scroll-delay-3';
-  expandBtn.setAttribute('data-target', 'more-projects');
   expandBtn.textContent = '+';
-
-  // Contenedor oculto (puedes dejarlo vacío o con ejemplos en video)
-  const moreContent = document.createElement('div');
-  moreContent.id = 'more-projects';
-  moreContent.className = 'more-content';
-  moreContent.innerHTML = `
-    <div class="projects-grid">
-      <div class="project-card fade-in">
-        <video controls width="100%" poster="img/MultiGameInc.jpg">
-          <source src="img/Sea.mp4" type="video/mp4" />
-          Tu navegador no soporta video HTML5.
-        </video>
-        <h3>Olas realistas</h3>
-        <p>Intento de simular olas de forma realista.</p>
-      </div>
-    </div>
-
-    <div class="projects-grid">
-      <div class="project-card fade-in">
-        <video controls width="100%" poster="img/Bloxidextro_Cover.jpg">
-          <source src="img/Menu-de-Bloxidextro.mp4" type="video/mp4" />
-          Tu navegador no soporta video HTML5.
-        </video>
-        <h3>Menú Personalizado para "Bloxidextro"</h3>
-        <p>Menú Personalizado para "Bloxidextro"->Juego desarrollado por (Multi Game Inc).</p>
-      </div>
-    </div>
-    
-    <div class="projects-grid">
-      <div class="project-card fade-in">
-        <video controls width="100%" poster="img/Bloxidextro_Cover.jpg">
-          <source src="img/Trampolin-coperativo.mp4" type="video/mp4" />
-          Tu navegador no soporta video HTML5.
-        </video>
-        <h3>Trampolín cooperativo</h3>
-        <p>Trampolín que necesita que algo con un Humanoid lo presione para inflar al otro trampolín y hacer saltar al otro Humanoid.</p>
-      </div>
-    </div>
-  `;
-
-  projectsContainer.appendChild(grid);
   projectsContainer.appendChild(expandBtn);
-  projectsContainer.appendChild(moreContent);
+
+  // 5) Contenedor oculto de más proyectos
+  const moreDiv = document.createElement('div');
+  moreDiv.id = 'more-projects';
+  moreDiv.className = 'more-content';
+  const moreGrid = document.createElement('div');
+  moreGrid.className = 'projects-grid';
+
+  projectsContent.moreItems.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = `project-card fade-in scroll-delay-${i + 1}`;
+
+    const mediaHtml = p.type === 'img'
+      ? `<img src="${p.src}" alt="${p.title}" />`
+      : `<video controls width="100%" poster="${p.poster}">
+           <source src="${p.src}" type="video/mp4">
+           Tu navegador no soporta video HTML5.
+         </video>`;
+
+    card.innerHTML = `
+      ${mediaHtml}
+      <h3>${p.title}</h3>
+      <p>${p.desc}</p>
+    `;
+    moreGrid.appendChild(card);
+  });
+
+  moreDiv.appendChild(moreGrid);
+  projectsContainer.appendChild(moreDiv);
+
+  // 6) Toggle “ver más” / “ver menos”
+  expandBtn.addEventListener('click', () => {
+    const showing = moreDiv.classList.toggle('visible-content');
+    expandBtn.textContent = showing ? '−' : '+';
+  });
+
+  // 7) Lightbox: abrir imágenes en grande
+  const modal    = document.getElementById('img-modal');
+  const modalImg = modal.querySelector('img');
+
+  function openLightbox(src, alt) {
+    modalImg.src = src;
+    modalImg.alt = alt;
+    modal.style.display = 'flex';
+  }
+
+  // Cierra lightbox al hacer click
+  modal.addEventListener('click', () => {
+    modal.style.display = 'none';
+    modalImg.src = '';
+    modalImg.alt = '';
+  });
+
+  // Delegación de eventos: todas las imágenes de proyectos
+  projectsContainer.addEventListener('click', evt => {
+    const img = evt.target.closest('.project-card img');
+    if (img) openLightbox(img.src, img.alt);
+  });
 });
