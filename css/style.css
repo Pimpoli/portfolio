@@ -351,7 +351,7 @@ body.light-mode .group-link {
    =============================== */
 .projects-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
 }
 
@@ -380,8 +380,9 @@ body.light-mode .project-card {
 .project-card img,
 .project-card video {
   width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
   display: block;
-  border-radius: 4px;
 }
 .project-card:hover {
   transform: translateY(-5px);
@@ -414,6 +415,29 @@ body.light-mode .expand-btn {
 }
 
 /* ===============================
+   Lightbox overlay
+   =============================== */
+#img-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.8);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+#img-modal img {
+  max-width: 90%;
+  max-height: 90%;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  border-radius: 4px;
+  cursor: zoom-out;
+}
+
+/* ===============================
    CONTENEDOR “MÁS PROYECTOS” (OCULTO/VISIBLE)
    =============================== */
 
@@ -434,10 +458,10 @@ body.light-mode .expand-btn {
 /* Si dentro hay un .projects-grid, reforzamos el gap */
 #more-projects.visible-content .projects-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
+  /* Fuerza exactamente 2 columnas de igual ancho */
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem; /* un poco más de separación para que respiren */
 }
-
 
 /* ===============================
    Sección Games (tarjetas manuales)
@@ -772,7 +796,7 @@ html {
 /* ===============================
    Responsive: móvil
    =============================== */
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1200px) {
   .nav-list {
     position: fixed;
     top: 0;
@@ -801,5 +825,8 @@ html {
   }
   .games-grid {
     grid-template-columns: 1fr;
+  }
+  .projects-grid {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   }
 }
