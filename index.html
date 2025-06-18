@@ -132,10 +132,8 @@
   </section>
 
   <!-- SECCIÓN: PROJECTS (contenedor dinámico) -->
-  <section id="projects" class="section projects-section fade-in">
-    <div id="projects-container" class="container">
-      <!-- projects.js inyecta contenido aquí -->
-    </div>
+ <section id="projects" class="section projects-section fade-in">
+    <div id="projects-container" class="container"></div>
   </section>
 
   <!-- SECCIÓN: GAMES -->
@@ -182,43 +180,40 @@
     </div>
   </section>
 
-  <!-- SECCIÓN: CONTACT & REDES SOCIALES -->
-  <section id="contact" class="section contact-section fade-in">
-    <div class="container">
-      <h2 class="fade-in" data-i18n="contact.title">Contact & Social Media</h2>
-      <p class="fade-in scroll-delay-1" data-i18n="contact.text">
-        Feel free to reach out via any of these platforms:
-      </p>
-      <div class="social-icons fade-in scroll-delay-2">
-        <a href="https://discord.gg/SgjguUvTwE" target="_blank" rel="noopener" title="Discord">
-          <img src="img/discord.png" alt="Discord" class="social-icon" />
-        </a>
-        <a href="https://twitter.com/PmpoliDev" target="_blank" rel="noopener" title="Twitter/X">
+  <!-- SECCIÓN: CONTACT & REDES SOCIALES -->         
+  <section id="contact" class="section contact-section fade-in"> 
+    <div class="container">                       
+      <h2 class="fade-in" data-i18n="contact.title">Contact & Social Media</h2> 
+      <p class="fade-in scroll-delay-1" data-i18n="contact.text">  
+        Feel free to reach out via any of these platforms:  
+      </p>                                            
+      <div class="social-icons fade-in scroll-delay-2"> 
+        <a href="https://discord.gg/SgjguUvTwE" target="_blank" rel="noopener" title="Discord"> 
+          <img src="img/discord.png" alt="Discord" class="social-icon" /> 
+        </a>                                         
+        <a href="https://twitter.com/PmpoliDev" target="_blank" rel="noopener" title="Twitter/X"> 
           <img src="img/twitter.png" alt="Twitter" class="social-icon" />
-        </a>
-        <a href="https://www.roblox.com/es/users/3404416545/profile" target="_blank" rel="noopener" title="Roblox Profile">
-          <img src="img/roblox.png" alt="Roblox" class="social-icon" />
-        </a>
-        <!-- Icono adicional para MultiGameInc -->
-        <a href="https://www.roblox.com/es/communities/17387910/Multi-Game-Inc#!/about"
-           target="_blank" rel="noopener" title="Multi Game Inc (Grupo)">
-          <img src="img/MultiGameInc.png" alt="Multi Game Inc" class="social-icon" />
-        </a>
-        <a href="https://www.youtube.com/@PmpoliDev" target="_blank" rel="noopener" title="YouTube">
+        </a>                                          
+        <a href="https://www.roblox.com/es/users/3404416545/profile" target="_blank" rel="noopener" title="Roblox Profile">  
+          <img src="img/roblox.png" alt="Roblox" class="social-icon" /> 
+        </a>                                         
+        <a href="https://www.roblox.com/es/communities/17387910/Multi-Game-Inc#!/about"  
+           target="_blank" rel="noopener" title="Multi Game Inc (Grupo)"> 
+          <img src="img/MultiGameInc.png" alt="Multi Game Inc" class="social-icon" /> 
+        </a>                                          
+        <a href="https://www.youtube.com/@PmpoliDev" target="_blank" rel="noopener" title="YouTube"> 
           <img src="img/youtube.png" alt="YouTube" class="social-icon" />
-        </a>
-      </div>
-    </div>
-  </section>
+        </a>                                         
+      </div>                                        
+    </div>                                          
+  </section>                                      
 
   <!-- PIE DE PÁGINA -->
   <footer class="footer">
-    <div class="container">
-      <p>© <span id="year"></span> PmpoliDev. All rights reserved.</p>
-    </div>
+    <div class="container"><p>© <span id="year"></span> PmpoliDev. All rights reserved.</p></div>
   </footer>
 
-  <!-- Scripts de contenido dinámico -->
+ <!-- Scripts de contenido dinámico -->
   <script src="js/about.js"></script>
   <script src="js/projects.js"></script>
   <script src="js/games.js"></script>
@@ -227,6 +222,11 @@
   <!-- Scripts de traducción e interacción general -->
   <script src="js/i18n.js"></script>
   <script src="js/main.js"></script>
+
+  <!-- Lightbox container -->
+  <div id="img-modal">
+    <img src="" alt="Expanded image" />
+  </div>
 
   <!-- Script adicional: obtención del avatar y estado dinámico -->
   <script>
