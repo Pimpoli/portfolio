@@ -10,13 +10,13 @@
   },
   "home": {
     "title": "Hola, soy PmpoliDev",
-    "subtitle": "Desarrollador de Roblox con +3 años de experiencia • Especializado en Lua (Roblox Studio)"
+    "subtitle": "Desarrollador de Roblox con +4 años de experiencia • Especializado en Lua (Roblox Studio)"
   },
   "about": {
     "title": "Sobre mí",
     "description": "Soy un desarrollador en Roblox con más de tres años de experiencia. Puedo crear sistemas de olas procedurales realistas, optimizar scripts y juegos, y desarrollar poderes PvP para NPC.",
     "expLabel": "Años de experiencia:",
-    "experience": "+3",
+    "experience": "+4",
     "years": "años",
     "languagesLabel": "Lenguaje y motor principal:",
     "secondaryLabel": "Lenguaje y motor secundario:",
@@ -38,4 +38,5 @@
     "buyButton": "Comprar"
   },
   "contact": { "title": "Contacto y redes sociales", "text": "No dudes en contactarme a través de cualquiera de estas plataformas:" }
+
 }
