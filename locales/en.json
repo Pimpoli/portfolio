@@ -10,13 +10,13 @@
   },
   "home": {
     "title": "Hello, I'm PmpoliDev",
-    "subtitle": "Roblox Developer with +3 years experience • Expertise in Lua (Roblox Studio)"
+    "subtitle": "Roblox Developer with +4 years experience • Expertise in Lua (Roblox Studio)"
   },
   "about": {
     "title": "About Me",
     "description": "I’m a Roblox developer with over three years of experience. I can create realistic wave systems, optimize scripts and games, and develop PvP powers for NPCs.",
     "expLabel": "Years of Experience:",
-    "experience": "+3",
+    "experience": "+4",
     "years": "years",
     "languagesLabel": "Primary Language & Engine:",
     "secondaryLabel": "Secondary Language & Engine:",
@@ -38,4 +38,5 @@
     "buyButton": "Buy Now"
   },
   "contact": { "title": "Contact & Social Media", "text": "Feel free to reach out via any of these platforms:" }
+
 }
