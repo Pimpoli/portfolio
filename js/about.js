@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     infoList: [
       {
         label: 'Years of Experience:',
-        value: '+3 years'
+        value: '+4 years'
       },
       {
         label: 'Primary Language & Engine:',
@@ -80,3 +80,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
   aboutContainer.appendChild(ul);
 });
+
