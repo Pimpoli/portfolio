@@ -15,33 +15,46 @@ const ROBLOX_GAME_IDS = [
   16125269940,
   71541333892738
 ];
-// El tercero (17166282321) se muestra en #more-games ya en HTML
 
 const ROBLOX_USER_ID = 3404416545; // tu ID real de Roblox
 
 // =====================
-// Toggle tema oscuro/ligero
+// Toggle tema oscuro/ligero (muestra icono del estado destino)
 // =====================
 function applyTheme(theme) {
+  const body = document.body;
   if (theme === "light") {
-    themeIconImg.src = "img/moon.Webp"; // ícono de sol en modo light
-    document.body.classList.add("light-mode");
+    body.classList.add("light-mode");
   } else {
-    themeIconImg.src = "img/sun.Webp";  // ícono de luna en modo dark
-    document.body.classList.remove("light-mode");
+    body.classList.remove("light-mode");
   }
+
+  if (themeIconImg) {
+    // Si la página está en "light", mostrar luna (para cambiar a dark).
+    // Si la página está en "dark", mostrar sol (para cambiar a light).
+    if (theme === "light") {
+      themeIconImg.src = "img/moon.webp";
+      themeIconImg.alt = "Switch to dark theme";
+    } else {
+      themeIconImg.src = "img/sun.webp";
+      themeIconImg.alt = "Switch to light theme";
+    }
+  }
+
   localStorage.setItem("theme", theme);
 }
 
 applyTheme(currentTheme);
 
-themeToggle.addEventListener("click", () => {
-  currentTheme = currentTheme === "dark" ? "light" : "dark";
-  applyTheme(currentTheme);
-});
+if (themeToggle) {
+  themeToggle.addEventListener("click", () => {
+    currentTheme = currentTheme === "dark" ? "light" : "dark";
+    applyTheme(currentTheme);
+  });
+}
 
 // =====================
-// Scroll suave al hacer clic en enlaces internos
+// Smooth scroll for internal links
 // =====================
 function initSmoothScroll() {
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -54,7 +67,7 @@ function initSmoothScroll() {
       if (targetSection) {
         targetSection.scrollIntoView({ behavior: "smooth" });
       }
-      if (navList.classList.contains("active")) {
+      if (navList && navList.classList.contains("active")) {
         navList.classList.remove("active");
       }
     });
@@ -88,25 +101,23 @@ async function fetchRobloxGameInfo(gameId) {
 }
 
 async function loadGames() {
-  const gamesContainer = document.getElementById("games-container");
-  if (!gamesContainer) {
+  const gamesContainerLocal = document.getElementById("games-container");
+  if (!gamesContainerLocal) {
     console.error("games-container no existe en el DOM.");
     return;
   }
 
-  const ROBLOX_GAME_IDS = [16125269940, 71541333892738];
   const resultados = await Promise.all(ROBLOX_GAME_IDS.map(id => fetchRobloxGameInfo(id)));
 
   resultados.forEach((game) => {
     if (!game.name || !game.iconUrl) {
-      // Mostrar un mensaje visible en lugar de solo ignorar
       const aviso = document.createElement("p");
       aviso.textContent = `No se pudo cargar el juego ID ${game.id}.`;
       aviso.style.color = "var(--color-text-light)";
       aviso.style.background = "rgba(255,0,0,0.2)";
       aviso.style.padding = "4px";
       aviso.style.borderRadius = "4px";
-      gamesContainer.appendChild(aviso);
+      gamesContainerLocal.appendChild(aviso);
       return;
     }
     const card = document.createElement("div");
@@ -117,11 +128,12 @@ async function loadGames() {
         <p>${game.name}</p>
       </a>
     `;
-    gamesContainer.appendChild(card);
+    gamesContainerLocal.appendChild(card);
   });
 }
+
 // ===============================
-// Scroll-trigger (Intersection Observer)
+// Intersection Observer: fade-in
 // ===============================
 function initFadeInObserver() {
   const options = { root: null, rootMargin: "0px", threshold: 0.2 };
@@ -138,8 +150,12 @@ function initFadeInObserver() {
     observer.observe(el);
   });
 }
+
 // ===============================
-// Estado del avatar de Roblox (presencia)
+// Estado del avatar de Roblox (presencia) - FIXED
+// - Mapea explícitamente los códigos posibles (0..4).
+// - Maneja distintas formas de respuesta (userPresences / data).
+// - Fallback a 'avatar-offline' si no hay dato o falla (CORS).
 // ===============================
 async function updateAvatarStatus(userId) {
   try {
@@ -148,47 +164,68 @@ async function updateAvatarStatus(userId) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userIds: [userId] })
     });
-    const data = await res.json();
-    const p = data.userPresences?.[0];
-    if (!p) return;
 
-    const type = p.userPresenceType;  // <- CORRECCIÓN aquí
-    const container = document.getElementById('avatar-container');
-    container.classList.remove('avatar-offline','avatar-online','avatar-inGame','avatar-studio','avatar-invisible');
-
-    switch (type) {
-      case 1:
-        container.classList.add('avatar-online');
-        break;
-      case 2:
-        container.classList.add('avatar-inGame');
-        break;
-      case 3:
-        container.classList.add('avatar-studio');
-        break;
-      case 4:
-        container.classList.add('avatar-invisible');
-        break;
-      default:
-        container.classList.add('avatar-offline');
+    if (!res.ok) {
+      console.warn('Presence API responded with status', res.status);
+      throw new Error('Presence fetch failed');
     }
-  } catch (err) {
-    console.error(err);
+
+    const data = await res.json();
+
+    // Algunas respuestas pueden venir en data.userPresences o en data.data
+    const presArray = data.userPresences || data.data || data.presences || null;
+    const p = Array.isArray(presArray) ? presArray[0] : null;
+
+    // Los campos comunes son userPresenceType o presenceType dependiendo de la API
+    const type = p?.userPresenceType ?? p?.presenceType ?? null;
+
     const container = document.getElementById('avatar-container');
-    container.classList.remove('avatar-online','avatar-inGame','avatar-studio');
+    if (!container) return;
+
+    // Limpiar clases de estado previas
+    container.classList.remove('avatar-offline', 'avatar-online', 'avatar-inGame', 'avatar-studio', 'avatar-invisible');
+
+    // Mapeo explícito de códigos a clases (evita index-out-of-range)
+    const map = {
+      0: 'avatar-offline',   // offline
+      1: 'avatar-online',    // online (in website)
+      2: 'avatar-inGame',    // in game
+      3: 'avatar-studio',    // in studio
+      4: 'avatar-invisible'  // invisible / private
+    };
+
+    const cls = (type !== null && map.hasOwnProperty(type)) ? map[type] : 'avatar-offline';
+    container.classList.add(cls);
+
+    // (Opcional) también actualizar title para debugging/UX
+    container.title = `Presence: ${cls.replace('avatar-','')}`;
+
+  } catch (err) {
+    console.error("updateAvatarStatus error:", err);
+    // Fallback -> offline
+    const container = document.getElementById('avatar-container');
+    if (!container) return;
+    container.classList.remove('avatar-online', 'avatar-inGame', 'avatar-studio', 'avatar-invisible');
     container.classList.add('avatar-offline');
+    container.title = 'Presence: offline (fallback)';
   }
 }
 
-// ==================================
-// Explicación del problema del estado
-// ==================================
-// La API de presencia de Roblox bloquea solicitudes desde orígenes no autorizados (CORS).
-// Si tu página no está alojada en un dominio permitido por Roblox o no usas HTTPS, la petición
-// será bloqueada y nunca verás cambio de estado (se quedará siempre en gris).
-// **Solución**: aloja en un hosting con HTTPS que Roblox reconozca, o configura un proxy 
-// backend que requiera credenciales apropiadas. Roblox necesita el header 'Referer' desde
-// un dominio válido (por ejemplo, un dominio público que hayas registrado en la configuración de tu aplicación).
+// Función para cargar avatar (headshot) y asignar al #avatar-img
+async function loadAvatar(userId) {
+  try {
+    const res = await fetch(`https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Webp&isCircular=false`);
+    if (!res.ok) throw new Error('Avatar thumbnail fetch failed');
+    const data = await res.json();
+    const url = data.data?.[0]?.imageUrl;
+    if (url) {
+      const avatarImg = document.getElementById('avatar-img');
+      if (avatarImg) avatarImg.src = url;
+    }
+  } catch (err) {
+    console.error("Error cargando avatar:", err);
+  }
+}
 
 // ===============================
 // Expandir/colapsar secciones con “+”
@@ -215,6 +252,7 @@ function initExpandButtons() {
 // Menú móvil
 // ===============================
 function initMobileMenu() {
+  if (!hamburger || !navList) return;
   hamburger.addEventListener("click", () => {
     navList.classList.toggle("active");
   });
@@ -225,7 +263,7 @@ function initMobileMenu() {
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
   const today = new Date();
-  yearSpan.textContent = today.getFullYear();
+  if (yearSpan) yearSpan.textContent = today.getFullYear();
 
   initMobileMenu();
   initSmoothScroll();
@@ -237,7 +275,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Cargar juegos
   loadGames();
 
-  // Actualizar estado de avatar cada 60s
+  // Intentar actualizar estado de avatar (si CORS lo permite)
   updateAvatarStatus(ROBLOX_USER_ID);
   setInterval(() => updateAvatarStatus(ROBLOX_USER_ID), 60000);
 
