@@ -21,11 +21,9 @@
   --modal-width: min(820px, 100%);
   --modal-radius: 12px;
 
-  /* Icono del juego: tamaño y offset vertical relativo a la portada.
-     Cambia --modal-icon-offset a positivo para separarlo más hacia abajo,
-     a negativo para que suba. */
+  /* Icono del juego: tamaño y offset vertical relativo a la portada. */
   --modal-icon-size: 120px;
-  --modal-icon-offset: -10px; /* valor por defecto: -18px (solapamiento moderado) */
+  --modal-icon-offset: -10px;
 
   /* Posición del botón cerrar (X) */
   --modal-close-top: -7px;
@@ -199,6 +197,7 @@ body.light-mode .header{
 .nav-list a:hover{color:var(--color-accent)}
 
 /* Selector de idioma */
+/* Usamos data-URI SVG como icono para evitar 404 por arrow-down-white.svg */
 #languageSwitcher{
   -webkit-appearance:none;
   -moz-appearance:none;
@@ -219,13 +218,13 @@ body:not(.light-mode) #languageSwitcher{
   background-color:var(--color-bg-dark);
   color:var(--color-text-dark);
   border-color:var(--color-text-dark);
-  background-image:url('../img/arrow-down-white.svg');
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'><path d='M0 0 L5 6 L10 0' fill='none' stroke='%23fff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
 }
 body.light-mode #languageSwitcher{
   background-color:var(--color-bg-light);
   color:var(--color-text-light);
   border-color:var(--color-text-light);
-  background-image:url('../img/arrow-down-black.svg');
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'><path d='M0 0 L5 6 L10 0' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
 }
 #languageSwitcher option{background-color:inherit;color:inherit}
 
@@ -270,16 +269,28 @@ body.light-mode .theme-toggle{background-color:#000;color:#fff}
 .theme-icon{width:24px;height:24px;display:block}
 
 /* ===============================
-   Avatar dinámico
+   Avatar dinámico (UN SOLO BORDE)
    =============================== */
+/* Mantener el borde SOLO en el container y eliminar cualquier borde en la imagen
+   para evitar doble círculo. Ajusta padding para controlar el grosor visual. */
 .avatar-container{
-  display:inline-block;
-  padding:4px;
+  display:inline-flex;
+  padding:6px;
   border-radius:50%;
-  border:4px solid gray;
+  border:4px solid gray; /* color por defecto (offline) */
   transition:border-color .3s ease,transform .3s ease;
+  align-items:center;
+  justify-content:center;
+  background:transparent;
 }
-#avatar-img{width:var(--avatar-size);height:var(--avatar-size);border-radius:50%;object-fit:cover;display:block;border:0}
+#avatar-img{
+  width:var(--avatar-size);
+  height:var(--avatar-size);
+  border-radius:50%;
+  object-fit:cover;
+  display:block;
+  border:0; /* IMPORTANTE: no dejar borde aquí */
+}
 .avatar-container:hover{transform:scale(1.05)}
 .avatar-offline{border-color:gray}
 .avatar-online{border-color:rgb(32,109,250)}
@@ -290,9 +301,11 @@ body.light-mode .theme-toggle{background-color:#000;color:#fff}
 /* ===============================
    Home section
    =============================== */
+/* Quitamos referencia directa a fondo-roblox.jpg (evitaba 404). Mantener gradiente.
+   Si subes la imagen, puedes reañadir `, url('../img/fondo-roblox.jpg') no-repeat center/cover;` */
 .home-section{
   text-align:center;
-  background:linear-gradient(rgba(0,0,0,0.55),rgba(0,0,0,0.55)),url('../img/fondo-roblox.jpg') no-repeat center/cover;
+  background:linear-gradient(rgba(0,0,0,0.55),rgba(0,0,0,0.55));
   color:#fff;
   position:relative;
   padding:6rem 0;
