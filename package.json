@@ -1,0 +1,17 @@
+{
+  "name": "mi-portfolio",
+  "version": "1.0.0",
+  "description": "Este repositorio contiene los archivos para un portafolio web profesional de un desarrollador de Roblox (PmpoliDev), con soporte multilingüe, modo oscuro/ligero, animaciones suaves y secciones:",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  }
+}

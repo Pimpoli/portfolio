@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title data-i18n="title">My Portfolio</title>
+
+  <!-- Favicon -->
+<!-- Favicon (fallback embebido añadido) -->
+<link rel="icon" href="img/MultiGameInc.webp" />
+<!-- Fallback data-URI (evita 404 si falta favicon.ico) -->
+
+  <!-- Normalize CSS (integrity removed por compatibilidad) -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" />
+
+  <!-- Google Fonts: Fredoka One + Roboto -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Roboto:wght@400;700&display=swap"
+    rel="stylesheet" />
+
+  <!-- CSS principal -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Estilos adicionales para el avatar dinámico -->
+ <!-- Reemplaza el bloque inline existente relacionado al avatar por este -->
+<style>
+  /* Avatar: tamaño y sin borde (el borde lo maneja el container) */
+  #avatar-img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 0; /* <-- IMPORTANTE: quitar borde aquí */
+    transition: border-color 0.3s ease;
+    object-fit: cover;
+    display:block;
+  }
+
+  /* Clases de estado (si las quieres también aquí, están duplicadas en style.css) */
+  .avatar-offline  { border-color: gray; }
+  .avatar-online   { border-color: blue; }
+  .avatar-inGame   { border-color: green; }
+  .avatar-studio   { border-color: orange; }
+</style>
+</head>
+<body>
+  <!-- BOTÓN MODO OSCURO / CLARO -->
+  <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+    <img id="theme-icon-img" src="img/moon.webp" alt="Theme Icon" class="theme-icon" />
+  </button>
+
+  <!-- CABECERA / NAVEGACIÓN -->
+  <header class="header">
+    <div class="container nav-container">
+      <div class="logo fade-in scroll-delay-1">
+        <!-- Logo envuelto en enlace al grupo de Roblox -->
+        <a href="https://www.roblox.com/es/communities/17387910/Multi-Game-Inc#!/about"
+           target="_blank" rel="noopener">
+          <img src="img/MultiGameInc.webp" alt="Logo MultiGame Inc" class="logo-img" />
+          <span class="logo-text">Multi Game Inc</span>
+        </a>
+      </div>
+      <nav class="nav">
+        <ul class="nav-list">
+          <li><a href="#home" class="nav-link" data-i18n="nav.home">Home</a></li>
+          <li><a href="#about" class="nav-link" data-i18n="nav.about">About</a></li>
+          <li><a href="#projects" class="nav-link" data-i18n="nav.projects">Projects</a></li>
+          <li><a href="#games" class="nav-link" data-i18n="nav.games">Games</a></li>
+          <li><a href="#store" class="nav-link" data-i18n="nav.store">Store</a></li>
+          <li><a href="#contact" class="nav-link" data-i18n="nav.contact">Contact</a></li>
+          <li>
+            <select id="languageSwitcher">
+              <option value="en">English</option>
+              <option value="es">Español</option>
+            </select>
+          </li>
+        </ul>
+        <div class="hamburger" id="hamburger">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- SECCIÓN: HOME -->
+  <section id="home" class="section home-section fade-in">
+    <div class="container">
+      <h1 class="fade-in" data-i18n="home.title">Hello, I'm PmpoliDev</h1>
+      <p class="fade-in scroll-delay-1" data-i18n="home.subtitle">
+        Roblox Developer with +3 years experience • Expertise in Lua (Roblox Studio)
+      </p>
+
+      <!-- Avatar dinámico con borde que cambia según estado -->
+      <a href="https://www.roblox.com/users/3404416545/profile" target="_blank" rel="noopener">
+        <div id="avatar-container" class="avatar-container fade-in scroll-delay-2"
+             title="Descripción: Soy desarrollador en Roblox Studios. Mi grupo es: Multi Game Inc. Próximo juego pronto.">
+          <!-- El src se asigna con JavaScript -->
+          <img id="avatar-img" alt="Avatar de Roblox" />
+        </div>
+      </a>
+      <!-- Debug: aquí se inyectarán controles de simulación si no hay proxy (por main.js) -->
+      <div id="avatar-debug-controls" style="text-align:center;margin-top:8px;"></div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN: ABOUT (contenedor dinámico) -->
+  <section id="about" class="section about-section fade-in">
+    <div id="about-container" class="container">
+      <!-- about.js inyecta contenido aquí -->
+    </div>
+  </section>
+
+  <!-- SECCIÓN: PROJECTS (contenedor dinámico) -->
+ <section id="projects" class="section projects-section fade-in">
+    <div id="projects-container" class="container"></div>
+  </section>
+
+  <!-- SECCIÓN: GAMES -->
+  <section id="games" class="section games-section fade-in">
+    <div class="container">
+      <h2 class="fade-in" data-i18n="games.title">Games I've Created</h2>
+
+      <!-- Contenedor para los dos primeros juegos (grid responsivo, igual que en Store) -->
+      <div id="games-container" class="fade-in scroll-delay-1">
+        <!-- Las dos primeras tarjetas se generarán aquí por games.js -->
+      </div>
+
+      <!-- Botón “+” para mostrar/ocultar los juegos extra -->
+      <button id="load-more-games"
+              class="expand-btn fade-in scroll-delay-2"
+              data-target="more-games">
+        +
+      </button>
+
+      <!-- Contenedor oculto para los juegos adicionales -->
+      <div id="more-games" class="more-content">
+        <!-- Las tarjetas extra se generarán aquí por games.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN: STORE -->
+  <section id="store" class="section store-section fade-in">
+    <div class="container">
+      <h2 class="fade-in" data-i18n="store.title">Products / Store</h2>
+
+      <!-- Contenedor donde van los 2 primeros productos -->
+      <div id="products-container" class="products-grid">
+        <!-- Aquí products.js inyecta dinámicamente las dos primeras tarjetas -->
+      </div>
+
+      <!-- Botón “+” para cargar más -->
+      <button id="load-more-products">+</button>
+
+      <!-- Contenedor oculto para productos extra -->
+      <div id="more-products" class="more-content">
+        <!-- Aquí products.js inyecta dinámicamente las tarjetas restantes -->
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN: CONTACT & REDES SOCIALES -->
+  <section id="contact" class="section contact-section fade-in">
+    <div class="container">
+      <h2 class="fade-in" data-i18n="contact.title">Contact & Social Media</h2>
+      <p class="fade-in scroll-delay-1" data-i18n="contact.text">
+        Feel free to reach out via any of these platforms:
+      </p>
+      <div class="social-icons fade-in scroll-delay-2">
+        <a href="https://discord.gg/SgjguUvTwE" target="_blank" rel="noopener" title="Discord">
+          <img src="img/discord.webp" alt="Discord" class="social-icon" />
+        </a>
+        <a href="https://twitter.com/PmpoliDev" target="_blank" rel="noopener" title="Twitter/X">
+          <img src="img/twitter.webp" alt="Twitter" class="social-icon" />
+        </a>
+        <a href="https://www.roblox.com/es/users/3404416545/profile" target="_blank" rel="noopener" title="Roblox Profile">
+          <img src="img/roblox.webp" alt="Roblox" class="social-icon" />
+        </a>
+        <a href="https://www.roblox.com/es/communities/17387910/Multi-Game-Inc#!/about"
+           target="_blank" rel="noopener" title="Multi Game Inc (Grupo)">
+          <img src="img/MultiGameInc.webp" alt="Multi Game Inc" class="social-icon" />
+        </a>
+        <a href="https://www.youtube.com/@PmpoliDev" target="_blank" rel="noopener" title="YouTube">
+          <img src="img/youtube.webp" alt="YouTube" class="social-icon" />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PIE DE PÁGINA -->
+  <footer class="footer">
+    <div class="container"><p>© <span id="year"></span> PmpoliDev. All rights reserved.</p></div>
+  </footer>
+
+  <!-- Scripts de contenido dinámico -->
+  <script src="js/about.js"></script>
+  <script src="js/projects.js"></script>
+  <script src="js/games.js"></script>
+  <script src="js/products.js"></script>
+
+  <!-- Scripts de traducción e interacción general -->
+  <script src="js/i18n.js"></script>
+  <script src="js/main.js"></script>
+
+  <!-- Lightbox container -->
+  <div id="img-modal">
+    <img src="" alt="Expanded image" />
+  </div>
+</body>
+</html>
