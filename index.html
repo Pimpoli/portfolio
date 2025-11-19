@@ -9,12 +9,10 @@
   <!-- Favicon -->
   <link rel="icon" href="img/favicon.ico" />
 
-  <!-- Normalize CSS -->
+  <!-- Normalize CSS (integrity removed por compatibilidad) -->
   <link
     rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"
-    integrity="sha512-oHDEc8XedHjHghnA4eI2X/lW+Oq8Y0IQygP9G99eG/APMDtwemjQFqVE/zN8uFf2E6ArqUP5D9Dytk5XGR6Xeg=="
-    crossorigin="anonymous" />
+    href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" />
 
   <!-- Google Fonts: Fredoka One + Roboto -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -74,25 +72,6 @@
             <select id="languageSwitcher">
               <option value="en">English</option>
               <option value="es">Español</option>
-              <option value="pt">Português</option>
-              <option value="fr">Français</option>
-              <option value="it">Italiano</option>
-              <option value="de">Deutsch</option>
-              <option value="hi">हिन्दी</option>
-              <option value="bn">বাংলা</option>
-              <option value="ru">Русский</option>
-              <option value="ur">اردو</option>
-              <option value="ar">العربية</option>
-              <option value="zh-CN">简体中文</option>
-              <option value="zh-TW">繁體中文</option>
-              <option value="ja">日本語</option>
-              <option value="ko">한국어</option>
-              <option value="id">Bahasa Indonesia</option>
-              <option value="tr">Türkçe</option>
-              <option value="vi">Tiếng Việt</option>
-              <option value="tl">Filipino</option>
-              <option value="fa">فارسی</option>
-              <option value="sw">Kiswahili</option>
             </select>
           </li>
         </ul>
@@ -121,6 +100,8 @@
           <img id="avatar-img" alt="Avatar de Roblox" />
         </div>
       </a>
+      <!-- Debug: aquí se inyectarán controles de simulación si no hay proxy (por main.js) -->
+      <div id="avatar-debug-controls" style="text-align:center;margin-top:8px;"></div>
     </div>
   </section>
 
@@ -180,33 +161,33 @@
     </div>
   </section>
 
-  <!-- SECCIÓN: CONTACT & REDES SOCIALES -->         
-  <section id="contact" class="section contact-section fade-in"> 
-    <div class="container">                       
-      <h2 class="fade-in" data-i18n="contact.title">Contact & Social Media</h2> 
-      <p class="fade-in scroll-delay-1" data-i18n="contact.text">  
-        Feel free to reach out via any of these platforms:  
-      </p>                                            
-      <div class="social-icons fade-in scroll-delay-2"> 
-        <a href="https://discord.gg/SgjguUvTwE" target="_blank" rel="noopener" title="Discord"> 
-          <img src="img/discord.webp" alt="Discord" class="social-icon" /> 
-        </a>                                         
-        <a href="https://twitter.com/PmpoliDev" target="_blank" rel="noopener" title="Twitter/X"> 
+  <!-- SECCIÓN: CONTACT & REDES SOCIALES -->
+  <section id="contact" class="section contact-section fade-in">
+    <div class="container">
+      <h2 class="fade-in" data-i18n="contact.title">Contact & Social Media</h2>
+      <p class="fade-in scroll-delay-1" data-i18n="contact.text">
+        Feel free to reach out via any of these platforms:
+      </p>
+      <div class="social-icons fade-in scroll-delay-2">
+        <a href="https://discord.gg/SgjguUvTwE" target="_blank" rel="noopener" title="Discord">
+          <img src="img/discord.webp" alt="Discord" class="social-icon" />
+        </a>
+        <a href="https://twitter.com/PmpoliDev" target="_blank" rel="noopener" title="Twitter/X">
           <img src="img/twitter.webp" alt="Twitter" class="social-icon" />
-        </a>                                          
-        <a href="https://www.roblox.com/es/users/3404416545/profile" target="_blank" rel="noopener" title="Roblox Profile">  
-          <img src="img/roblox.webp" alt="Roblox" class="social-icon" /> 
-        </a>                                         
-        <a href="https://www.roblox.com/es/communities/17387910/Multi-Game-Inc#!/about"  
-           target="_blank" rel="noopener" title="Multi Game Inc (Grupo)"> 
-          <img src="img/MultiGameInc.webp" alt="Multi Game Inc" class="social-icon" /> 
-        </a>                                          
-        <a href="https://www.youtube.com/@PmpoliDev" target="_blank" rel="noopener" title="YouTube"> 
+        </a>
+        <a href="https://www.roblox.com/es/users/3404416545/profile" target="_blank" rel="noopener" title="Roblox Profile">
+          <img src="img/roblox.webp" alt="Roblox" class="social-icon" />
+        </a>
+        <a href="https://www.roblox.com/es/communities/17387910/Multi-Game-Inc#!/about"
+           target="_blank" rel="noopener" title="Multi Game Inc (Grupo)">
+          <img src="img/MultiGameInc.webp" alt="Multi Game Inc" class="social-icon" />
+        </a>
+        <a href="https://www.youtube.com/@PmpoliDev" target="_blank" rel="noopener" title="YouTube">
           <img src="img/youtube.webp" alt="YouTube" class="social-icon" />
-        </a>                                         
-      </div>                                        
-    </div>                                          
-  </section>                                      
+        </a>
+      </div>
+    </div>
+  </section>
 
   <!-- PIE DE PÁGINA -->
   <footer class="footer">
@@ -227,57 +208,5 @@
   <div id="img-modal">
     <img src="" alt="Expanded image" />
   </div>
-
-  <!-- Script adicional: avatar y lightbox -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const userId = 3404416545;
-      const avatarImg = document.getElementById('avatar-img');
-      const avatarContainer = document.getElementById('avatar-container');
-
-      // Obtener avatar
-      fetch(`https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Webp&isCircular=false`)
-        .then(res => res.json())
-        .then(data => {
-          const url = data.data?.[0]?.imageUrl;
-          if (url) avatarImg.src = url;
-        })
-        .catch(console.error);
-
-      // Obtener estado de presencia
-      fetch('https://presence.roproxy.com/v1/presence/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userIds: [userId] })
-      })
-        .then(res => res.json())
-        .then(data => {
-          const statusType = data.userPresences?.[0]?.userPresenceType;
-          avatarContainer.classList.remove('avatar-offline','avatar-online','avatar-inGame','avatar-studio');
-          avatarContainer.classList.add(
-            ['avatar-offline','avatar-online','avatar-inGame','avatar-studio'][statusType] || 'avatar-offline'
-          );
-        })
-        .catch(console.error);
-
-      // Lightbox
-      const modal = document.getElementById('img-modal');
-      const modalImg = modal.querySelector('img');
-      function openLightbox(src, alt) {
-        modalImg.src = src;
-        modalImg.alt = alt;
-        modal.style.display = 'flex';
-      }
-      modal.addEventListener('click', () => {
-        modal.style.display = 'none';
-        modalImg.src = '';
-        modalImg.alt = '';
-      });
-      document.getElementById('projects-container').addEventListener('click', evt => {
-        const img = evt.target.closest('.project-card img');
-        if (img) openLightbox(img.src, img.alt);
-      });
-    });
-  </script>
 </body>
 </html>
