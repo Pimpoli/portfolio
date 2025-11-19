@@ -7,7 +7,9 @@
   <title data-i18n="title">My Portfolio</title>
 
   <!-- Favicon -->
-  <link rel="icon" href="img/favicon.ico" />
+<!-- Favicon (fallback embebido añadido) -->
+<link rel="icon" href="img/MultiGameInc.webp" />
+<!-- Fallback data-URI (evita 404 si falta favicon.ico) -->
 
   <!-- Normalize CSS (integrity removed por compatibilidad) -->
   <link
@@ -25,23 +27,25 @@
   <link rel="stylesheet" href="css/style.css" />
 
   <!-- Estilos adicionales para el avatar dinámico -->
-  <style>
-    /* Avatar: tamaño y borde por defecto (offline) */
-    #avatar-img {
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      border: 4px solid gray;
-      transition: border-color 0.3s ease;
-      object-fit: cover;
-    }
+ <!-- Reemplaza el bloque inline existente relacionado al avatar por este -->
+<style>
+  /* Avatar: tamaño y sin borde (el borde lo maneja el container) */
+  #avatar-img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 0; /* <-- IMPORTANTE: quitar borde aquí */
+    transition: border-color 0.3s ease;
+    object-fit: cover;
+    display:block;
+  }
 
-    /* Clases de estado */
-    .avatar-offline  { border-color: gray; }
-    .avatar-online   { border-color: blue; }
-    .avatar-inGame   { border-color: green; }
-    .avatar-studio   { border-color: orange; }
-  </style>
+  /* Clases de estado (si las quieres también aquí, están duplicadas en style.css) */
+  .avatar-offline  { border-color: gray; }
+  .avatar-online   { border-color: blue; }
+  .avatar-inGame   { border-color: green; }
+  .avatar-studio   { border-color: orange; }
+</style>
 </head>
 <body>
   <!-- BOTÓN MODO OSCURO / CLARO -->
