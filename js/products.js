@@ -16,31 +16,31 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   const PRODUCTS = [
     {
-      img: 'img/producto1.webp',
+      img: 'img/MultiGameInc.webp',
       name: 'Próximamente',
       desc: 'Próximamente',
       price: '$Próximamente USD'
     },
     {
-      img: 'img/producto2.webp',
+      img: 'img/MultiGameInc.webp',
       name: 'Próximamente',
       desc: 'Próximamente.',
       price: '$Próximamente USD'
     },
     {
-      img: 'img/producto3.webp',
+      img: 'img/MultiGameInc.webp',
       name: 'Próximamente',
       desc: 'Próximamente.',
       price: '$Próximamente USD'
     },
     {
-      img: 'img/producto4.webp',
+      img: 'img/MultiGameInc.webp',
       name: 'Próximamente',
       desc: 'Próximamente.',
       price: '$Próximamente USD'
     },
     {
-      img: 'img/producto5.webp',
+      img: 'img/MultiGameInc.webp',
       name: 'Próximamente',
       desc: 'Próximamente.',
       price: '$Próximamente USD'
