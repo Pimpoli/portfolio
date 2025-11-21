@@ -606,6 +606,14 @@ body.light-mode #game-modal { background: var(--color-bg-light); color: var(--co
   z-index: 30;
 }
 
+#more-games.visible-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+  align-items: stretch;
+}
+
 /* Nav arrows */
 #game-modal .cover-nav {
   position: absolute;
