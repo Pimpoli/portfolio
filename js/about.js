@@ -1,82 +1,74 @@
-// about.js
-
 document.addEventListener('DOMContentLoaded', () => {
   const aboutContainer = document.getElementById('about-container');
+  if (!aboutContainer) return;
 
-  // Objeto con la información "Sobre mí"
-  const aboutContent = {
-    title: 'About Me',
-    description: `Soy un desarrollador en Roblox con más de tres años de experiencia. 
-    Puedo crear sistemas de olas procedurales realistas, optimizar scripts y juego, 
-    y desarrollar poderes PvP para NPC.`,
-    infoList: [
-      {
-        label: 'Years of Experience:',
-        value: '+3 years'
-      },
-      {
-        label: 'Primary Language & Engine:',
-        value: 'Lua / Roblox Studio'
-      },
-      {
-        label: 'Secondary Language & Engine:',
-        value: 'GDScript / Godot (nivel básico)'
-      },
-      {
-        label: 'My Skills:',
-        value: ''
-      },
-      {
-        label: 'UIs:',
-        value: 'Poder interactuar con las UIs, Animaciones y transiciones, Organización de estructura, Diseño y estilo, Compatibilidad con todo tipo de pantallas.'
-      },
-      {
-        label: 'Skill Design:',
-        value: 'Custom powers like those from (Blox Fruits or The Strongest Battlefields) with the ability to do combos or parrin with camera effects like making the camera shake or impact the frame.'
-      },
-    ],
-    founder: {
-      text: 'Founder of Multi Game Inc',
-      iconSrc: 'img/MultiGameInc.webp',
-      iconAlt: 'Roblox Group',
-      iconLink: 'https://www.roblox.com/es/communities/17387910/Multi-Game-Inc#!/about'
-    }
-  }
+  // Configuración de datos estáticos
+  const aboutData = {
+    img: 'img/MultiGameInc.webp',
+    studioUrl: 'https://www.roblox.com/es/communities/17387910/Multi-Game-Inc#!/about'
+  };
 
-  // Crear el encabezado
+  // Limpiar contenido previo (el HTML antiguo)
+  aboutContainer.innerHTML = '';
+
+  // Crear título
   const h2 = document.createElement('h2');
   h2.className = 'fade-in';
   h2.setAttribute('data-i18n', 'about.title');
-  h2.innerText = aboutContent.title;
+  h2.textContent = 'Sobre mí'; 
   aboutContainer.appendChild(h2);
 
-  // Crear el párrafo de descripción
-  const p = document.createElement('p');
-  p.className = 'fade-in scroll-delay-1';
-  p.setAttribute('data-i18n', 'about.description');
-  p.innerText = aboutContent.description;
-  aboutContainer.appendChild(p);
-
-  // Crear la lista de datos
+  // Crear lista
   const ul = document.createElement('ul');
-  ul.className = 'info-list fade-in scroll-delay-2';
+  ul.className = 'about-list';
 
-  aboutContent.infoList.forEach(item => {
+  // Función para crear items de la lista
+  const createItem = (labelKey, valueKey, isStudio = false, index) => {
     const li = document.createElement('li');
-    li.innerHTML = `<strong>${item.label}</strong> ${item.value}`;
-    ul.appendChild(li);
-  });
+    li.className = `about-item fade-in scroll-delay-${index + 1}`;
+    
+    // Etiqueta (ej: "Nombre:")
+    const strong = document.createElement('strong');
+    strong.setAttribute('data-i18n', labelKey);
+    
+    li.appendChild(strong);
+    li.appendChild(document.createTextNode(' ')); // Espacio
 
-  // Añadir el ítem de fundador con icono enlazado
-  const liFounder = document.createElement('li');
-  liFounder.className = 'fade-in scroll-delay-2';
-  liFounder.innerHTML = `
-    <strong>${aboutContent.founder.text}</strong>
-    <a href="${aboutContent.founder.iconLink}" target="_blank" rel="noopener">
-      <img src="${aboutContent.founder.iconSrc}" alt="${aboutContent.founder.iconAlt}" class="icon-inline small-icon" />
-    </a>
-  `;
-  ul.appendChild(liFounder);
+    if (isStudio) {
+      // Caso especial para el Studio: Enlace con Texto + Imagen
+      const a = document.createElement('a');
+      a.href = aboutData.studioUrl;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.className = 'studio-link';
+      
+      const spanText = document.createElement('span');
+      spanText.setAttribute('data-i18n', valueKey);
+      spanText.textContent = 'Multi Game Inc';
+      
+      const img = document.createElement('img');
+      img.src = aboutData.img;
+      img.alt = 'Multi Game Inc Logo';
+      img.className = 'studio-logo-small';
+      
+      a.appendChild(spanText);
+      a.appendChild(img);
+      li.appendChild(a);
+    } else {
+      // Caso normal: Solo texto
+      const span = document.createElement('span');
+      span.setAttribute('data-i18n', valueKey);
+      li.appendChild(span);
+    }
+    
+    return li;
+  };
+
+  // Generar los 4 items solicitados
+  ul.appendChild(createItem('about.list.nameLabel', 'about.list.nameValue', false, 0));
+  ul.appendChild(createItem('about.list.expLabel', 'about.list.expValue', false, 1));
+  ul.appendChild(createItem('about.list.enginesLabel', 'about.list.enginesValue', false, 2));
+  ul.appendChild(createItem('about.list.studioLabel', 'about.list.studioName', true, 3));
 
   aboutContainer.appendChild(ul);
 });
