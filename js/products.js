@@ -16,30 +16,35 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   const PRODUCTS = [
     {
+      id: 'comingSoon',
       img: 'img/MultiGameInc.webp',
       name: 'Próximamente',
       desc: 'Próximamente',
       price: '$Próximamente USD'
     },
     {
+      id: 'comingSoon',
       img: 'img/MultiGameInc.webp',
       name: 'Próximamente',
       desc: 'Próximamente.',
       price: '$Próximamente USD'
     },
     {
+      id: 'comingSoon',
       img: 'img/MultiGameInc.webp',
       name: 'Próximamente',
       desc: 'Próximamente.',
       price: '$Próximamente USD'
     },
     {
+      id: 'comingSoon',
       img: 'img/MultiGameInc.webp',
       name: 'Próximamente',
       desc: 'Próximamente.',
       price: '$Próximamente USD'
     },
     {
+      id: 'comingSoon',
       img: 'img/MultiGameInc.webp',
       name: 'Próximamente',
       desc: 'Próximamente.',
@@ -68,10 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     card.innerHTML = `
       <img src="${product.img}" alt="${product.name}" />
-      <h3>${product.name}</h3>
-      <p>${product.desc}</p>
-      <span class="price">${product.price}</span>
-      <button class="buy-btn">Buy Now</button>
+      <h3 data-i18n="store.${product.id}.name">${product.name}</h3>
+      <p data-i18n="store.${product.id}.desc">${product.desc}</p>
+      <span class="price" data-i18n="store.${product.id}.price">${product.price}</span>
+      <button class="buy-btn" data-i18n="store.buyButton">Buy Now</button>
     `;
 
     parent.appendChild(card);
