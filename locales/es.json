@@ -1,5 +1,5 @@
 {
-  "title": "Portafolio de PmpoliDev",
+  "title": "Portafolio de PimpoliDev",
   "nav": {
     "home": "Inicio",
     "about": "Sobre mí",
@@ -9,32 +9,39 @@
     "contact": "Contacto"
   },
   "home": {
-    "title": "Hola, soy PmpoliDev",
+    "title": "Hola, soy PimpoliDev",
     "subtitle": "Desarrollador de Roblox con +4 años de experiencia • Especializado en Lua (Roblox Studio)"
   },
   "about": {
     "title": "Sobre mí",
-    "description": "Soy un desarrollador en Roblox con más de tres años de experiencia. Puedo crear sistemas de olas procedurales realistas, optimizar scripts y juegos, y desarrollar poderes PvP para NPC.",
-    "expLabel": "Años de experiencia:",
-    "experience": "+4",
-    "years": "años",
-    "languagesLabel": "Lenguaje y motor principal:",
-    "secondaryLabel": "Lenguaje y motor secundario:",
-    "moreLabel": "Habilidades y roles:",
-    "founder": "Fundador de Multi Game Inc",
-    "point1": "Desarrollar sistemas de guardado con DataStore",
-    "point2": "Crear GUIs personalizadas, animaciones y sistemas basados en físicas"
+    "list": {
+      "nameLabel": "Nombre:",
+      "nameValue": "Anthony // Alias: PimpoliDev",
+      "expLabel": "Experiencia:",
+      "expValue": "4+ años de Experiencia",
+      "enginesLabel": "Motores:",
+      "enginesValue": "Roblox Studio y Godot Engine 4",
+      "studioLabel": "Studio:",
+      "studioName": "Multi Game Inc"
+    }
   },
   "projects": {
     "title": "Mi trabajo / Ejemplos",
     "project1": { "title": "Juego Roblox “SuperPark”", "desc": "Un juego estilo parkour con animaciones personalizadas y GUI." },
-    "project2": { "title": "Sistema de Skateboard", "desc": "Física personalizada con Raycasts y animaciones fluidas." }
+    "project2": { "title": "Sistema de Skateboard", "desc": "Física personalizada con Raycasts y animaciones fluidas." },
+    "nodes": { "title": "Sistema de Nodos", "desc": "" },
+    "comingSoon": { "title": "Próximamente", "desc": "Próximamente" },
+    "waves": { "title": "Olas realistas", "desc": "Intento de simular olas de forma realista." },
+    "menu": { "title": "Menú Personalizado para \"Bloxidextro\"", "desc": "Menú Personalizado para \"Bloxidextro\" → Juego desarrollado por Multi Game Inc." },
+    "trampoline": { "title": "Trampolín cooperativo", "desc": "Trampolín que necesita que un Humanoid lo presione para inflar el otro y hacer saltar al segundo Humanoid." },
+    "nodesDemo": { "title": "Sistema de Nodos", "desc": "Conexión visual entre nodos para sistemas futuros, como un sistema cinemático avanzado." }
   },
   "games": { "title": "Juegos que he creado" },
   "store": {
     "title": "Productos / Tienda",
     "product1": { "name": "Avatar personalizado de Roblox", "desc": "Diseño de avatar personalizado para tu perfil de Roblox.", "price": "$5 USD" },
     "product2": { "name": "Paquete de scripts para juegos", "desc": "Paquete de scripts en Lua (cooldowns, GUI, etc.).", "price": "$10 USD" },
+    "comingSoon": { "name": "Próximamente", "desc": "Próximamente.", "price": "$Próximamente USD" },
     "buyButton": "Comprar"
   },
   "contact": { "title": "Contacto y redes sociales", "text": "No dudes en contactarme a través de cualquiera de estas plataformas:" }
