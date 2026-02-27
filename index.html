@@ -11,7 +11,8 @@
     if (typeof window.PROXY_BASE === 'undefined') {
       (function(){
         const host = location.hostname;
-        if (host === 'localhost' || host === '127.0.0.1') {
+        // Si estamos en localhost O abriendo el archivo directamente (file://), intentamos usar el servidor local
+        if (host === 'localhost' || host === '127.0.0.1' || location.protocol === 'file:') {
           window.PROXY_BASE = 'http://localhost:3000'; // desarrollo
         } else {
           window.PROXY_BASE = '/api'; // producción (proxy en mismo dominio) o adapta aquí
@@ -81,24 +82,24 @@
   <!-- HOME -->
   <section id="home" class="section home-section fade-in">
     <div class="container">
-      <h1 class="fade-in" data-i18n="home.title">Hello, I'm PmpoliDev</h1>
+      <h1 class="fade-in" data-i18n="home.title">Hello, I'm PimpoliDev</h1>
       <p class="fade-in scroll-delay-1" data-i18n="home.subtitle">Roblox Developer with +3 years experience • Expertise in Lua (Roblox Studio)</p>
 
-      <a href="https://www.roblox.com/users/3404416545/profile" target="_blank" rel="noopener">
-       <!-- Avatar container: el ring es el border del container -->
-<div id="avatar-container" class="avatar-container avatar-offline" title="Offline">
-  <img id="avatar-img" src="./img/Avatar.webp" alt="Avatar" />
-  <!-- <div class="presence-indicator" aria-hidden="true"></div>  <-- opcional, ahora oculto -->
-</div>
+      <a href="https://www.roblox.com/es/users/3404416545/profile" target="_blank" rel="noopener">
+        <!-- Nuevo contenedor de perfil Roblox -->
+        <div id="roblox-profile-container" class="roblox-profile-container status-offline">
+          <img id="roblox-profile-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Roblox Profile" referrerpolicy="no-referrer" />
+        </div>
 
       </a>
-      <div id="avatar-debug-controls" style="text-align:center;margin-top:8px;"></div>
     </div>
   </section>
 
   <!-- ABOUT -->
   <section id="about" class="section about-section fade-in">
-    <div id="about-container" class="container"></div>
+    <div id="about-container" class="container">
+      <!-- El contenido se genera dinámicamente en js/about.js -->
+    </div>
   </section>
 
   <!-- PROJECTS -->
@@ -143,14 +144,14 @@
 
   <!-- FOOTER -->
   <footer class="footer">
-    <div class="container"><p>© <span id="year"></span> PmpoliDev. All rights reserved.</p></div>
+    <div class="container"><p>© <span id="year"></span> PimpoliDev. All rights reserved.</p></div>
   </footer>
 
   <!-- Scripts de contenido dinámico -->
-  <script src="js/about.js"></script>
   <script src="js/projects.js"></script>
   <script src="js/games.js"></script>
   <script src="js/products.js"></script>
+  <script src="js/about.js"></script>
 
   <!-- i18n (cargar antes del handler del switcher) -->
   <script src="js/i18n.js"></script>
@@ -178,6 +179,11 @@
   <script src="js/main.js"></script>
 
   <!-- Lightbox container -->
-  <div id="img-modal"><img src="" alt="Expanded image" /></div>
+  <div id="img-modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <div id="modal-media-container"></div>
+    </div>
+  </div>
 </body>
 </html>
