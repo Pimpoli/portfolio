@@ -1,5 +1,5 @@
 {
-  "title": "PmpoliDev Portfolio",
+  "title": "PimpoliDev Portfolio",
   "nav": {
     "home": "Home",
     "about": "About",
@@ -9,33 +9,36 @@
     "contact": "Contact"
   },
   "home": {
-    "title": "Hello, I'm PmpoliDev",
-    "subtitle": "Roblox Developer with +4 years experience • Expertise in Lua (Roblox Studio)"
+    "title": "Hi, I'm PimpoliDev",
+    "subtitle": "Roblox Developer with +4 years of experience • Specialized in Lua (Roblox Studio)"
   },
   "about": {
     "title": "About Me",
-    "description": "I’m a Roblox developer with over three years of experience. I can create realistic wave systems, optimize scripts and games, and develop PvP powers for NPCs.",
-    "expLabel": "Years of Experience:",
-    "experience": "+4",
-    "years": "years",
-    "languagesLabel": "Primary Language & Engine:",
-    "secondaryLabel": "Secondary Language & Engine:",
-    "moreLabel": "Abilities & Roles:",
-    "founder": "Founder of Multi Game Inc",
-    "point1": "Develop data saving systems with DataStore",
-    "point2": "Create custom GUIs, animations, and physics-based systems"
+    "list": {
+      "nameLabel": "Name:",
+      "nameValue": "Anthony // Alias: PimpoliDev",
+      "expLabel": "Experience:",
+      "expValue": "4+ Years of Experience",
+      "enginesLabel": "Engines:",
+      "enginesValue": "Roblox Studio & Godot Engine 4",
+      "studioLabel": "Studio:",
+      "studioName": "Multi Game Inc"
+    }
   },
   "projects": {
     "title": "My Work / Examples",
-    "project1": { "title": "Roblox Game “SuperPark”", "desc": "A parkour-style game with custom animations and GUI." },
-    "project2": { "title": "Skateboard System", "desc": "Custom physics with Raycasts and smooth animations." }
+    "nodes": { "title": "Nodes System", "desc": "" },
+    "comingSoon": { "title": "Coming Soon", "desc": "Coming Soon" },
+    "waves": { "title": "Realistic Waves", "desc": "Attempt to simulate waves realistically." },
+    "menu": { "title": "Custom Menu for \"Bloxidextro\"", "desc": "Custom Menu for \"Bloxidextro\" → Game developed by Multi Game Inc." },
+    "trampoline": { "title": "Cooperative Trampoline", "desc": "Trampoline that requires a Humanoid to press it to inflate the other and make the second Humanoid jump." },
+    "nodesDemo": { "title": "Nodes System", "desc": "Visual connection between nodes for future systems, like an advanced cinematic system." }
   },
   "games": { "title": "Games I've Created" },
   "store": {
     "title": "Products / Store",
-    "product1": { "name": "Custom Roblox Avatar", "desc": "Personalized avatar design for your Roblox profile.", "price": "$5 USD" },
-    "product2": { "name": "Game Script Pack", "desc": "Package of custom Lua scripts (cooldowns, GUI, etc.).", "price": "$10 USD" },
+    "comingSoon": { "name": "Coming Soon", "desc": "Coming Soon.", "price": "$Coming Soon USD" },
     "buyButton": "Buy Now"
   },
-  "contact": { "title": "Contact & Social Media", "text": "Feel free to reach out via any of these platforms:" }
+  "contact": { "title": "Contact and Social Media", "text": "Feel free to contact me through any of these platforms:" }
 }
