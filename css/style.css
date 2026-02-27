@@ -265,77 +265,38 @@ body.light-mode .theme-toggle { background-color: #000; color: #fff; }
 /* ===============================
    Avatar dinámico
    =============================== */
-/* Container debe ser relativo para posicionar indicador de presencia */
-/* general reset (añádelo si no lo tienes) */
-*{box-sizing:border-box}
-body{margin:0;font-family:Inter, Roboto, sans-serif;background:#0f0f11;color:#efefef}
 
-/* Avatar container: el border es el ring que se colorea */
-.avatar-container {
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width:calc(var(--avatar-size) + 12px);
-  height:calc(var(--avatar-size) + 12px);
-  padding:6px;
-  border-radius:50%;
-  border:6px solid var(--avatar-border-default);
-  transition: border-color .18s ease, box-shadow .18s ease, transform .12s ease;
-  background:transparent;
-}
-
-/* Imagen circular */
-#avatar-img{
-  width:var(--avatar-size);
-  height:var(--avatar-size);
-  object-fit:cover;
-  border-radius:50%;
-  display:block;
-  background: #ffffff; /* forzar fondo blanco si la miniatura tiene transparencia */
-}
-
-/* Inner small dot to mimic icon-like effect */
-.avatar-container .presence-indicator::after {
-  content: "";
-  width: 60%;
-  height: 60%;
+/* Nuevo contenedor de perfil */
+.roblox-profile-container {
+  width: 160px;
+  height: 160px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.95);
-  opacity: 0.18;
+  padding: 5px;
+  border: 6px solid gray; /* Color por defecto (Offline) */
+  transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  display: inline-block;
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* quitamos cualquier burbuja extra si existía */
-.avatar-container .presence-indicator{ display:none !important; }
-
-/* estados (colores del ring) */
-.avatar-container.avatar-offline { border-color: var(--avatar-border-default); box-shadow:none; }
-.avatar-container.avatar-online  { border-color: var(--avatar-border-online); box-shadow: 0 0 0 6px rgba(32,109,250,0.06); }
-.avatar-container.avatar-inGame  { border-color: var(--avatar-border-ingame);  box-shadow: 0 0 0 6px rgba(0,200,0,0.06); }
-.avatar-container.avatar-studio  { border-color: var(--avatar-border-studio);  box-shadow: 0 0 0 6px rgba(255,155,0,0.06); }
-.avatar-container.avatar-invisible{ border-style:dashed; border-color:var(--avatar-border-invisible); box-shadow:none; }
-
-/* simple animación al cambiar */
-.avatar-container.avatar-online,
-.avatar-container.avatar-inGame,
-.avatar-container.avatar-studio { animation: ring-pop .16s ease both; }
-@keyframes ring-pop { from{transform:scale(.98)} to{transform:scale(1)} }
-
-/* Responsive avatar adjustments */
-@media (max-width: 900px) {
-  .avatar-container { padding: 3px; width: calc(var(--avatar-size) + 6px); height: calc(var(--avatar-size) + 6px); }
-  :root {
-    --presence-size: 24px;
-    --presence-border: 2.5px;
-    --presence-offset: 6px;
-  }
+.roblox-profile-container img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
 }
-@media (max-width: var(--breakpoint-sm)) {
-  :root {
-    --avatar-size: 96px;
-    --presence-size: 20px;
-    --presence-border: 2px;
-    --presence-offset: 5px;
-  }
+
+/* Estados de conexión */
+.roblox-profile-container.status-online { border-color: #00b0ff; box-shadow: 0 0 15px rgba(0, 176, 255, 0.4); } /* Azul */
+.roblox-profile-container.status-ingame { border-color: #00e676; box-shadow: 0 0 15px rgba(0, 230, 118, 0.4); } /* Verde */
+.roblox-profile-container.status-studio { border-color: #ff9100; box-shadow: 0 0 15px rgba(255, 145, 0, 0.4); } /* Naranja */
+.roblox-profile-container.status-offline { border-color: gray; }
+
+/* Hover effect */
+.roblox-profile-container:hover { transform: scale(1.05); }
+
+@media (max-width: 600px) {
+  .roblox-profile-container { width: 120px; height: 120px; border-width: 4px; }
 }
 
 /* ===============================
@@ -355,6 +316,32 @@ body{margin:0;font-family:Inter, Roboto, sans-serif;background:#0f0f11;color:#ef
 .about-section .info-list { list-style: none; margin-top: 1rem; padding: 0; }
 .info-list li { margin-bottom: .8rem; }
 .small-icon { width: 25px; height: 25px; vertical-align: middle; margin-left: .5rem; }
+
+/* Nueva lista About */
+.about-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 1.5rem;
+  font-size: 1.1rem;
+}
+.about-item {
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.studio-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  color: var(--color-accent);
+  font-weight: 700;
+  transition: transform var(--transition-fast), color var(--transition-fast);
+}
+.studio-link:hover { transform: scale(1.04); text-decoration: underline; }
+.studio-logo-small { width: 36px; height: 36px; object-fit: contain; vertical-align: middle; }
 
 /* ===============================
    Projects grid & cards
@@ -383,10 +370,31 @@ body.light-mode .project-card { background-color: var(--color-bg-light); color: 
 #img-modal {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0,0,0,0.9);
   display: none; align-items: center; justify-content: center; z-index: 2000;
+  padding: 20px;
 }
-#img-modal img { max-width: 90%; max-height: 90%; box-shadow: 0 0 20px rgba(0,0,0,0.5); border-radius: 4px; cursor: zoom-out; }
+.modal-content {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  text-align: center;
+}
+#modal-media-container img {
+  max-width: 100%;
+  max-height: 85vh;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+#modal-media-container iframe {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+.close-modal { position: absolute; top: -40px; right: 0; color: #fff; font-size: 35px; cursor: pointer; font-weight: bold; }
+.close-modal:hover { color: var(--color-accent); }
 
 /* ===============================
    "More projects" - oculto/visible
