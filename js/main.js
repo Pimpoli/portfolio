@@ -2,20 +2,8 @@
 // Asegúrate de que window.PROXY_BASE esté definido en index.html o use localhost:3000
 
 const PROXY_BASE = (typeof window.PROXY_BASE !== 'undefined') ? String(window.PROXY_BASE).replace(/\/$/,'') : (location.hostname === 'localhost' ? 'http://localhost:3000' : '/api');
-const THUMBNAIL_PROXY = `${PROXY_BASE}/avatar`;
 const PRESENCE_PROXY   = `${PROXY_BASE}/presence`;
 const ROBLOX_USER_ID   = 3404416545; // cámbialo si quieres
-
-// dataURL fallback
-const PLACEHOLDER_DATAURL = 'data:image/svg+xml;utf8,' + encodeURIComponent(
-  `<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150">
-     <rect fill="#efefef" width="150" height="150" rx="12"/>
-     <g transform="translate(15,20)">
-       <circle cx="60" cy="30" r="28" fill="#d0d0d0"/>
-       <rect x="12" y="72" width="96" height="20" rx="6" fill="#d0d0d0"/>
-     </g>
-   </svg>`
-);
 
 // util fetch con timeout
 async function fetchWithTimeout(url, opts={}, ms=7000) {
@@ -32,41 +20,65 @@ async function fetchWithTimeout(url, opts={}, ms=7000) {
 }
 
 /* ============================
-   Avatar loader (usa proxy que redirige al CDN)
+   Avatar loader (fetch JSON -> set src)
    ============================ */
-function loadAvatar(userId, imgEl, size='420x420') {
+async function loadAvatar(userId, imgEl, size='420x420') {
   if (!imgEl) return;
   // prevenir reentradas
   if (imgEl.dataset._loading) return;
   imgEl.dataset._loading = '1';
-  // onerror fallback una vez
-  imgEl.onerror = () => {
-    if (imgEl.dataset._err) return;
-    imgEl.dataset._err = '1';
-    console.warn('[loadAvatar] failed to load', imgEl.src);
-    // fallback: data URL SVG (si no hay imagen)
-    imgEl.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150"><rect width="100%" height="100%" fill="#ddd"/><text x="50%" y="50%" font-size="14" text-anchor="middle" dominant-baseline="middle" fill="#666">Avatar</text></svg>`);
-  };
 
-  // No usar crossOrigin: dejar que el navegador siga la redirección a CDN
-  const url = `${THUMBNAIL_PROXY}/${encodeURIComponent(userId)}?size=${encodeURIComponent(size)}&format=Png&isCircular=true`;
-  imgEl.src = url; // el proxy debe redirigir (302) a la CDN
+  // URL de respaldo directa (por si falla el proxy o la API)
+  // Añadimos timestamp para evitar caché rota
+  const fallbackUrl = `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=420&height=420&format=png&_t=${Date.now()}`;
+
+  // Configurar fallback por si la URL de imagen falla al cargar (403/404)
+  imgEl.onerror = () => {
+    console.warn('Error cargando imagen. Intentando siguiente método...');
+    delete imgEl.dataset._loading;
+    
+    // Si falló el Proxy, intentamos el enlace directo de Roblox
+    if (!imgEl.src.includes('headshot-thumbnail') && !imgEl.src.includes('MultiGameInc.webp')) {
+      imgEl.src = fallbackUrl;
+    } else if (imgEl.src.includes('headshot-thumbnail')) {
+      // Si falló Roblox (Plan B), usamos el logo local (Plan C) para que no se vea roto
+      imgEl.src = 'img/MultiGameInc.webp';
+    }
+  };
+  imgEl.onload = () => { delete imgEl.dataset._loading; };
+
+  try {
+    // 1. Pedimos el JSON a nuestro proxy (igual que tu código de referencia)
+    const response = await fetch(`${PROXY_BASE}/avatar/${userId}`);
+    if (!response.ok) throw new Error('Proxy error');
+    const data = await response.json();
+
+    // 2. Extraemos la URL y la asignamos
+    if (data.data && data.data.length > 0 && data.data[0].imageUrl) {
+      imgEl.src = data.data[0].imageUrl;
+    } else {
+      throw new Error('No se encontró imageUrl en la respuesta');
+    }
+  } catch (error) {
+    console.error('Error obteniendo datos del avatar (catch), usando fallback:', error);
+    // Fallback inmediato si falla el fetch (ej. servidor apagado)
+    imgEl.src = fallbackUrl;
+  }
 }
 
 /* ============================
    Presence helpers
    ============================ */
 function applyPresence(type) {
-  const container = document.getElementById('avatar-container');
+  const container = document.getElementById('roblox-profile-container');
   if (!container) return;
-  container.classList.remove("avatar-online", "avatar-inGame", "avatar-studio", "avatar-offline", "avatar-invisible");
+  container.classList.remove("status-online", "status-ingame", "status-studio", "status-offline");
   switch (type) {
-    case 1: container.classList.add('avatar-online'); container.title = 'Online'; break;
-    case 2: container.classList.add('avatar-inGame'); container.title = 'In Game'; break;
-    case 3: container.classList.add('avatar-studio'); container.title = 'In Roblox Studio'; break;
-    case 4: container.classList.add('avatar-invisible'); container.title = 'Invisible / Offline'; break;
+    case 1: container.classList.add('status-online'); container.title = 'Online'; break;
+    case 2: container.classList.add('status-ingame'); container.title = 'In Game'; break;
+    case 3: container.classList.add('status-studio'); container.title = 'In Roblox Studio'; break;
     case 0:
-    default: container.classList.add('avatar-offline'); container.title = 'Offline'; break;
+    default: container.classList.add('status-offline'); container.title = 'Offline'; break;
   }
 }
 
@@ -109,10 +121,10 @@ async function fetchPresenceFromProxy(userId) {
   }
 }
 async function updateAvatarStatus(userId) {
-  const container = document.getElementById('avatar-container');
+  const container = document.getElementById('roblox-profile-container');
   if (!container) return;
-  container.classList.remove('avatar-online','avatar-inGame','avatar-studio','avatar-offline','avatar-invisible');
-  container.classList.add('avatar-offline');
+  container.classList.remove('status-online','status-ingame','status-studio','status-offline');
+  container.classList.add('status-offline');
   container.title = 'Detecting presence...';
   try {
     const pres = await fetchPresenceFromProxy(userId);
@@ -169,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initFadeInObserver();
 
   // avatar img
-  const avatarImg = document.getElementById('avatar-img');
+  const avatarImg = document.getElementById('roblox-profile-img');
   if (avatarImg) {
     // si quieres un placeholder inicial, ponlo aquí; pero lo dejamos vacío para que proxy cargue.
     loadAvatar(ROBLOX_USER_ID, avatarImg, '420x420');
