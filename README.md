@@ -1,6 +1,6 @@
-# Portfolio Web - MultiGameInc (PmpoliDev)
+# Portfolio Web - MultiGameInc (PimpoliDev)
 
-Este repositorio contiene los archivos para un portafolio web profesional de un desarrollador de Roblox (PmpoliDev), con soporte multilingüe, modo oscuro/ligero, animaciones suaves y secciones:
+Este repositorio contiene los archivos para un portafolio web profesional de un desarrollador de Roblox (PimpoliDev), con soporte multilingüe, modo oscuro/ligero, animaciones suaves y secciones:
 
 - **index.html**: HTML principal con secciones: Home, About, Projects, Store, Contact.
 - **css/style.css**: Estilos CSS, incluye diseño oscuro/ligero, animaciones, responsive.
