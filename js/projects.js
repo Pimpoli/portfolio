@@ -1,4 +1,4 @@
-// projects.js
+// js/projects.js
 
 document.addEventListener('DOMContentLoaded', async () => {
   const projectsContainer = document.getElementById('projects-container');
@@ -7,200 +7,204 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ==========================================
   // CONFIGURACIÓN
   // ==========================================
-  // 1. Pon aquí tu ID de canal (empieza con UC...)
-  const YOUTUBE_CHANNEL_ID = 'UCH7nYiCQfSa78XfWIc5Nh6w';
-  // 2. (Opcional) Pon tu API Key de Google aquí para mayor estabilidad. Si lo dejas vacío, usa el método RSS.
-  const YOUTUBE_API_KEY = 'AIzaSyBcp7sVpHVHfTF8aezpX0NgdXs8YkmjmJo';
+  const YOUTUBE_PLAYLIST_ID = 'UUH7nYiCQfSa78XfWIc5Nh6w';
+  const YOUTUBE_API_KEY = 'AIzaSyAI0klDbsko8_UrYOe0Rwu6aK6vrIS2iNc';
   
-  // 3. Proyectos estáticos (Imágenes locales que quieres conservar)
   const staticProjects = [
     { id: 'nodes', type: 'img', src: 'img/Nodos.webp', title: 'Nodes System', desc: '' },
     { id: 'nodesDemo', type: 'img', src: 'img/NodosDemostracion.webp', title: 'Nodes System Demo', desc: 'Conexión visual entre nodos.' },
-    { id: 'comingSoon', type: 'img', src: 'img/MultiGameInc.webp', title: 'Próximamente', desc: 'Próximamente' }
   ];
 
-  // ==========================================
-  // LÓGICA
-  // ==========================================
-  
-  // 1. Título
   const h2 = document.createElement('h2');
   h2.className = 'fade-in';
   h2.setAttribute('data-i18n', 'projects.title');
   h2.innerText = 'My Work / Examples';
   projectsContainer.appendChild(h2);
 
-  // 2. Función para obtener videos de YouTube (RSS a JSON)
+  // 1. Fetch YouTube Videos
   async function fetchYouTubeVideos() {
-    // Helper: Método de respaldo usando RSS (sin API Key)
-    const fetchRSS = async () => {
-      try {
-        console.log('Intentando cargar videos vía RSS...');
-        const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${YOUTUBE_CHANNEL_ID}`;
-        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
-        const res = await fetch(apiUrl);
-        const data = await res.json();
-        
-        if (data.status === 'ok' && data.items) {
-          return data.items.map(item => {
-            // Extraer ID de guid (yt:video:ID) o del enlace
-            let videoId = item.guid.split(':')[2];
-            if (!videoId && item.link.includes('v=')) {
-              videoId = item.link.split('v=')[1];
-            }
-            return {
-              type: 'youtube',
-              id: videoId,
-              title: item.title,
-              desc: 'Ver en YouTube',
-              thumb: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
-              link: item.link
-            };
-          });
-        }
-        return [];
-      } catch (e) {
-        console.error('Error en fallback RSS:', e);
-        return [];
-      }
-    };
-
+    const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${YOUTUBE_PLAYLIST_ID}&maxResults=6&key=${YOUTUBE_API_KEY}`;
     try {
-      // MODO A: Usando API Oficial de Google (Si pusiste la Key)
-      if (YOUTUBE_API_KEY) {
-        const apiUrl = `https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=${YOUTUBE_CHANNEL_ID}&part=snippet,id&order=date&maxResults=6&type=video`;
-        const res = await fetch(apiUrl);
-        const data = await res.json();
-
-        // Si la API falla (error 400/403/etc), usar RSS
-        if (!res.ok || data.error) {
-          console.warn('API Key falló o cuota excedida. Usando fallback RSS.');
-          return await fetchRSS();
-        }
-
-        if (data.items && data.items.length > 0) {
-          return data.items.map(item => ({
-            type: 'youtube',
-            id: item.id.videoId,
-            title: item.snippet.title,
-            desc: 'Ver en YouTube',
-            thumb: item.snippet.thumbnails.high.url,
-            link: `https://www.youtube.com/watch?v=${item.id.videoId}`
-          }));
-        }
-        return []; // API OK pero sin videos
-      }
+      const response = await fetch(url);
+      const data = await response.json();
+      if (data.error) return [];
       
-      // MODO B: Sin API Key -> RSS directo
-      return await fetchRSS();
-
-    } catch (error) {
-      console.error('Error general fetching videos, intentando RSS:', error);
-      return await fetchRSS();
-    }
+      return data.items.map(item => ({
+          type: 'youtube',
+          id: item.snippet.resourceId.videoId,
+          title: item.snippet.title,
+          desc: item.snippet.description || '', 
+          thumb: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.default?.url,
+      }));
+    } catch (error) { return []; }
   }
 
-  // 4. Renderizar Grid Principal (Proyectos estáticos)
-  const grid = document.createElement('div');
-  grid.className = 'projects-grid';
-  
-  // Función helper para crear tarjeta
+  // 2. Función para crear las tarjetas
   function createCard(p, index) {
     const card = document.createElement('div');
     card.className = `project-card fade-in scroll-delay-${(index % 5) + 1}`;
+    card.dataset.projectData = JSON.stringify(p);
     
     let mediaHtml = '';
     if (p.type === 'img') {
-      mediaHtml = `<img src="${p.src}" alt="${p.title}" loading="lazy" />`;
+      mediaHtml = `<img src="${p.src}" alt="${p.title}" loading="lazy" style="width:100%; display:block; border-radius: 4px;" />`;
     } else if (p.type === 'youtube') {
-      // Usamos la miniatura, al hacer click se abre el video
-      mediaHtml = `<img src="${p.thumb}" alt="${p.title}" class="yt-thumb" data-video-id="${p.id}" style="cursor:pointer;" />`;
+      mediaHtml = `
+        <div class="yt-thumb" style="position: relative; width: 100%; height: 100%;">
+          <img src="${p.thumb}" alt="${p.title}" style="width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 4px;" />
+          <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; border-radius: 4px;">
+            <svg width="60" height="60" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.6));">
+              <path d="M8 5V19L19 12L8 5Z" />
+            </svg>
+          </div>
+        </div>
+      `;
     }
 
+    let descHtml = '';
+    if (p.desc && p.desc.trim() !== '') {
+      const LIMIT = 80; 
+      let truncated = p.desc.substring(0, LIMIT).trim();
+      if (p.desc.length > LIMIT) {
+        truncated += '... <span style="color: var(--color-accent); font-weight: bold;">Ver más</span>';
+      }
+      descHtml = `<p style="font-size: 0.9rem; margin-top: 5px;">${truncated}</p>`;
+    }
+
+    card.style.cursor = 'pointer';
     card.innerHTML = `
       <div class="media-wrapper">${mediaHtml}</div>
-      <h3>${p.title}</h3>
-      <p>${p.desc}</p>
+      <h3 style="margin-top: 10px; font-size: 1.1rem;">${p.title}</h3>
+      ${descHtml}
     `;
     return card;
   }
 
-  // Renderizar estáticos
-  staticProjects.forEach((p, i) => grid.appendChild(createCard(p, i)));
-  projectsContainer.appendChild(grid);
-
-  // 3. Obtener videos (Ahora esperamos a YouTube DESPUÉS de mostrar tus fotos)
+  // 3. Obtener todos los proyectos y unirlos (Estáticos + YouTube)
   const youtubeVideos = await fetchYouTubeVideos();
+  const allProjects = [...staticProjects, ...youtubeVideos];
 
-  // 5. Renderizar Videos de YouTube (en sección "Ver más")
-  if (youtubeVideos.length > 0) {
-    const expandBtn = document.createElement('button');
-    expandBtn.className = 'expand-btn fade-in scroll-delay-3';
-    expandBtn.textContent = '+';
-    projectsContainer.appendChild(expandBtn);
+  // 4. Crear los contenedores y el botón
+  const mainGrid = document.createElement('div');
+  mainGrid.className = 'projects-grid';
+  
+  const moreGrid = document.createElement('div');
+  moreGrid.id = 'more-projects';
+  moreGrid.className = 'more-content'; // Oculto por defecto por tu CSS
 
-    const moreDiv = document.createElement('div');
-    moreDiv.id = 'more-projects';
-    moreDiv.className = 'more-content';
+  const expandBtn = document.createElement('button');
+  expandBtn.id = 'load-more-projects';
+  expandBtn.className = 'expand-btn fade-in';
+  expandBtn.textContent = '+';
+
+  // 5. Distribuir las tarjetas
+  allProjects.forEach((p, i) => {
+    const card = createCard(p, i);
     
-    const moreGrid = document.createElement('div');
-    moreGrid.className = 'projects-grid';
+    // Los primeros 2 van a la vista principal, el resto a la caja oculta
+    if (i < 2) {
+      mainGrid.appendChild(card);
+    } else {
+      moreGrid.appendChild(card);
+    }
 
-    youtubeVideos.forEach((video, i) => {
-      moreGrid.appendChild(createCard(video, i));
-    });
+    // Forzar la animación de aparición
+    setTimeout(() => { card.classList.add('visible'); }, 50);
+  });
 
-    moreDiv.appendChild(moreGrid);
-    projectsContainer.appendChild(moreDiv);
+  // Agregar al HTML
+  projectsContainer.appendChild(mainGrid);
+  
+  // Si hay más de 2 proyectos, agregamos el botón y la caja extra
+  if (allProjects.length > 2) {
+    projectsContainer.appendChild(expandBtn);
+    projectsContainer.appendChild(moreGrid);
+    
+    // Animar el botón para que aparezca
+    setTimeout(() => { expandBtn.classList.add('visible'); }, 100);
 
+    // Lógica para abrir y cerrar
     expandBtn.addEventListener('click', () => {
-      const showing = moreDiv.classList.toggle('visible-content');
-      expandBtn.textContent = showing ? '−' : '+';
+      const isVisible = moreGrid.classList.contains('visible-content');
+      if (isVisible) {
+        moreGrid.classList.remove('visible-content');
+        expandBtn.textContent = '+';
+      } else {
+        moreGrid.classList.add('visible-content');
+        expandBtn.textContent = '−';
+      }
     });
   }
 
-  // 6. Lightbox / Modal mejorado
-  const modal    = document.getElementById('img-modal');
+  // ==========================================
+  // 6. MODAL DE DETALLES
+  // ==========================================
+  const modal = document.getElementById('img-modal');
   const modalContainer = document.getElementById('modal-media-container');
-  const closeBtn = modal.querySelector('.close-modal');
+  const closeBtn = modal ? modal.querySelector('.close-modal') : null;
 
-  function openModal(content) {
-    modalContainer.innerHTML = content;
-    modal.style.display = 'flex';
-  }
+  if (modal && modalContainer && closeBtn) {
+    
+    function openDetailsModal(project) {
+      let mediaSection = '';
+      if (project.type === 'img') {
+        mediaSection = `<img src="${project.src}" alt="${project.title}" style="width:100%; max-height:45vh; object-fit:contain; border-radius:8px; display: block;" />`;
+      } else if (project.type === 'youtube') {
+        mediaSection = `
+          <div style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px;">
+            <iframe src="https://www.youtube.com/embed/${project.id}?autoplay=1&rel=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+          </div>`;
+      }
 
-  function closeModal() {
-    modal.style.display = 'none';
-    modalContainer.innerHTML = ''; // Detener video
-  }
+      let descSection = '';
+      let titleMarginBottom = '0';
 
-  closeBtn.addEventListener('click', closeModal);
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeModal();
-  });
+      if (project.desc && project.desc.trim() !== '') {
+        titleMarginBottom = '15px';
+        const textoLimpio = project.desc.trim(); 
+        
+        descSection = `
+          <div style="background: rgba(0, 0, 0, 0.4); padding: 15px; border-radius: 8px; font-size: clamp(0.9rem, 3vw, 1rem); line-height: 1.5; color: rgba(255,255,255,0.9); overflow-y: auto; max-height: 30vh; border: 1px solid rgba(255, 255, 255, 0.05); text-align: left;">
+            <strong style="display: block; margin-bottom: 8px; font-size: 1.1em; color: #ffffff;">Descripción:</strong>
+            <div style="white-space: pre-wrap; font-family: inherit;">${textoLimpio}</div>
+          </div>
+        `;
+      }
 
-  // Delegación de eventos
-  projectsContainer.addEventListener('click', evt => {
-    // Click en imagen normal
-    const img = evt.target.closest('.project-card img:not(.yt-thumb)');
-    if (img) {
-      openModal(`<img src="${img.src}" alt="${img.alt}" />`);
-      return;
+      modalContainer.innerHTML = `
+        <div style="background: var(--color-bg-dark); padding: 20px; border-radius: 12px; max-width: 800px; width: 90vw; max-height: 90vh; display: flex; flex-direction: column; margin: auto; text-align: left; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
+          
+          <div style="flex-shrink: 0; width: 100%;">
+            ${mediaSection}
+          </div>
+
+          <h2 style="margin: 15px 0 ${titleMarginBottom} 0; font-size: clamp(1.2rem, 4vw, 1.5rem); color: var(--color-text-dark); flex-shrink: 0;">
+            ${project.title}
+          </h2>
+          
+          ${descSection}
+
+        </div>
+      `;
+      
+      modal.style.display = 'flex';
+      document.body.classList.add('modal-open');
     }
 
-    // Click en video de YouTube
-    const ytThumb = evt.target.closest('.yt-thumb');
-    if (ytThumb) {
-      const videoId = ytThumb.dataset.videoId;
-      const iframeHtml = `
-        <iframe 
-          src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" 
-          title="YouTube video player" 
-          frameborder="0" 
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-          allowfullscreen>
-        </iframe>`;
-      openModal(iframeHtml);
+    function closeModal() {
+      modal.style.display = 'none';
+      modalContainer.innerHTML = ''; 
+      document.body.classList.remove('modal-open');
     }
-  });
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+    projectsContainer.addEventListener('click', evt => {
+      const card = evt.target.closest('.project-card');
+      if (!card) return;
+      const p = JSON.parse(card.dataset.projectData);
+      openDetailsModal(p);
+    });
+  }
 });
