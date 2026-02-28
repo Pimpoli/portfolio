@@ -1,55 +1,61 @@
-// games.js - render cards + modal + soporte video en covers
-document.addEventListener('DOMContentLoaded', () => {
-  const gamesContainer     = document.getElementById('games-container');
-  const loadMoreBtn        = document.getElementById('load-more-games');
-  const moreGamesContainer = document.getElementById('more-games');
+// js/games.js - Automatizado con la API de Roblox
 
-  const GAMES = [
-    {
-      id: 16125269940,
-      name: 'Anime Color Block Run',
-      iconUrl: 'img/AnimeColor_icon.webp',
-      coverUrl: 'img/AnimeColor_Cover.webp',
-      images: [
-        'img/AnimeColor_Cover.webp',
-        'img/NextGame_Cover.webp',
-        'video/Sea.webm'
-      ],
-      desc: 'Corre por bloques de colores en un mapa dinámico.'
-    },
-    {
-      id: 71541333892738,
-      name: 'Bloxidextro',
-      iconUrl: 'img/Bloxidextro_icon.webp',
-      coverUrl: 'img/Bloxidextro_Cover.webp',
-      images: [
-        'img/Bloxidextro_Cover.webp',
-        'img/Bloxidextro_icon.webp'
-      ],
-      desc: 'Juego experimental con menú personalizado.'
-    },
-    {
-      id: 108138370693321,
-      name: 'Avalancha de Objetos',
-      iconUrl: 'img/IconAvanlachadeobjectos.webp',
-      coverUrl: 'img/FondoDeAvalanchaDeObjectos.webp',
-      images: [
-        'img/FondoDeAvalanchaDeObjectos.webp',
-        'img/FondoAvalancha.webp'
-      ],
-      desc: 'Juego experimental con menú personalizado.'
-    },
-    {
-      id: 17166282321,
-      name: 'Next Game Soon',
-      iconUrl: 'img/NextGame_icon.webp',
-      coverUrl: 'img/NextGame_Cover.webp',
-      images: [
-        'img/NextGame_Cover.webp'
-      ],
-      desc: 'Próximo juego — en desarrollo.'
-    }
+document.addEventListener('DOMContentLoaded', async () => {
+  const gamesContainer     = document.getElementById('games-container');
+  const moreGamesContainer = document.getElementById('more-games');
+  const loadMoreBtn        = document.getElementById('load-more-games');
+
+  if (!gamesContainer) return;
+
+  // ==========================================
+  // CONFIGURACIÓN: IDs DE TUS JUEGOS
+  // ==========================================
+  const GAME_IDS = [
+    16125269940,       // Anime Color Block Run
+    71541333892738,    // Bloxidextro
+    108138370693321,   // Avalanche of objects
+    107726833867004    // 67 Red Light Green Light
   ];
+
+  // 1. Extraer toda la información de Roblox Automáticamente
+  async function fetchGameData(placeId) {
+    try {
+      const cacheBuster = `&_t=${Date.now()}`; 
+      
+      // A) Obtener el Universe ID
+      const uniRes = await fetch(`https://corsproxy.io/?${encodeURIComponent(`https://apis.roblox.com/universes/v1/places/${placeId}/universe`)}`);
+      const uniData = await uniRes.json();
+      const universeId = uniData.universeId;
+      if (!universeId) throw new Error("No se encontró el juego.");
+
+      // B) Obtener Nombre, Descripción, Icono y Portadas
+      const [infoRes, iconRes, thumbsRes] = await Promise.all([
+          fetch(`https://corsproxy.io/?${encodeURIComponent(`https://games.roblox.com/v1/games?universeIds=${universeId}${cacheBuster}`)}`),
+          fetch(`https://corsproxy.io/?${encodeURIComponent(`https://thumbnails.roblox.com/v1/games/icons?universeIds=${universeId}&returnPolicy=PlaceHolder&size=150x150&format=Png&isCircular=false${cacheBuster}`)}`),
+          fetch(`https://corsproxy.io/?${encodeURIComponent(`https://thumbnails.roblox.com/v1/games/multiget/thumbnails?universeIds=${universeId}&countPerUniverse=10&defaults=true&size=768x432&format=Png&isCircular=false${cacheBuster}`)}`)
+      ]);
+
+      const infoData = await infoRes.json();
+      const iconData = await iconRes.json();
+      const thumbsData = await thumbsRes.json();
+
+      const gameInfo = infoData.data[0];
+      const iconUrl = iconData.data[0]?.imageUrl || 'img/MultiGameInc.webp';
+      const thumbnails = thumbsData.data[0]?.thumbnails.map(t => t.imageUrl) || [];
+
+      return {
+          id: placeId,
+          name: gameInfo.name,
+          desc: gameInfo.description || '',
+          iconUrl: iconUrl,
+          coverUrl: thumbnails.length > 0 ? thumbnails[0] : iconUrl,
+          images: thumbnails.length > 0 ? thumbnails : [iconUrl]
+      };
+    } catch(e) {
+        console.error(`Error cargando el juego ${placeId}:`, e);
+        return null; 
+    }
+  }
 
   function isVideo(src) {
     return /\.(mp4|webm|ogg)(\?.*)?$/i.test(src);
@@ -58,26 +64,19 @@ document.addEventListener('DOMContentLoaded', () => {
   function createCoverElement(src, cssClass = '') {
     if (isVideo(String(src))) {
       const v = document.createElement('video');
-      v.src = src;
-      v.setAttribute('playsinline', '');
-      v.setAttribute('muted', '');
-      v.setAttribute('loop', '');
-      v.autoplay = true;
-      v.className = cssClass;
-      v.preload = 'metadata';
-      // in case autoplay blocked, show controls fallback on click
-      v.addEventListener('error', () => { /* ignore, browser will show nothing */ });
+      v.src = src; v.setAttribute('playsinline', ''); v.setAttribute('muted', '');
+      v.setAttribute('loop', ''); v.autoplay = true; v.className = cssClass; v.preload = 'metadata';
+      v.addEventListener('error', () => {}); 
       return v;
     } else {
       const i = document.createElement('img');
-      i.src = src;
-      i.alt = 'cover';
-      i.className = cssClass;
-      i.onerror = () => { i.src = 'img/cover-placeholder.webp'; };
+      i.src = src; i.alt = 'cover'; i.className = cssClass;
+      i.onerror = () => { i.src = 'img/MultiGameInc.webp'; };
       return i;
     }
   }
 
+  // 2. Renderizar Tarjeta de Juego
   function renderGameCard(game) {
     const card = document.createElement('div');
     card.className = 'game-card fade-in';
@@ -96,16 +95,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const gimg = document.createElement('img');
     gimg.src = game.iconUrl;
     gimg.alt = game.name + ' icon';
-    gimg.onerror = () => { gimg.src = 'img/icon-placeholder.webp'; };
     gi.appendChild(gimg);
 
     const gc = document.createElement('div');
     gc.className = 'game-cover';
-    // prefer coverUrl (image/video) for card view (use poster for video)
     const coverEl = createCoverElement(game.coverUrl);
-    coverEl.style.width = '100%';
-    coverEl.style.height = '100%';
-    coverEl.style.objectFit = 'cover';
+    coverEl.style.width = '100%'; coverEl.style.height = '100%'; coverEl.style.objectFit = 'cover';
     gc.appendChild(coverEl);
 
     inner.appendChild(gi);
@@ -117,28 +112,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
     card.appendChild(inner);
     card.appendChild(title);
-
     card.style.cursor = 'pointer';
+    
     return card;
   }
 
-  // render initial and more
-  if (gamesContainer) {
-    const initial = GAMES.slice(0, 2);
-    initial.forEach(game => gamesContainer.appendChild(renderGameCard(game)));
-  }
-  if (moreGamesContainer) {
-    const extra = GAMES.slice(2);
-    extra.forEach(game => moreGamesContainer.appendChild(renderGameCard(game)));
+  // 3. Obtener datos de Roblox y Distribuir en las cajas
+  const loadedGames = [];
+  
+  // Descargamos los juegos uno por uno para no saturar la API
+  for (const id of GAME_IDS) {
+    const data = await fetchGameData(id);
+    if (data) loadedGames.push(data);
   }
 
+  // Repartimos los juegos: Los primeros 2 a la vista, el resto ocultos
+  loadedGames.forEach((game, i) => {
+    const card = renderGameCard(game);
+    
+    if (i < 2) {
+      gamesContainer.appendChild(card);
+    } else if (moreGamesContainer) {
+      moreGamesContainer.appendChild(card);
+    }
+
+    // Forzar la animación de entrada
+    setTimeout(() => { card.classList.add('visible'); }, 50);
+  });
+
+  // Lógica del Botón "+"
   if (loadMoreBtn && moreGamesContainer) {
-    loadMoreBtn.addEventListener('click', () => {
-      const showing = moreGamesContainer.classList.toggle('visible-content');
-      loadMoreBtn.textContent = showing ? '−' : '+';
-    });
+    if (loadedGames.length > 2) {
+      loadMoreBtn.style.display = 'block'; 
+      // Clonar el botón para limpiar eventos viejos y evitar duplicados
+      const newBtn = loadMoreBtn.cloneNode(true);
+      loadMoreBtn.parentNode.replaceChild(newBtn, loadMoreBtn);
+      
+      newBtn.addEventListener('click', () => {
+        const isVisible = moreGamesContainer.classList.contains('visible-content');
+        if (isVisible) {
+          moreGamesContainer.classList.remove('visible-content');
+          newBtn.textContent = '+';
+        } else {
+          moreGamesContainer.classList.add('visible-content');
+          newBtn.textContent = '−';
+        }
+      });
+    } else {
+      loadMoreBtn.style.display = 'none'; 
+    }
   }
 
+  // 4. Delegación de clics para abrir el Modal
   function handleCardClick(e) {
     const card = e.target.closest('.game-card');
     if (!card) return;
@@ -149,13 +174,14 @@ document.addEventListener('DOMContentLoaded', () => {
       name: card.dataset.gameName,
       desc: card.dataset.gameDesc,
       icon: card.dataset.gameIcon,
-      images: images.length ? images : [card.querySelector('.game-cover img')?.src || card.querySelector('.game-cover video')?.src || '']
+      images: images.length ? images : [card.querySelector('.game-cover img')?.src || '']
     });
   }
-  if (gamesContainer) gamesContainer.addEventListener('click', handleCardClick);
+  
+  gamesContainer.addEventListener('click', handleCardClick);
   if (moreGamesContainer) moreGamesContainer.addEventListener('click', handleCardClick);
 
-  // modal creation (same as before but supports video)
+  // 5. Creación y Manejo del Modal (Ventana Flotante)
   function createModalsIfNeeded() {
     if (document.getElementById('game-modal-overlay')) return;
     const overlay = document.createElement('div');
@@ -167,9 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="modal-inner">
           <div class="modal-cover" aria-hidden="false">
             <button class="cover-nav prev" aria-label="Anterior">&#10094;</button>
-            <div class="cover-viewport">
-              <!-- dynamic content -->
-            </div>
+            <div class="cover-viewport"></div>
             <button class="cover-nav next" aria-label="Siguiente">&#10095;</button>
             <div class="cover-thumbs" id="game-cover-thumbs" aria-hidden="false"></div>
           </div>
@@ -181,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
           </div>
 
-          <div class="modal-desc" id="game-modal-desc" tabindex="0"></div>
+          <div id="game-modal-desc-container"></div>
 
           <div class="modal-actions">
             <button id="game-modal-play" class="button-primary">Play</button>
@@ -207,12 +231,8 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     document.body.appendChild(confirm);
 
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) closeGameModal();
-    });
-    confirm.addEventListener('click', (e) => {
-      if (e.target === confirm) closeConfirm();
-    });
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeGameModal(); });
+    confirm.addEventListener('click', (e) => { if (e.target === confirm) closeConfirm(); });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         if (isConfirmOpen()) closeConfirm();
@@ -223,16 +243,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   createModalsIfNeeded();
 
-  // helper to place current media (video or image) in .cover-viewport
   function setCoverViewport(ov, src) {
     const viewport = ov.querySelector('.cover-viewport');
     if (!viewport) return;
     viewport.innerHTML = '';
     const el = createCoverElement(src, '');
-    // ensure it's sized properly
-    el.style.width = '100%';
-    el.style.height = 'var(--cover-height)';
-    el.style.objectFit = 'cover';
+    el.style.width = '100%'; el.style.height = 'var(--cover-height)'; el.style.objectFit = 'cover';
     viewport.appendChild(el);
   }
 
@@ -241,7 +257,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!ov) return;
 
     const titleEl = ov.querySelector('#game-modal-title');
-    const descEl = ov.querySelector('#game-modal-desc');
     const iconEl = ov.querySelector('#game-modal-icon');
     const thumbsWrap = ov.querySelector('#game-cover-thumbs');
     const prevBtn = ov.querySelector('.cover-nav.prev');
@@ -249,43 +264,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const playBtn = ov.querySelector('#game-modal-play');
     const pageBtn = ov.querySelector('#game-modal-page');
     const closeBtn = ov.querySelector('#game-modal-close');
-    const counterEl = ov.querySelector('#game-cover-counter');
+    const descContainer = ov.querySelector('#game-modal-desc-container');
 
     titleEl.textContent = data.name || '';
-    descEl.textContent = data.desc || '';
     iconEl.src = data.icon || '';
-    iconEl.alt = (data.name || 'Game') + ' icon';
+
+    // Inyección de la caja de descripción oscura (Igual que en Proyectos)
+    if (data.desc && data.desc.trim() !== '') {
+      const textoLimpio = data.desc.trim();
+      descContainer.innerHTML = `
+        <div style="background: rgba(0, 0, 0, 0.4); padding: 15px; border-radius: 8px; font-size: clamp(0.9rem, 3vw, 1rem); line-height: 1.5; color: rgba(255,255,255,0.9); overflow-y: auto; max-height: 25vh; border: 1px solid rgba(255, 255, 255, 0.05); text-align: left; margin-top: 15px;">
+          <strong style="display: block; margin-bottom: 8px; font-size: 1.1em; color: #ffffff;">Descripción:</strong>
+          <div style="white-space: pre-wrap; font-family: inherit;">${textoLimpio}</div>
+        </div>
+      `;
+    } else {
+      descContainer.innerHTML = '';
+    }
 
     const images = Array.isArray(data.images) && data.images.length ? data.images.slice() : [data.images || data.cover || ''];
     let idx = 0;
     let intervalId = null;
     const AUTO_MS = 6000;
 
-    // thumbs
     thumbsWrap.innerHTML = '';
     images.forEach((src, i) => {
       const t = document.createElement('button');
-      t.className = 'thumb-btn';
-      t.type = 'button';
-      t.dataset.index = String(i);
+      t.className = 'thumb-btn'; t.type = 'button'; t.dataset.index = String(i);
+      
       if (isVideo(src)) {
-        // use a small poster-like element (video muted and paused)
         const tv = document.createElement('video');
-        tv.src = src;
-        tv.muted = true;
-        tv.playsInline = true;
-        tv.preload = 'metadata';
-        tv.width = 84;
-        tv.height = 48;
-        tv.style.objectFit = 'cover';
+        tv.src = src; tv.muted = true; tv.playsInline = true; tv.preload = 'metadata';
+        tv.width = 84; tv.height = 48; tv.style.objectFit = 'cover';
         t.appendChild(tv);
       } else {
         t.innerHTML = `<img src="${src}" alt="thumb-${i}" />`;
       }
       t.addEventListener('click', (ev) => {
-        ev.stopPropagation();
-        goToIndex(i);
-        resetInterval();
+        ev.stopPropagation(); goToIndex(i); resetInterval();
       });
       thumbsWrap.appendChild(t);
     });
@@ -293,17 +309,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateView() {
       const safeSrc = images[idx] || '';
       setCoverViewport(ov, safeSrc);
-      // update active thumb
       thumbsWrap.querySelectorAll('.thumb-btn').forEach((b) => b.classList.remove('active'));
       const active = thumbsWrap.querySelector(`.thumb-btn[data-index="${idx}"]`);
       if (active) active.classList.add('active');
-      if (counterEl) counterEl.textContent = `${idx + 1} / ${images.length}`;
     }
     function next() { idx = (idx + 1) % images.length; updateView(); }
     function prev() { idx = (idx - 1 + images.length) % images.length; updateView(); }
     function goToIndex(i) { idx = Math.max(0, Math.min(images.length - 1, i)); updateView(); }
 
-    // replace prev/next nodes safely
     prevBtn.replaceWith(prevBtn.cloneNode(true));
     nextBtn.replaceWith(nextBtn.cloneNode(true));
     const prev2 = ov.querySelector('.cover-nav.prev');
@@ -317,11 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ov.dataset.carouselInterval = String(intervalId);
     }
     function stopInterval() {
-      if (intervalId) {
-        clearInterval(intervalId);
-        intervalId = null;
-        delete ov.dataset.carouselInterval;
-      }
+      if (intervalId) { clearInterval(intervalId); intervalId = null; delete ov.dataset.carouselInterval; }
     }
     function resetInterval() { stopInterval(); startInterval(); }
 
@@ -338,7 +347,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function onPage() { window.open(data.url, '_blank', 'noopener'); }
     function onClose() { closeGameModal(); }
 
-    // replace buttons to detach old listeners
     playBtn.replaceWith(playBtn.cloneNode(true));
     pageBtn.replaceWith(pageBtn.cloneNode(true));
     closeBtn.replaceWith(closeBtn.cloneNode(true));
@@ -352,14 +360,12 @@ document.addEventListener('DOMContentLoaded', () => {
     close2.addEventListener('click', onClose);
 
     ov.style.display = 'flex';
-    // lock scroll (simple)
     document.documentElement.style.overflow = 'hidden';
 
     ov._cleanupCarousel = () => {
       stopInterval();
       coverArea.removeEventListener('mouseenter', onCoverEnter);
       coverArea.removeEventListener('mouseleave', onCoverLeave);
-      if (counterEl) counterEl.textContent = '';
       document.documentElement.style.overflow = '';
     };
   }
@@ -367,14 +373,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function closeGameModal() {
     const ov = document.getElementById('game-modal-overlay');
     if (!ov) return;
-    if (ov._cleanupCarousel) {
-      try { ov._cleanupCarousel(); } catch (e) { /* ignore */ }
-      delete ov._cleanupCarousel;
-    }
+    if (ov._cleanupCarousel) { try { ov._cleanupCarousel(); } catch (e) {} delete ov._cleanupCarousel; }
     ov.style.display = 'none';
   }
 
-  // confirm modal
   function openConfirm(url) {
     const conf = document.getElementById('game-confirm-overlay');
     if (!conf) return;
@@ -394,7 +396,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const target = conf.dataset.targetUrl;
       if (target) {
         try { window.open(target, '_blank', 'noopener'); } catch(e){}
-        // try launching roblox protocol (desktop) - best-effort
         try {
           const match = String(target).match(/\/games\/(\d+)/);
           const gameId = match ? match[1] : null;
@@ -402,27 +403,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const ts = Date.now();
             const launchProto = `roblox-player:1+launchmode:play+gameinfo:${gameId}+launchtime:${ts}+placelauncherurl:${encodeURIComponent(target)}`;
             const a = document.createElement('a');
-            a.href = launchProto;
-            a.style.display = 'none';
-            document.body.appendChild(a);
+            a.href = launchProto; a.style.display = 'none'; document.body.appendChild(a);
             a.click();
             setTimeout(() => { try { document.body.removeChild(a); } catch(e){} }, 1000);
             setTimeout(() => { try { window.location.href = launchProto; } catch(e){} }, 900);
           }
-        } catch (err) { console.warn('launch proto failed', err); }
+        } catch (err) {}
       }
-      closeConfirm();
-      closeGameModal();
+      closeConfirm(); closeGameModal();
     });
-
     cancel2.addEventListener('click', () => closeConfirm());
   }
 
   function closeConfirm() {
     const conf = document.getElementById('game-confirm-overlay');
     if (!conf) return;
-    conf.style.display = 'none';
-    delete conf.dataset.targetUrl;
+    conf.style.display = 'none'; delete conf.dataset.targetUrl;
   }
 
   function isConfirmOpen() {
