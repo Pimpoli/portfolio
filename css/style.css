@@ -1,3 +1,5 @@
+/* css/style.css - Archivo Completo y Optimizado para PimpoliDev Portafolio */
+
 /* ===============================
    Variables y configuración básica
    =============================== */
@@ -22,7 +24,7 @@
   --avatar-border-studio: #ff9900;
   --avatar-border-invisible: #9b9b9b;
 
-  /* Presence indicator (small bubble) */
+  /* Presencia indicator (burbuja pequeña) */
   --presence-size: 28px;
   --presence-border: 3px;
   --presence-bg-online: rgb(32,109,250);
@@ -35,7 +37,7 @@
   --breakpoint-md: 900px;
   --breakpoint-sm: 600px;
 
-  /* Modal / Gallery */
+  /* Modal / Galería Juegos */
   --modal-width: min(820px, 100%);
   --modal-radius: 12px;
   --modal-icon-size: 120px;
@@ -43,7 +45,7 @@
   --modal-close-top: -7px;
   --modal-close-right: 2px;
 
-  /* Cover / thumbs */
+  /* Cover / thumbs Juegos */
   --cover-height: 320px;
   --thumb-width: 84px;
   --thumb-height: 48px;
@@ -75,7 +77,7 @@ body {
 .modal-open { overflow: hidden !important; height: 100vh !important; }
 
 /* ===============================
-   Fondo repetido animado (pseudo)
+   Fondo repetido animado (pseudo-elementos)
    =============================== */
 body::before,
 body::after {
@@ -96,12 +98,19 @@ body::after { z-index: -3; transform: scaleX(-1); }
 @keyframes scroll-left { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
 /* ===============================
-   Modo claro
+   Modo claro y Solución al Fondo
    =============================== */
 body.light-mode {
   background-color: var(--color-bg-light);
   color: var(--color-text-light);
   text-shadow: 1px 1px var(--color-outline-light);
+}
+
+body.light-mode::before,
+body.light-mode::after {
+    background-image: none !important;
+    opacity: 0 !important;
+    animation: none !important;
 }
 
 /* ===============================
@@ -191,7 +200,7 @@ body.light-mode .header {
 }
 .nav-list a:hover { color: var(--color-accent); background: rgba(255,255,255,0.02); }
 
-/* Selector de idioma (CORREGIDO) */
+/* Selector de idioma */
 #languageSwitcher {
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -208,8 +217,6 @@ body.light-mode .header {
   background-size: 12px 12px;
   transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
   box-sizing: border-box;
-  
-  /* Fuerza el fondo y texto según el tema (Por defecto Oscuro) */
   background-color: var(--color-bg-dark);
   color: var(--color-text-dark);
 }
@@ -227,7 +234,6 @@ body:not(.light-mode) #languageSwitcher {
 body.light-mode #languageSwitcher {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'><path d='M0 0 L5 6 L10 0' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
   border-color: rgba(0,0,0,0.12);
-  /* Fuerza el fondo y texto claro */
   background-color: var(--color-bg-light);
   color: var(--color-text-light);
 }
@@ -256,13 +262,13 @@ body.light-mode .hamburger span { background-color: var(--color-text-light); }
 .hamburger:hover span { opacity: .9; }
 
 /* ===============================
-   Theme toggle button (CORREGIDO)
+   Theme toggle button
    =============================== */
 .theme-toggle {
   position: fixed;
   bottom: 18px;
   right: 18px;
-  background-color: #ffffff; /* Por defecto botón blanco */
+  background-color: #ffffff;
   color: #000000;
   border: none;
   border-radius: 50%;
@@ -277,29 +283,30 @@ body.light-mode .hamburger span { background-color: var(--color-text-light); }
 .theme-toggle:hover { transform: scale(1.05); }
 
 body.light-mode .theme-toggle { 
-  background-color: #000000; /* En modo claro el botón es negro */
+  background-color: #000000;
   color: #ffffff; 
 }
 
 .theme-icon { 
-  width: 28px; /* Tamaño acoplado perfecto */
+  width: 28px;
   height: 28px; 
   display: block; 
-  object-fit: contain; /* Asegura que no se deforme */
+  object-fit: contain; 
 }
 
 /* ===============================
-   Avatar dinámico
+   AVATAR DINÁMICO
    =============================== */
 .roblox-profile-container {
   width: 160px;
   height: 160px;
   border-radius: 50%;
   padding: 5px;
-  border: 6px solid gray; /* Color por defecto (Offline) */
-  transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  border: 6px solid gray;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease; 
   display: inline-block;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: transparent !important; 
+  position: relative; 
 }
 
 .roblox-profile-container img {
@@ -308,16 +315,26 @@ body.light-mode .theme-toggle {
   border-radius: 50%;
   object-fit: cover;
   display: block;
+  background-color: transparent !important;
+  
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  mask-image: radial-gradient(white, black); /* ADVERTENCIA SOLUCIONADA */
+  
+  transition: transform var(--transition-fast) ease;
 }
 
-/* Estados de conexión */
-.roblox-profile-container.status-online { border-color: #00b0ff; box-shadow: 0 0 15px rgba(0, 176, 255, 0.4); } /* Azul */
-.roblox-profile-container.status-ingame { border-color: #00e676; box-shadow: 0 0 15px rgba(0, 230, 118, 0.4); } /* Verde */
-.roblox-profile-container.status-studio { border-color: #ff9100; box-shadow: 0 0 15px rgba(255, 145, 0, 0.4); } /* Naranja */
-.roblox-profile-container.status-offline { border-color: gray; }
+.roblox-profile-container:hover img {
+  transform: scale(1.05) translateZ(0); 
+}
 
-/* Hover effect */
-.roblox-profile-container:hover { transform: scale(1.05); }
+.roblox-profile-container.status-online { border-color: #00b0ff; box-shadow: 0 0 15px rgba(0, 176, 255, 0.4); } 
+.roblox-profile-container.status-ingame { border-color: #00e676; box-shadow: 0 0 15px rgba(0, 230, 118, 0.4); } 
+.roblox-profile-container.status-studio { border-color: #ff9100; box-shadow: 0 0 15px rgba(255, 145, 0, 0.4); } 
+.roblox-profile-container.status-offline { border-color: gray; box-shadow: none; }
 
 @media (max-width: 600px) {
   .roblox-profile-container { width: 120px; height: 120px; border-width: 4px; }
@@ -341,7 +358,6 @@ body.light-mode .theme-toggle {
 .info-list li { margin-bottom: .8rem; }
 .small-icon { width: 25px; height: 25px; vertical-align: middle; margin-left: .5rem; }
 
-/* Nueva lista About */
 .about-list {
   list-style: none;
   padding: 0;
@@ -458,64 +474,32 @@ body.light-mode .game-card { background-color: var(--color-bg-light); color: var
 body.light-mode .game-title { background-color: var(--color-bg-light); color: var(--color-text-light); }
 
 /* ===============================
-   Store (products)
+   Expand button (Botón + para todas las secciones)
    =============================== */
-.products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
-.product-card {
-  background-color: var(--color-bg-dark);
+.expand-btn, #load-more-products {
+  display: flex; 
+  align-items: center;
+  justify-content: center;
+  margin: 1.5rem auto; 
+  background-color: var(--color-bg-dark); 
   color: var(--color-text-dark);
-  border: 1px solid rgba(255,255,255,0.04);
-  border-radius: 8px;
-  text-align: center;
-  padding: 1rem;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  transition: transform var(--transition-fast);
-}
-body.light-mode .product-card { background-color: var(--color-bg-light); color: var(--color-text-light); border-color: #ddd; }
-.product-card img { width: 100%; border-bottom: 1px solid rgba(255,255,255,0.04); margin-bottom: .8rem; object-fit: cover; }
-body.light-mode .product-card img { border-color: #ddd; }
-.product-card h3 { font-size: 1.05rem; margin: 0 0 .5rem; }
-.product-card p  { font-size: .95rem; margin: 0 0 .8rem; }
-.product-card .price { color: var(--color-accent); font-weight: 700; display: block; margin-bottom: .8rem; }
-.product-card .buy-btn {
-  background-color: var(--color-accent);
-  color: #fff;
   border: none;
-  padding: .6rem 1rem;
-  border-radius: 4px;
+  border-radius: 50%; 
+  width: 40px; 
+  height: 40px; 
+  font-size: 1.5rem; 
   cursor: pointer;
+  transition: transform var(--transition-fast), background-color var(--transition-fast), color var(--transition-fast);
 }
-.product-card .buy-btn:hover { background-color: #e03e00; }
 
-/* Load more products button */
-#load-more-products {
-  display: block;
-  margin: 1.5rem auto;
-  background-color: var(--color-bg-dark);
-  color: var(--color-text-dark);
-  border: none;
-  border-radius: 50%;
-  width: 40px; height: 40px; font-size: 1.5rem; cursor: pointer;
-  transition: transform var(--transition-fast);
+body.light-mode .expand-btn, body.light-mode #load-more-products { 
+    background-color: var(--color-bg-light); 
+    color: var(--color-text-light); 
 }
-body.light-mode #load-more-products { background-color: var(--color-bg-light); color: var(--color-text-light); }
-#load-more-products:hover { transform: scale(1.1); }
 
-/* ===============================
-   Expand button (unificado)
-   =============================== */
-.expand-btn {
-  display: block;
-  margin: 1.5rem auto;
-  background-color: var(--color-bg-dark);
-  color: var(--color-text-dark);
-  border: none;
-  border-radius: 50%;
-  width: 40px; height: 40px; font-size: 1.5rem; cursor: pointer;
-  transition: transform var(--transition-fast);
+.expand-btn:hover, #load-more-products:hover { 
+    transform: scale(1.06); 
 }
-body.light-mode .expand-btn { background-color: var(--color-bg-light); color: var(--color-text-light); }
-.expand-btn:hover { transform: scale(1.06); }
 
 /* ===============================
    More-content (unificado)
@@ -544,12 +528,12 @@ body.light-mode .footer { background-color: var(--color-bg-light); color: var(--
 .fade-in.visible { opacity: 1; transform: translateY(0); }
 
 /* ===============================
-   Modal & Gallery styles
+   Modal & Gallery styles Juegos
    =============================== */
 #game-modal-overlay {
   position: fixed;
   inset: 0;
-  display: none; /* toggled by JS */
+  display: none;
   align-items: center;
   justify-content: center;
   background: rgba(0,0,0,0.72);
@@ -623,19 +607,6 @@ body.light-mode #game-modal { background: var(--color-bg-light); color: var(--co
   height: var(--cover-height);
   object-fit: cover;
   display: block;
-}
-
-/* Counter */
-#game-modal .cover-counter {
-  position: absolute;
-  top: 1px;
-  margin-right: auto;
-  background: rgba(0,0,0,0.5);
-  color: #fff;
-  padding: 6px 8px;
-  border-radius: 999px;
-  font-size: 0.9rem;
-  z-index: 30;
 }
 
 #more-games.visible-content {
@@ -808,14 +779,26 @@ body.light-mode #game-confirm { background: var(--color-bg-light); color: var(--
 button, .thumb-btn, .cover-nav { will-change: transform; }
 
 /* ===============================
-   Responsive adjustments
+   Ajustes Responsive y Breakpoints
    =============================== */
 @media (max-width: 900px) {
   .logo-img { height: 44px; }
   .theme-toggle { bottom: 14px; right: 14px; width: 44px; height: 44px; }
   .theme-icon { width: 24px; height: 24px; }
-  .roblox-profile-container { padding: 3px; }
-  #roblox-profile-img { border-radius: 50%; background: transparent; object-fit: cover; display:block; }
+  
+  .roblox-profile-container { padding: 3px; background-color: transparent !important; }
+  
+  #roblox-profile-img { 
+      border-radius: 50%; 
+      background-color: transparent !important; 
+      object-fit: cover; 
+      display: block; 
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      transform: translateZ(0);
+      -webkit-mask-image: -webkit-radial-gradient(white, black);
+      mask-image: radial-gradient(white, black); /* ADVERTENCIA SOLUCIONADA */
+  }
 
   :root {
     --modal-icon-size: 80px;
