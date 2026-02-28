@@ -191,7 +191,7 @@ body.light-mode .header {
 }
 .nav-list a:hover { color: var(--color-accent); background: rgba(255,255,255,0.02); }
 
-/* Selector de idioma */
+/* Selector de idioma (CORREGIDO) */
 #languageSwitcher {
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -200,8 +200,6 @@ body.light-mode .header {
   padding: .35rem .9rem .35rem .6rem;
   border-radius: 6px;
   border: 1px solid currentColor;
-  background-color: transparent;
-  color: inherit;
   font-family: 'Roboto', sans-serif;
   font-size: 0.95rem;
   line-height: 1.1;
@@ -210,16 +208,34 @@ body.light-mode .header {
   background-size: 12px 12px;
   transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
   box-sizing: border-box;
+  
+  /* Fuerza el fondo y texto según el tema (Por defecto Oscuro) */
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-dark);
 }
+
+#languageSwitcher option { 
+  background-color: var(--color-bg-dark); 
+  color: var(--color-text-dark); 
+}
+
 body:not(.light-mode) #languageSwitcher {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'><path d='M0 0 L5 6 L10 0' fill='none' stroke='%23fff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
   border-color: rgba(255,255,255,0.12);
 }
+
 body.light-mode #languageSwitcher {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'><path d='M0 0 L5 6 L10 0' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
   border-color: rgba(0,0,0,0.12);
+  /* Fuerza el fondo y texto claro */
+  background-color: var(--color-bg-light);
+  color: var(--color-text-light);
 }
-#languageSwitcher option { background-color: inherit; color: inherit; }
+
+body.light-mode #languageSwitcher option {
+  background-color: var(--color-bg-light);
+  color: var(--color-text-light);
+}
 
 /* ===============================
    Hamburger (mobile)
@@ -240,13 +256,13 @@ body.light-mode .hamburger span { background-color: var(--color-text-light); }
 .hamburger:hover span { opacity: .9; }
 
 /* ===============================
-   Theme toggle button
+   Theme toggle button (CORREGIDO)
    =============================== */
 .theme-toggle {
   position: fixed;
   bottom: 18px;
   right: 18px;
-  background-color: #ffffff;
+  background-color: #ffffff; /* Por defecto botón blanco */
   color: #000000;
   border: none;
   border-radius: 50%;
@@ -259,14 +275,22 @@ body.light-mode .hamburger span { background-color: var(--color-text-light); }
   transition: background-color var(--transition-fast), transform var(--transition-fast);
 }
 .theme-toggle:hover { transform: scale(1.05); }
-body.light-mode .theme-toggle { background-color: #000; color: #fff; }
-.theme-icon { width: 24px; height: 24px; display: block; }
+
+body.light-mode .theme-toggle { 
+  background-color: #000000; /* En modo claro el botón es negro */
+  color: #ffffff; 
+}
+
+.theme-icon { 
+  width: 28px; /* Tamaño acoplado perfecto */
+  height: 28px; 
+  display: block; 
+  object-fit: contain; /* Asegura que no se deforme */
+}
 
 /* ===============================
    Avatar dinámico
    =============================== */
-
-/* Nuevo contenedor de perfil */
 .roblox-profile-container {
   width: 160px;
   height: 160px;
@@ -784,14 +808,14 @@ body.light-mode #game-confirm { background: var(--color-bg-light); color: var(--
 button, .thumb-btn, .cover-nav { will-change: transform; }
 
 /* ===============================
-   Responsive adjustments for modal and layout
+   Responsive adjustments
    =============================== */
 @media (max-width: 900px) {
   .logo-img { height: 44px; }
   .theme-toggle { bottom: 14px; right: 14px; width: 44px; height: 44px; }
-  .theme-icon { width: 20px; height: 20px; }
-  .avatar-container { padding: 3px; }
-  #avatar-img { border-radius: 50%; background: transparent; object-fit: cover; display:block; }
+  .theme-icon { width: 24px; height: 24px; }
+  .roblox-profile-container { padding: 3px; }
+  #roblox-profile-img { border-radius: 50%; background: transparent; object-fit: cover; display:block; }
 
   :root {
     --modal-icon-size: 80px;
@@ -833,7 +857,7 @@ button, .thumb-btn, .cover-nav { will-change: transform; }
 
 @media (max-width: var(--breakpoint-sm)) {
   .logo-text { font-size: 1rem; }
-  #avatar-img { width: 96px; height: 96px; }
+  #roblox-profile-img { width: 96px; height: 96px; }
   .game-icon img { width: 120px; height: 120px; }
   .project-card { padding: .4rem; }
   .container { padding: 1rem 0; }
@@ -850,7 +874,3 @@ button, .thumb-btn, .cover-nav { will-change: transform; }
   #game-modal .modal-icon { width: var(--modal-icon-size); height: var(--modal-icon-size); }
   #game-modal .modal-meta-row .meta-text h3 { font-size: 1rem; }
 }
-
-/* ===============================
-   Fin del style.css
-   =============================== */
