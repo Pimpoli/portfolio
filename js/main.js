@@ -17,44 +17,33 @@ async function fetchWithTimeout(url, opts={}, ms=7000) {
 }
 
 /* ============================
-   1. CARGAR AVATAR REAL (JSON vía Proxy)
+   1. CARGAR AVATAR REAL (Vía RoProxy)
    ============================ */
 async function loadAvatar(userId, imgEl) {
   if (!imgEl) return;
-  // Prevenir reentradas
   if (imgEl.dataset._loading) return;
   imgEl.dataset._loading = '1';
 
-  // Limpiamos flags de carga al final
   imgEl.onload = () => { delete imgEl.dataset._loading; };
   imgEl.onerror = () => { delete imgEl.dataset._loading; };
 
   try {
-    // URL oficial de Thumbnails de Roblox (Headshot)
-    const targetUrl = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=420x420&format=Png&isCircular=false&_t=${Date.now()}`;
+    // Usamos RoProxy, el proxy nativo para desarrolladores de Roblox (Funciona en producción)
+    const url = `https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userId}&size=420x420&format=Png&isCircular=false`;
     
-    // Usamos corsproxy.io (que permite el acceso desde tu local) para leer el JSON
-    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
-
-    const response = await fetchWithTimeout(proxyUrl, { method: 'GET' }, 7000);
-    if (!response.ok) throw new Error('Network response not ok');
+    const response = await fetchWithTimeout(url, { method: 'GET' }, 7000);
+    if (!response.ok) throw new Error('Error al conectar con RoProxy');
     
     const data = await response.json();
     
-    // Si obtenemos la respuesta correcta de Roblox
-    if (data && data.data && data.data.length > 0) {
-      const avatarUrl = data.data[0].imageUrl;
-      if (avatarUrl) {
-        // ¡Ponemos la imagen real aquí!
-        imgEl.src = avatarUrl;
-        return; // Éxito
-      }
+    if (data && data.data && data.data.length > 0 && data.data[0].imageUrl) {
+      imgEl.src = data.data[0].imageUrl;
+      return; 
     }
-    throw new Error('No se encontró URL de imagen en JSON');
+    throw new Error('No se encontró URL en el JSON');
 
   } catch (error) {
-    console.warn('Fallo al obtener avatar real vía JSON, intentando método construido como respaldo:', error);
-    // RESPALDO: Si falla el proxy o la API, intentamos el método construido (a veces funciona, a veces no)
+    console.warn('Fallo RoProxy para el avatar, usando fallback directo:', error);
     imgEl.src = `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=420&height=420&format=png&_t=${Date.now()}`;
   }
 }
@@ -66,16 +55,14 @@ function applyPresence(type) {
   const container = document.getElementById('roblox-profile-container');
   if (!container) return;
   
-  // Limpiamos los colores anteriores
   container.classList.remove("status-online", "status-ingame", "status-studio", "status-offline");
   
-  // Aplicamos el color exacto según tu estado
   switch (type) {
-    case 1: container.classList.add('status-online'); container.title = 'Conectado'; break; // Azul Claro
-    case 2: container.classList.add('status-ingame'); container.title = 'Jugando'; break;   // Verde Claro
-    case 3: container.classList.add('status-studio'); container.title = 'En Roblox Studio'; break; // Naranja
+    case 1: container.classList.add('status-online'); container.title = 'Conectado'; break;
+    case 2: container.classList.add('status-ingame'); container.title = 'Jugando'; break;
+    case 3: container.classList.add('status-studio'); container.title = 'En Roblox Studio'; break;
     case 0:
-    default: container.classList.add('status-offline'); container.title = 'Desconectado'; break; // Gris
+    default: container.classList.add('status-offline'); container.title = 'Desconectado'; break;
   }
 }
 
@@ -97,23 +84,18 @@ function resolvePresenceType(pres) {
 
 async function fetchPresenceFromProxy(userId) {
   try {
-    // URL oficial de Roblox Presencia
-    const targetUrl = `https://presence.roblox.com/v1/presence/users?_t=${Date.now()}`;
-    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
+    // RoProxy para la presencia
+    const url = `https://presence.roproxy.com/v1/presence/users`;
 
-    const res = await fetchWithTimeout(proxyUrl, {
+    const res = await fetchWithTimeout(url, {
       method:'POST',
-      headers: {
-        'Content-Type':'application/json',
-        'Accept': 'application/json'
-      },
+      headers: { 'Content-Type':'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({ userIds: [Number(userId)]})
     }, 7000);
 
     if (!res || !res.ok) return null;
     const j = await res.json();
     
-    // Extraemos la información del JSON
     const arr = j?.userPresences ?? j?.data ?? j?.presences ?? j?.presence ?? j;
     if (Array.isArray(arr) && arr.length) return arr[0];
     return null;
@@ -128,7 +110,7 @@ async function updateAvatarStatus(userId) {
   
   try {
     const pres = await fetchPresenceFromProxy(userId);
-    if (!pres) { applyPresence(0); return; } // Si falla, se pone gris
+    if (!pres) { applyPresence(0); return; }
     
     const resolved = resolvePresenceType(pres);
     if (resolved === null || typeof resolved !== 'number' || Number.isNaN(resolved)) {
@@ -186,22 +168,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const avatarImg = document.getElementById('roblox-profile-img');
   
-  // 1. Cargar Avatar Real al abrir la web
   if (avatarImg) {
     loadAvatar(ROBLOX_USER_ID, avatarImg);
   }
 
-  // 2. Cargar Estado al abrir la web y luego cada 60 segundos
   updateAvatarStatus(ROBLOX_USER_ID);
   const interval = setInterval(()=> updateAvatarStatus(ROBLOX_USER_ID), 60000);
   window.addEventListener('beforeunload', ()=> clearInterval(interval));
 
-  // 3. Refrescar datos automáticamente si cambias de pestaña y vuelves a la web
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
-      if (avatarImg) {
-        loadAvatar(ROBLOX_USER_ID, avatarImg);
-      }
+      if (avatarImg) loadAvatar(ROBLOX_USER_ID, avatarImg);
       updateAvatarStatus(ROBLOX_USER_ID);
     }
   });
