@@ -1,4 +1,4 @@
-// js/main.js - cliente: carga avatar + presencia
+// js/main.js - cliente: carga avatar + presencia y tema oscuro/claro
 
 const ROBLOX_USER_ID = 3404416545; // Tu ID
 
@@ -28,7 +28,6 @@ async function loadAvatar(userId, imgEl) {
   imgEl.onerror = () => { delete imgEl.dataset._loading; };
 
   try {
-    // Usamos RoProxy, el proxy nativo para desarrolladores de Roblox (Funciona en producción)
     const url = `https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userId}&size=420x420&format=Png&isCircular=false`;
     
     const response = await fetchWithTimeout(url, { method: 'GET' }, 7000);
@@ -84,7 +83,6 @@ function resolvePresenceType(pres) {
 
 async function fetchPresenceFromProxy(userId) {
   try {
-    // RoProxy para la presencia
     const url = `https://presence.roproxy.com/v1/presence/users`;
 
     const res = await fetchWithTimeout(url, {
@@ -156,7 +154,7 @@ function initFadeInObserver() {
 }
 
 /* ============================
-   4. INICIALIZACIÓN
+   4. INICIALIZACIÓN Y TEMA
    ============================ */
 document.addEventListener('DOMContentLoaded', () => {
   const yearSpan = document.getElementById('year');
@@ -182,4 +180,33 @@ document.addEventListener('DOMContentLoaded', () => {
       updateAvatarStatus(ROBLOX_USER_ID);
     }
   });
+
+  // === LÓGICA DEL BOTÓN DE TEMA (SOL Y LUNA) ===
+  const themeBtn = document.getElementById('theme-toggle');
+  const themeIcon = document.getElementById('theme-icon-img');
+
+  function updateThemeUI() {
+    if (document.body.classList.contains('light-mode')) {
+      // Si la página es blanca: Botón se vuelve negro (por CSS) y mostramos la Luna blanca
+      if (themeIcon) themeIcon.src = 'img/moon.webp';
+    } else {
+      // Si la página es oscura: Botón se vuelve blanco (por CSS) y mostramos el Sol negro
+      if (themeIcon) themeIcon.src = 'img/sun.webp';
+    }
+  }
+
+  if (themeBtn) {
+    // Leemos la preferencia guardada (si el usuario ya lo había cambiado antes)
+    if (localStorage.getItem('theme') === 'light') {
+      document.body.classList.add('light-mode');
+    }
+    updateThemeUI(); // Ponemos la imagen correcta de inicio
+
+    // Evento al hacer clic en el botón
+    themeBtn.addEventListener('click', () => {
+      document.body.classList.toggle('light-mode');
+      localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+      updateThemeUI();
+    });
+  }
 });
