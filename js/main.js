@@ -28,7 +28,9 @@ async function loadAvatar(userId, imgEl) {
   imgEl.onerror = () => { delete imgEl.dataset._loading; };
 
   try {
-    const url = `https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userId}&size=420x420&format=Png&isCircular=false`;
+    // ¡LA MAGIA ESTÁ AQUÍ!: Cambiamos isCircular=false por isCircular=true
+    // Esto obliga a los servidores de Roblox a enviarnos la foto con fondo 100% transparente.
+    const url = `https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userId}&size=420x420&format=Png&isCircular=true`;
     
     const response = await fetchWithTimeout(url, { method: 'GET' }, 7000);
     if (!response.ok) throw new Error('Error al conectar con RoProxy');
@@ -43,7 +45,8 @@ async function loadAvatar(userId, imgEl) {
 
   } catch (error) {
     console.warn('Fallo RoProxy para el avatar, usando fallback directo:', error);
-    imgEl.src = `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=420&height=420&format=png&_t=${Date.now()}`;
+    // También aplicamos isCircular=true en el método de respaldo por si falla el internet
+    imgEl.src = `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=420&height=420&format=png&isCircular=true&_t=${Date.now()}`;
   }
 }
 
@@ -187,22 +190,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateThemeUI() {
     if (document.body.classList.contains('light-mode')) {
-      // Si la página es blanca: Botón se vuelve negro (por CSS) y mostramos la Luna blanca
       if (themeIcon) themeIcon.src = 'img/moon.webp';
     } else {
-      // Si la página es oscura: Botón se vuelve blanco (por CSS) y mostramos el Sol negro
       if (themeIcon) themeIcon.src = 'img/sun.webp';
     }
   }
 
   if (themeBtn) {
-    // Leemos la preferencia guardada (si el usuario ya lo había cambiado antes)
     if (localStorage.getItem('theme') === 'light') {
       document.body.classList.add('light-mode');
     }
-    updateThemeUI(); // Ponemos la imagen correcta de inicio
+    updateThemeUI(); 
 
-    // Evento al hacer clic en el botón
     themeBtn.addEventListener('click', () => {
       document.body.classList.toggle('light-mode');
       localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
