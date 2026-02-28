@@ -4,9 +4,11 @@
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
   <title data-i18n="title">PimpoliDev Portfolio</title>
 
-  <!-- DEFINE PROXY_BASE (IMPORTANTE: script, no código suelto) -->
+  <meta name="description" content="PimpoliDev Portfolio. Roblox Developer and Programmer with over 4 years of experience. Expertise in Lua (Roblox Studio) and Godot Engine 4. Founder of Multi Game Inc." />
+
   <script>
     if (typeof window.PROXY_BASE === 'undefined') {
       (function(){
@@ -21,21 +23,16 @@
     }
   </script>
 
-  <!-- Favicon -->
   <link rel="icon" href="img/MultiGameInc.webp" />
 
-  <!-- Normalize CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" />
 
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
 
-  <!-- CSS principal -->
   <link rel="stylesheet" href="css/style.css" />
 
-  <!-- Estilos inline para avatar (mínimos, resto en style.css) -->
   <style>
     /* Solo estilos esenciales que no rompan layout si CSS no carga */
     #avatar-img { display:block; width:150px; height:150px; border-radius:50%; object-fit:cover; }
@@ -43,12 +40,10 @@
   </style>
 </head>
 <body>
-  <!-- BOTÓN MODO OSCURO / CLARO -->
   <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
     <img id="theme-icon-img" src="img/moon.webp" alt="Theme Icon" class="theme-icon" />
   </button>
 
-  <!-- CABECERA / NAVEGACIÓN -->
   <header class="header">
     <div class="container nav-container">
       <div class="logo fade-in scroll-delay-1">
@@ -80,35 +75,28 @@
     </div>
   </header>
 
-  <!-- HOME -->
   <section id="home" class="section home-section fade-in">
     <div class="container">
       <h1 class="fade-in" data-i18n="home.title">Hello, I'm PimpoliDev</h1>
       <p class="fade-in scroll-delay-1" data-i18n="home.subtitle">Roblox Developer with +3 years experience • Expertise in Lua (Roblox Studio)</p>
 
       <a href="https://www.roblox.com/es/users/3404416545/profile" target="_blank" rel="noopener">
-        <!-- Nuevo contenedor de perfil Roblox -->
         <div id="roblox-profile-container" class="roblox-profile-container status-offline">
           <img id="roblox-profile-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Roblox Profile" referrerpolicy="no-referrer" />
         </div>
-
       </a>
     </div>
   </section>
 
-  <!-- ABOUT -->
   <section id="about" class="section about-section fade-in">
     <div id="about-container" class="container">
-      <!-- El contenido se genera dinámicamente en js/about.js -->
-    </div>
+      </div>
   </section>
 
-  <!-- PROJECTS -->
   <section id="projects" class="section projects-section fade-in">
     <div id="projects-container" class="container"></div>
   </section>
 
-  <!-- GAMES -->
   <section id="games" class="section games-section fade-in">
     <div class="container">
       <h2 class="fade-in" data-i18n="games.title">Games I've Created</h2>
@@ -118,17 +106,15 @@
     </div>
   </section>
 
-  <!-- STORE -->
   <section id="store" class="section store-section fade-in">
     <div class="container">
       <h2 class="fade-in" data-i18n="store.title">Products / Store</h2>
       <div id="products-container" class="products-grid"></div>
-      <button id="load-more-products">+</button>
+      <button id="load-more-products" class="expand-btn fade-in scroll-delay-2" data-target="more-products">+</button>
       <div id="more-products" class="more-content"></div>
     </div>
   </section>
 
-  <!-- CONTACT -->
   <section id="contact" class="section contact-section fade-in">
     <div class="container">
       <h2 class="fade-in" data-i18n="contact.title">Contact & Social Media</h2>
@@ -143,21 +129,17 @@
     </div>
   </section>
 
-  <!-- FOOTER -->
   <footer class="footer">
     <div class="container"><p>© <span id="year"></span> PimpoliDev. All rights reserved.</p></div>
   </footer>
 
-  <!-- Scripts de contenido dinámico -->
   <script src="js/projects.js"></script>
   <script src="js/games.js"></script>
   <script src="js/products.js"></script>
   <script src="js/about.js"></script>
 
-  <!-- i18n (cargar antes del handler del switcher) -->
   <script src="js/i18n.js"></script>
 
-  <!-- languageSwitcher handler: intenta aplicar sin recargar; fallback reload -->
   <script>
     (function(){
       const sel = document.getElementById('languageSwitcher');
@@ -176,10 +158,8 @@
     })();
   </script>
 
-  <!-- main.js (usa window.PROXY_BASE si está definido) -->
   <script src="js/main.js"></script>
 
-  <!-- Lightbox container -->
   <div id="img-modal">
     <div class="modal-content">
       <span class="close-modal">&times;</span>
