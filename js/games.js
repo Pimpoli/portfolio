@@ -1,4 +1,4 @@
-// js/games.js - Automatizado, Paralelo y con Sistema Anti-Cuelgues
+// js/games.js - Automatizado, Paralelo y con Lanzamiento Directo (Deep Linking)
 
 document.addEventListener('DOMContentLoaded', () => {
   const gamesContainer     = document.getElementById('games-container');
@@ -364,7 +364,10 @@ document.addEventListener('DOMContentLoaded', () => {
     coverArea.addEventListener('mouseenter', stopInterval);
     coverArea.addEventListener('mouseleave', startInterval);
 
-    const gameUrl = `https://www.roblox.com/games/${game.id}`;
+    // AQUÍ SE SEPARAN LOS ENLACES
+    const gamePageUrl = `https://www.roblox.com/games/${game.id}`;
+    const gameLaunchUrl = `https://www.roblox.com/games/start?placeId=${game.id}`;
+
     const playBtn = ov.querySelector('#game-modal-play');
     const pageBtn = ov.querySelector('#game-modal-page');
     const closeBtn = ov.querySelector('#game-modal-close');
@@ -373,8 +376,12 @@ document.addEventListener('DOMContentLoaded', () => {
     pageBtn.replaceWith(pageBtn.cloneNode(true));
     closeBtn.replaceWith(closeBtn.cloneNode(true));
 
-    ov.querySelector('#game-modal-play').addEventListener('click', () => openConfirm(gameUrl));
-    ov.querySelector('#game-modal-page').addEventListener('click', () => window.open(gameUrl, '_blank', 'noopener'));
+    // El botón Play abre la confirmación con el enlace de lanzamiento directo
+    ov.querySelector('#game-modal-play').addEventListener('click', () => openConfirm(gameLaunchUrl));
+    
+    // El botón Ir a la Página abre directamente la web del juego en otra pestaña
+    ov.querySelector('#game-modal-page').addEventListener('click', () => window.open(gamePageUrl, '_blank', 'noopener'));
+    
     ov.querySelector('#game-modal-close').addEventListener('click', closeGameModal);
 
     ov.style.display = 'flex';
