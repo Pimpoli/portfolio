@@ -1,36 +1,30 @@
-// js/products.js - Tienda estilo Proyectos integrada con YouTube y Gumroad
+// js/products.js - Tienda integrada con YouTube, Gumroad y Botón Centrado
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Buscamos el contenedor 'products-container'
   const storeSection = document.getElementById('products-container') || document.getElementById('store-container');
   if (!storeSection) return;
 
   // ==========================================
-  // CONFIGURACIÓN DE TUS PRODUCTOS
+  // CONFIGURACIÓN DE TUS PRODUCTOS ACTUALIZADOS
   // ==========================================
   const STORE_PRODUCTS = [
     {
-      // Producto 1 (El tuyo real)
-      youtubeId: 'iUatLzmCRtE', // <-- Reemplaza esto con el ID del video que explica tu script/modelo
+      youtubeId: 'iUatLzmCRtE', 
       gumroadUrl: 'https://pimpolidev.gumroad.com/l/wyfdgk', 
       price: '$3.00 USD' 
     },
     {
-      // Producto 2 (De prueba, para que veas cómo se dividen en 2 columnas perfectas)
       youtubeId: '8G_FWh10mqU', 
       gumroadUrl: 'https://pimpolidev.gumroad.com/l/rxlko',
       price: '$8.00 USD'
     }
-    // Puedes seguir añadiendo más copiando y pegando los bloques hacia abajo
   ];
 
   const YOUTUBE_API_KEY = 'AIzaSyAI0klDbsko8_UrYOe0Rwu6aK6vrIS2iNc'; 
 
-  // Limpiamos el contenedor
   storeSection.innerHTML = '';
   storeSection.className = ''; 
 
-  // Función inteligente de traducciones
   const getT = (key, fallbackText) => {
     if (!window.translations) return fallbackText;
     const parts = key.split('.');
@@ -45,7 +39,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     return typeof text === 'string' ? text : fallbackText;
   };
 
-  // 1. Obtener la información de los videos de YouTube
   async function fetchProductsData() {
     const ids = STORE_PRODUCTS.map(p => p.youtubeId).filter(id => id).join(',');
     if (!ids) return STORE_PRODUCTS; 
@@ -70,28 +63,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
       }
     } catch (error) {
-      console.error("Error obteniendo datos de la tienda desde YouTube", error);
+      console.error("Error obteniendo datos de YouTube", error);
     }
     return STORE_PRODUCTS;
   }
 
-  // Obtenemos todos los datos combinados
   const loadedProducts = await fetchProductsData();
 
-  // 2. Crear las tarjetas y la cuadrícula (+ / -)
   const mainGrid = document.createElement('div');
   mainGrid.className = 'projects-grid'; 
-  mainGrid.style.justifyContent = 'center'; // Centramos los elementos por si hay pocos
+  mainGrid.style.justifyContent = 'center'; 
 
   const moreGrid = document.createElement('div');
   moreGrid.id = 'more-store';
   moreGrid.className = 'projects-grid'; 
   moreGrid.style.justifyContent = 'center'; 
-  moreGrid.style.display = 'none'; // Oculto por defecto
+  moreGrid.style.display = 'none'; 
   moreGrid.style.marginTop = '1.5rem';
 
+  // BOTÓN CLONADO IDÉNTICO AL DE JUEGOS
   const expandBtn = document.createElement('button');
-  expandBtn.className = 'expand-btn fade-in';
+  expandBtn.id = 'load-more-products';
+  expandBtn.className = 'expand-btn fade-in scroll-delay-2 visible';
+  // Usamos flex para que el texto interior se centre, y auto margin para centrar el botón entero
+  expandBtn.style.cssText = 'display: flex; margin: 1.5rem auto;'; 
   expandBtn.textContent = '+';
 
   function renderStoreUI() {
@@ -102,11 +97,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     loadedProducts.forEach((p, index) => {
       const card = document.createElement('div');
-      
       card.className = `project-card fade-in scroll-delay-${(index % 5) + 1}`;
       card.dataset.productData = JSON.stringify(p);
 
-      // ¡SOLUCIÓN DE TAMAÑO!: Forzamos a que ninguna tarjeta sea más ancha que 450px
       card.style.maxWidth = '450px';
       card.style.width = '100%';
       card.style.margin = '0 auto'; 
@@ -155,25 +148,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     storeSection.appendChild(mainGrid);
 
-    // Lógica del botón +
     if (loadedProducts.length > 2) {
       storeSection.appendChild(expandBtn);
       storeSection.appendChild(moreGrid);
-      setTimeout(() => { expandBtn.classList.add('visible'); }, 100);
 
       expandBtn.addEventListener('click', () => {
         if (moreGrid.style.display === 'none') {
-          moreGrid.style.display = 'grid'; // Mostrar en formato cuadrícula normal
+          moreGrid.style.display = 'grid'; 
           expandBtn.textContent = '−';
         } else {
-          moreGrid.style.display = 'none'; // Ocultar
+          moreGrid.style.display = 'none'; 
           expandBtn.textContent = '+';
         }
       });
     }
   }
 
-  // Renderizamos de inmediato
   renderStoreUI();
 
   // ==========================================
@@ -227,7 +217,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const descContainer = document.getElementById('store-modal-desc-container');
     const buyBtn = document.getElementById('store-modal-buy-btn');
 
-    // Textos traducidos
     const buyWord = getT('store.buy', 'Comprar');
     const forWord = getT('store.for', 'por');
 
@@ -250,7 +239,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       descContainer.innerHTML = '<span style="opacity:0.5;">Sin descripción.</span>';
     }
 
-    // Estructura: Comprar [Nombre] por [Precio]
     buyBtn.href = p.gumroadUrl || '#';
     buyBtn.textContent = `${buyWord} ${p.title || 'Artículo'} ${forWord} ${p.price}`;
 
@@ -273,9 +261,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!card) return;
     const p = JSON.parse(card.dataset.productData);
     
-    // Si tocan el botón directamente, ignoramos y pasamos al modal
     if (e.target.closest('button.buy-btn')) {}
-    
     openStoreModal(p);
   });
 
