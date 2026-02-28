@@ -1,0 +1,61 @@
+{
+  "title": "Portfólio de PimpoliDev",
+  "nav": {
+    "home": "Início",
+    "about": "Sobre mim",
+    "projects": "Projetos",
+    "games": "Jogos",
+    "store": "Loja",
+    "contact": "Contato"
+  },
+  "home": {
+    "title": "Olá, sou o PimpoliDev",
+    "subtitle": "Desenvolvedor de Roblox com +4 anos de exp • Especialista em Lua (Roblox Studio)"
+  },
+  "about": {
+    "title": "Sobre mim",
+    "list": {
+      "nameLabel": "Meu nome:",
+      "nameValue": "Anthony // Alias: PimpoliDev",
+      "expLabel": "Experiência:",
+      "expValue": "Mais de 4 anos de experiência como Programador",
+      "enginesLabel": "Motores que uso:",
+      "enginesValue": "Roblox Studio e Godot Engine 4",
+      "studioLabel": "Fundador da",
+      "studioName": "Multi Game Inc"
+    }
+  },
+  "projects": {
+    "title": "Meu Trabalho / Exemplos",
+    "nodes": {
+      "title": "Sistema de Nós",
+      "desc": ""
+    },
+    "nodesDemo": {
+      "title": "Demo Sistema de Nós",
+      "desc": "Conexão visual entre nós."
+    },
+    "comingSoon": {
+      "title": "Em breve",
+      "desc": "Em breve"
+    }
+  },
+  "games": {
+    "title": "Jogos que eu criei"
+  },
+  "store": {
+    "title": "Produtos / Loja",
+    "moreInfo": "Mais Informações",
+    "buy": "Comprar",
+    "for": "por",
+    "comingSoon": {
+      "name": "Em breve",
+      "desc": "Em breve.",
+      "price": "$Em breve USD"
+    }
+  },
+  "contact": {
+    "title": "Contato e Redes Sociais",
+    "text": "Sinta-se à vontade para entrar em contato através de qualquer uma destas plataformas:"
+  }
+}
