@@ -4,9 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const loadMoreBtn = document.getElementById('load-more-products');
   const moreProductsContainer = document.getElementById('more-products');
 
-  console.log('loadMoreBtn encontrado:', loadMoreBtn);
-  console.log('moreProductsContainer encontrado:', moreProductsContainer);
-
   /**
    * Define aquí todos tus productos de forma manual. Cada objeto contiene:
    *   - img:     Ruta local o externa de la imagen del producto (por ejemplo 'img/producto1.jpg')
@@ -98,7 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // 3) Alternar “+” / “−” para mostrar u ocultar extraProducts
   // —————————————————————————————
   loadMoreBtn.addEventListener('click', () => {
-    console.log('Botón + fue clickeado');
     if (moreProductsContainer.classList.contains('visible-content')) {
       moreProductsContainer.classList.remove('visible-content');
       loadMoreBtn.textContent = '+';
