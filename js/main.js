@@ -1,9 +1,6 @@
-// js/main.js - cliente: carga avatar + presencia cada load/visibilitychange/interval
-// Asegúrate de que window.PROXY_BASE esté definido en index.html o use localhost:3000
+// js/main.js - cliente: carga avatar + presencia
 
-const PROXY_BASE = (typeof window.PROXY_BASE !== 'undefined') ? String(window.PROXY_BASE).replace(/\/$/,'') : (location.hostname === 'localhost' ? 'http://localhost:3000' : '/api');
-const PRESENCE_PROXY   = `${PROXY_BASE}/presence`;
-const ROBLOX_USER_ID   = 3404416545; // cámbialo si quieres
+const ROBLOX_USER_ID = 3404416545; // Tu ID
 
 // util fetch con timeout
 async function fetchWithTimeout(url, opts={}, ms=7000) {
@@ -20,65 +17,65 @@ async function fetchWithTimeout(url, opts={}, ms=7000) {
 }
 
 /* ============================
-   Avatar loader (fetch JSON -> set src)
+   1. CARGAR AVATAR REAL (JSON vía Proxy)
    ============================ */
-async function loadAvatar(userId, imgEl, size='420x420') {
+async function loadAvatar(userId, imgEl) {
   if (!imgEl) return;
-  // prevenir reentradas
+  // Prevenir reentradas
   if (imgEl.dataset._loading) return;
   imgEl.dataset._loading = '1';
 
-  // URL de respaldo directa (por si falla el proxy o la API)
-  // Añadimos timestamp para evitar caché rota
-  const fallbackUrl = `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=420&height=420&format=png&_t=${Date.now()}`;
-
-  // Configurar fallback por si la URL de imagen falla al cargar (403/404)
-  imgEl.onerror = () => {
-    console.warn('Error cargando imagen. Intentando siguiente método...');
-    delete imgEl.dataset._loading;
-    
-    // Si falló el Proxy, intentamos el enlace directo de Roblox
-    if (!imgEl.src.includes('headshot-thumbnail') && !imgEl.src.includes('MultiGameInc.webp')) {
-      imgEl.src = fallbackUrl;
-    } else if (imgEl.src.includes('headshot-thumbnail')) {
-      // Si falló Roblox (Plan B), usamos el logo local (Plan C) para que no se vea roto
-      imgEl.src = 'img/MultiGameInc.webp';
-    }
-  };
+  // Limpiamos flags de carga al final
   imgEl.onload = () => { delete imgEl.dataset._loading; };
+  imgEl.onerror = () => { delete imgEl.dataset._loading; };
 
   try {
-    // 1. Pedimos el JSON a nuestro proxy (igual que tu código de referencia)
-    const response = await fetch(`${PROXY_BASE}/avatar/${userId}`);
-    if (!response.ok) throw new Error('Proxy error');
-    const data = await response.json();
+    // URL oficial de Thumbnails de Roblox (Headshot)
+    const targetUrl = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=420x420&format=Png&isCircular=false&_t=${Date.now()}`;
+    
+    // Usamos corsproxy.io (que permite el acceso desde tu local) para leer el JSON
+    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
 
-    // 2. Extraemos la URL y la asignamos
-    if (data.data && data.data.length > 0 && data.data[0].imageUrl) {
-      imgEl.src = data.data[0].imageUrl;
-    } else {
-      throw new Error('No se encontró imageUrl en la respuesta');
+    const response = await fetchWithTimeout(proxyUrl, { method: 'GET' }, 7000);
+    if (!response.ok) throw new Error('Network response not ok');
+    
+    const data = await response.json();
+    
+    // Si obtenemos la respuesta correcta de Roblox
+    if (data && data.data && data.data.length > 0) {
+      const avatarUrl = data.data[0].imageUrl;
+      if (avatarUrl) {
+        // ¡Ponemos la imagen real aquí!
+        imgEl.src = avatarUrl;
+        return; // Éxito
+      }
     }
+    throw new Error('No se encontró URL de imagen en JSON');
+
   } catch (error) {
-    console.error('Error obteniendo datos del avatar (catch), usando fallback:', error);
-    // Fallback inmediato si falla el fetch (ej. servidor apagado)
-    imgEl.src = fallbackUrl;
+    console.warn('Fallo al obtener avatar real vía JSON, intentando método construido como respaldo:', error);
+    // RESPALDO: Si falla el proxy o la API, intentamos el método construido (a veces funciona, a veces no)
+    imgEl.src = `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=420&height=420&format=png&_t=${Date.now()}`;
   }
 }
 
 /* ============================
-   Presence helpers
+   2. PRESENCIA Y COLORES
    ============================ */
 function applyPresence(type) {
   const container = document.getElementById('roblox-profile-container');
   if (!container) return;
+  
+  // Limpiamos los colores anteriores
   container.classList.remove("status-online", "status-ingame", "status-studio", "status-offline");
+  
+  // Aplicamos el color exacto según tu estado
   switch (type) {
-    case 1: container.classList.add('status-online'); container.title = 'Online'; break;
-    case 2: container.classList.add('status-ingame'); container.title = 'In Game'; break;
-    case 3: container.classList.add('status-studio'); container.title = 'In Roblox Studio'; break;
+    case 1: container.classList.add('status-online'); container.title = 'Conectado'; break; // Azul Claro
+    case 2: container.classList.add('status-ingame'); container.title = 'Jugando'; break;   // Verde Claro
+    case 3: container.classList.add('status-studio'); container.title = 'En Roblox Studio'; break; // Naranja
     case 0:
-    default: container.classList.add('status-offline'); container.title = 'Offline'; break;
+    default: container.classList.add('status-offline'); container.title = 'Desconectado'; break; // Gris
   }
 }
 
@@ -87,11 +84,7 @@ function resolvePresenceType(pres) {
   if (typeof pres.userPresenceType === 'number') return pres.userPresenceType;
   if (typeof pres.presenceType === 'number') return pres.presenceType;
   if (typeof pres.type === 'number') return pres.type;
-  const maybeStr = pres.userPresenceType ?? pres.presenceType ?? pres.type;
-  if (typeof maybeStr === 'string') {
-    const n = parseInt(maybeStr,10);
-    if (!Number.isNaN(n)) return n;
-  }
+  
   if (typeof pres.lastLocation === 'string') {
     if (/studio/i.test(pres.lastLocation)) return 3;
     if (/^\d+$/.test(pres.lastLocation)) return 2;
@@ -104,42 +97,52 @@ function resolvePresenceType(pres) {
 
 async function fetchPresenceFromProxy(userId) {
   try {
-    const res = await fetchWithTimeout(PRESENCE_PROXY, {
+    // URL oficial de Roblox Presencia
+    const targetUrl = `https://presence.roblox.com/v1/presence/users?_t=${Date.now()}`;
+    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
+
+    const res = await fetchWithTimeout(proxyUrl, {
       method:'POST',
-      headers: {'Content-Type':'application/json'},
+      headers: {
+        'Content-Type':'application/json',
+        'Accept': 'application/json'
+      },
       body: JSON.stringify({ userIds: [Number(userId)]})
     }, 7000);
+
     if (!res || !res.ok) return null;
     const j = await res.json();
+    
+    // Extraemos la información del JSON
     const arr = j?.userPresences ?? j?.data ?? j?.presences ?? j?.presence ?? j;
     if (Array.isArray(arr) && arr.length) return arr[0];
-    if (typeof arr === 'object') return arr;
     return null;
   } catch(e) {
-    console.debug('[fetchPresenceFromProxy] error', e?.message || e);
     return null;
   }
 }
+
 async function updateAvatarStatus(userId) {
   const container = document.getElementById('roblox-profile-container');
   if (!container) return;
-  container.classList.remove('status-online','status-ingame','status-studio','status-offline');
-  container.classList.add('status-offline');
-  container.title = 'Detecting presence...';
+  
   try {
     const pres = await fetchPresenceFromProxy(userId);
-    if (!pres) { applyPresence(0); return; }
+    if (!pres) { applyPresence(0); return; } // Si falla, se pone gris
+    
     const resolved = resolvePresenceType(pres);
-    if (resolved === null || typeof resolved !== 'number' || Number.isNaN(resolved)) applyPresence(0);
-    else applyPresence(resolved);
+    if (resolved === null || typeof resolved !== 'number' || Number.isNaN(resolved)) {
+      applyPresence(0);
+    } else {
+      applyPresence(resolved);
+    }
   } catch(err) {
-    console.error('[updateAvatarStatus] exception', err);
     applyPresence(0);
   }
 }
 
 /* ============================
-   Helpers UI (mantén los tuyos si ya existen)
+   3. FUNCIONES DE INTERFAZ (UI)
    ============================ */
 function initMobileMenu() {
   const hamburger = document.getElementById('hamburger');
@@ -147,6 +150,7 @@ function initMobileMenu() {
   if (!hamburger || !navList) return;
   hamburger.addEventListener('click', () => navList.classList.toggle('active'));
 }
+
 function initSmoothScroll() {
   document.querySelectorAll('a[href^="#"]').forEach(a => {
     a.addEventListener('click', function (e) {
@@ -161,6 +165,7 @@ function initSmoothScroll() {
     });
   });
 }
+
 function initFadeInObserver() {
   const obs = new IntersectionObserver((entries, o) => {
     entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('visible'); o.unobserve(en.target); }});
@@ -169,10 +174,9 @@ function initFadeInObserver() {
 }
 
 /* ============================
-   Inicialización y eventos
+   4. INICIALIZACIÓN
    ============================ */
 document.addEventListener('DOMContentLoaded', () => {
-  // año
   const yearSpan = document.getElementById('year');
   if (yearSpan) yearSpan.textContent = new Date().getFullYear();
 
@@ -180,26 +184,23 @@ document.addEventListener('DOMContentLoaded', () => {
   initSmoothScroll();
   initFadeInObserver();
 
-  // avatar img
   const avatarImg = document.getElementById('roblox-profile-img');
+  
+  // 1. Cargar Avatar Real al abrir la web
   if (avatarImg) {
-    // si quieres un placeholder inicial, ponlo aquí; pero lo dejamos vacío para que proxy cargue.
-    loadAvatar(ROBLOX_USER_ID, avatarImg, '420x420');
+    loadAvatar(ROBLOX_USER_ID, avatarImg);
   }
 
-  // presencia: actualizar ahora y cada 60s
-   updateAvatarStatus(ROBLOX_USER_ID);
-  const interval = setInterval(()=> updateAvatarStatus(ROBLOX_USER_ID), 60_000);
+  // 2. Cargar Estado al abrir la web y luego cada 60 segundos
+  updateAvatarStatus(ROBLOX_USER_ID);
+  const interval = setInterval(()=> updateAvatarStatus(ROBLOX_USER_ID), 60000);
   window.addEventListener('beforeunload', ()=> clearInterval(interval));
 
-  // refrescar al volver al tab visible
+  // 3. Refrescar datos automáticamente si cambias de pestaña y vuelves a la web
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
-      // forzar recarga de la imagen (limpiando flags)
       if (avatarImg) {
-        delete avatarImg.dataset._loading;
-        delete avatarImg.dataset._err;
-        loadAvatar(ROBLOX_USER_ID, avatarImg, '420x420');
+        loadAvatar(ROBLOX_USER_ID, avatarImg);
       }
       updateAvatarStatus(ROBLOX_USER_ID);
     }
