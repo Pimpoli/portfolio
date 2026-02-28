@@ -1,4 +1,4 @@
-// js/games.js - Automatizado y Optimizado para Ahorro de Recursos (Portadas Reales)
+// js/games.js - Automatizado, Paralelo y con Sistema Anti-Cuelgues
 
 document.addEventListener('DOMContentLoaded', () => {
   const gamesContainer     = document.getElementById('games-container');
@@ -17,25 +17,46 @@ document.addEventListener('DOMContentLoaded', () => {
     107726833867004    // 67 Red Light Green Light
   ];
 
-  // Base de datos local
+  // SISTEMA DE RESPALDO: Si la API se cuelga, usaremos esto para que aparezcan sí o sí
+  const FALLBACK_GAMES = {
+    16125269940: { name: 'Anime Color Block Run', desc: 'Corre por bloques de colores en un mapa dinámico.' },
+    71541333892738: { name: 'Bloxidextro', desc: 'Juego de Bloxidextro.' },
+    108138370693321: { name: 'Avalanche of objects', desc: 'Sobrevive a la avalancha.' },
+    107726833867004: { name: '67 Luz Roja Luz Verde', desc: 'Juego de supervivencia.' }
+  };
+
   const gameDatabase = {};
   let memoryCleanupTimeout = null;
 
-  // 1. Extraer Datos (Nombre, Desc, Icono y la URL de la Portada Principal)
+  // Cronómetro: Si la API tarda más de 3 segundos, se corta la conexión para no hacer esperar al usuario.
+  async function fetchWithTimeout(url, options = {}, ms = 3000) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), ms);
+    try {
+      const response = await fetch(url, { ...options, signal: controller.signal });
+      clearTimeout(id);
+      return response;
+    } catch (error) {
+      clearTimeout(id);
+      throw error;
+    }
+  }
+
+  // 1. Extraer Datos Seguros
   async function fetchBasicGameData(placeId) {
     if (gameDatabase[placeId]) return gameDatabase[placeId]; 
 
     try {
-      const uniRes = await fetch(`https://apis.roproxy.com/universes/v1/places/${placeId}/universe`);
+      const uniRes = await fetchWithTimeout(`https://apis.roproxy.com/universes/v1/places/${placeId}/universe`);
+      if (!uniRes.ok) throw new Error("Fallo en la conexión");
       const uniData = await uniRes.json();
       const universeId = uniData.universeId;
-      if (!universeId) throw new Error("No se encontró el juego.");
 
-      // Obtenemos Información, Icono y Portadas (Solo descargamos el texto/URL, no la imagen pesada aún)
+      // Pedimos todo a la vez para ahorrar tiempo
       const [infoRes, iconRes, thumbsRes] = await Promise.all([
-          fetch(`https://games.roproxy.com/v1/games?universeIds=${universeId}`),
-          fetch(`https://thumbnails.roproxy.com/v1/games/icons?universeIds=${universeId}&returnPolicy=PlaceHolder&size=150x150&format=Png&isCircular=false`),
-          fetch(`https://thumbnails.roproxy.com/v1/games/multiget/thumbnails?universeIds=${universeId}&countPerUniverse=10&defaults=true&size=768x432&format=Png&isCircular=false`)
+          fetchWithTimeout(`https://games.roproxy.com/v1/games?universeIds=${universeId}`),
+          fetchWithTimeout(`https://thumbnails.roproxy.com/v1/games/icons?universeIds=${universeId}&returnPolicy=PlaceHolder&size=150x150&format=Png&isCircular=false`),
+          fetchWithTimeout(`https://thumbnails.roproxy.com/v1/games/multiget/thumbnails?universeIds=${universeId}&countPerUniverse=10&defaults=true&size=768x432&format=Png&isCircular=false`)
       ]);
 
       const infoData = await infoRes.json();
@@ -46,25 +67,35 @@ document.addEventListener('DOMContentLoaded', () => {
       const iconUrl = iconData.data[0]?.imageUrl || 'img/MultiGameInc.webp';
       const thumbnails = thumbsData.data[0]?.thumbnails.map(t => t.imageUrl) || [];
 
-      // Guardamos todo en la base de datos local
       gameDatabase[placeId] = {
           id: placeId,
           universeId: universeId,
-          name: gameInfo.name,
-          desc: gameInfo.description || '',
+          name: gameInfo.name || FALLBACK_GAMES[placeId]?.name || 'Juego de Roblox',
+          desc: gameInfo.description || FALLBACK_GAMES[placeId]?.desc || '',
           iconUrl: iconUrl,
-          coverUrl: thumbnails.length > 0 ? thumbnails[0] : iconUrl, // SOLUCIÓN: Usamos la portada real aquí
-          images: thumbnails.length > 0 ? thumbnails : [iconUrl] // Guardamos las URLs para el modal
+          coverUrl: thumbnails.length > 0 ? thumbnails[0] : iconUrl, 
+          images: thumbnails.length > 0 ? thumbnails : [iconUrl] 
       };
 
       return gameDatabase[placeId];
+
     } catch(e) {
-        console.error(`Error cargando el juego ${placeId}:`, e);
-        return null; 
+        console.warn(`Roblox tardó demasiado o falló para el juego ${placeId}. Cargando Respaldo Rápido.`);
+        const fb = FALLBACK_GAMES[placeId];
+        gameDatabase[placeId] = {
+            id: placeId,
+            universeId: null,
+            name: fb ? fb.name : `Juego ${placeId}`,
+            desc: fb ? fb.desc : '',
+            iconUrl: 'img/MultiGameInc.webp', 
+            coverUrl: 'img/MultiGameInc.webp',
+            images: ['img/MultiGameInc.webp']
+        };
+        return gameDatabase[placeId];
     }
   }
 
-  // 2. Renderizar Tarjeta (Ahora usa coverUrl para el fondo)
+  // 2. Renderizar Tarjeta 
   function renderGameCard(game) {
     const card = document.createElement('div');
     card.className = 'game-card fade-in';
@@ -76,14 +107,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const gi = document.createElement('div');
     gi.className = 'game-icon';
     const gimg = document.createElement('img');
-    gimg.src = game.iconUrl; // El icono cuadradito pequeño
+    gimg.src = game.iconUrl; 
     gimg.alt = game.name + ' icon';
     gi.appendChild(gimg);
 
     const gc = document.createElement('div');
     gc.className = 'game-cover';
     const coverImg = document.createElement('img');
-    coverImg.src = game.coverUrl; // SOLUCIÓN: Imagen ancha real para el fondo de la tarjeta
+    coverImg.src = game.coverUrl; 
     coverImg.alt = 'cover';
     coverImg.style.width = '100%'; coverImg.style.height = '100%'; coverImg.style.objectFit = 'cover';
     gc.appendChild(coverImg);
@@ -102,51 +133,69 @@ document.addEventListener('DOMContentLoaded', () => {
     return card;
   }
 
-  // 3. Lógica de Carga Perezosa (+ / -)
+  // 3. Lógica de Carga Inicial MEJORADA (Carga en Paralelo)
   let extraGamesLoaded = false;
 
   async function loadInitialGames() {
-    for (let i = 0; i < 2; i++) {
-      if (GAME_IDS[i]) {
-        const game = await fetchBasicGameData(GAME_IDS[i]);
-        if (game) {
-          const card = renderGameCard(game);
-          gamesContainer.appendChild(card);
-          setTimeout(() => { card.classList.add('visible'); }, 50);
-        }
+    // Tomamos los 2 primeros IDs y los cargamos AL MISMO TIEMPO
+    const initialIds = GAME_IDS.slice(0, 2);
+    const promises = initialIds.map(id => fetchBasicGameData(id));
+    
+    // Esperamos a que ambos terminen (o usen el respaldo) al mismo tiempo
+    const games = await Promise.all(promises);
+
+    // Los dibujamos en la pantalla
+    games.forEach((game) => {
+      if (game) {
+        const card = renderGameCard(game);
+        gamesContainer.appendChild(card);
+        setTimeout(() => { card.classList.add('visible'); }, 50);
       }
-    }
+    });
   }
 
   async function loadExtraGames() {
-    if (extraGamesLoaded) return; 
-    
-    const originalText = loadMoreBtn.textContent;
-    loadMoreBtn.textContent = '...';
-
+    let allLoaded = true; 
     for (let i = 2; i < GAME_IDS.length; i++) {
-      const game = await fetchBasicGameData(GAME_IDS[i]);
-      if (game) {
-        const card = renderGameCard(game);
-        moreGamesContainer.appendChild(card);
-        setTimeout(() => { card.classList.add('visible'); }, 50);
+      const placeId = GAME_IDS[i];
+      const existingCard = moreGamesContainer.querySelector(`.game-card[data-game-id="${placeId}"]`);
+
+      if (!existingCard) {
+        const game = await fetchBasicGameData(placeId);
+        if (game) {
+          const card = renderGameCard(game);
+          moreGamesContainer.appendChild(card);
+          setTimeout(() => { card.classList.add('visible'); }, 50);
+        } else {
+          allLoaded = false; 
+        }
       }
     }
-    extraGamesLoaded = true;
+    if (allLoaded) extraGamesLoaded = true;
     loadMoreBtn.textContent = '−';
     moreGamesContainer.classList.add('visible-content');
   }
 
   loadInitialGames();
 
+  // BOTÓN + 
   if (loadMoreBtn && moreGamesContainer) {
     if (GAME_IDS.length > 2) {
       loadMoreBtn.style.display = 'block'; 
       loadMoreBtn.addEventListener('click', async () => {
+        const isVisible = moreGamesContainer.classList.contains('visible-content');
+
         if (!extraGamesLoaded) {
+          loadMoreBtn.textContent = '...';
+          loadMoreBtn.style.pointerEvents = 'none'; 
+          loadMoreBtn.style.opacity = '0.6';
+
+          await new Promise(resolve => setTimeout(resolve, 3000));
           await loadExtraGames();
+          
+          loadMoreBtn.style.pointerEvents = 'auto';
+          loadMoreBtn.style.opacity = '1';
         } else {
-          const isVisible = moreGamesContainer.classList.contains('visible-content');
           if (isVisible) {
             moreGamesContainer.classList.remove('visible-content');
             loadMoreBtn.textContent = '+';
@@ -161,23 +210,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 4. Delegación de clics: Al tocar una tarjeta abrimos el modal
+  // 4. Modal 
   function handleCardClick(e) {
     const card = e.target.closest('.game-card');
     if (!card) return;
-    
     const placeId = card.dataset.gameId;
     const game = gameDatabase[placeId];
     if (!game) return;
-
-    // Abrimos el modal con los datos y la lista de imágenes (El navegador recién las descarga aquí)
     openGameModal(game, game.images); 
   }
   
   gamesContainer.addEventListener('click', handleCardClick);
   if (moreGamesContainer) moreGamesContainer.addEventListener('click', handleCardClick);
 
-  // 5. Creación y Manejo del Modal (Diseño Oscuro)
   function createModalsIfNeeded() {
     if (document.getElementById('game-modal-overlay')) return;
     const overlay = document.createElement('div');
@@ -193,16 +238,11 @@ document.addEventListener('DOMContentLoaded', () => {
             <button class="cover-nav next" aria-label="Siguiente">&#10095;</button>
             <div class="cover-thumbs" id="game-cover-thumbs" aria-hidden="false"></div>
           </div>
-
           <div class="modal-meta-row">
             <img class="modal-icon" id="game-modal-icon" src="" alt="Icono juego" />
-            <div class="meta-text">
-              <h3 id="game-modal-title"></h3>
-            </div>
+            <div class="meta-text"><h3 id="game-modal-title"></h3></div>
           </div>
-
           <div id="game-modal-desc-container"></div>
-
           <div class="modal-actions">
             <button id="game-modal-play" class="button-primary">Play</button>
             <button id="game-modal-page" class="button-secondary">Ir a la página</button>
@@ -246,20 +286,15 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateModalImages(images) {
     currentModalImages = images;
     currentModalIdx = 0;
-    
     const thumbsWrap = document.querySelector('#game-cover-thumbs');
     thumbsWrap.innerHTML = '';
-    
     images.forEach((src, i) => {
       const t = document.createElement('button');
       t.className = 'thumb-btn'; t.type = 'button'; t.dataset.index = String(i);
       t.innerHTML = `<img src="${src}" alt="thumb-${i}" />`;
-      t.addEventListener('click', (ev) => {
-        ev.stopPropagation(); goToIndex(i); resetInterval();
-      });
+      t.addEventListener('click', (ev) => { ev.stopPropagation(); goToIndex(i); resetInterval(); });
       thumbsWrap.appendChild(t);
     });
-
     goToIndex(0);
     startInterval();
   }
@@ -297,7 +332,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function openGameModal(game, tempImages) {
     if (memoryCleanupTimeout) clearTimeout(memoryCleanupTimeout); 
-
     const ov = document.getElementById('game-modal-overlay');
     const titleEl = ov.querySelector('#game-modal-title');
     const iconEl = ov.querySelector('#game-modal-icon');
@@ -307,11 +341,10 @@ document.addEventListener('DOMContentLoaded', () => {
     iconEl.src = game.iconUrl || '';
 
     if (game.desc && game.desc.trim() !== '') {
-      const textoLimpio = game.desc.trim();
       descContainer.innerHTML = `
         <div style="background: rgba(0, 0, 0, 0.4); padding: 15px; border-radius: 8px; font-size: clamp(0.9rem, 3vw, 1rem); line-height: 1.5; color: rgba(255,255,255,0.9); overflow-y: auto; max-height: 25vh; border: 1px solid rgba(255, 255, 255, 0.05); text-align: left; margin-top: 15px;">
           <strong style="display: block; margin-bottom: 8px; font-size: 1.1em; color: #ffffff;">Descripción:</strong>
-          <div style="white-space: pre-wrap; font-family: inherit;">${textoLimpio}</div>
+          <div style="white-space: pre-wrap; font-family: inherit;">${game.desc.trim()}</div>
         </div>
       `;
     } else {
@@ -354,8 +387,6 @@ document.addEventListener('DOMContentLoaded', () => {
     stopInterval();
     ov.style.display = 'none';
     document.documentElement.style.overflow = '';
-
-    // LIMPIEZA DE RAM (10 SEGUNDOS)
     memoryCleanupTimeout = setTimeout(() => {
       document.querySelector('.cover-viewport').innerHTML = '';
       document.getElementById('game-cover-thumbs').innerHTML = '';
@@ -368,17 +399,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!conf) return;
     conf.dataset.targetUrl = url || '';
     conf.style.display = 'flex';
-
     const ok = conf.querySelector('#confirm-ok');
     const cancel = conf.querySelector('#confirm-cancel');
     ok.replaceWith(ok.cloneNode(true));
     cancel.replaceWith(cancel.cloneNode(true));
-
     conf.querySelector('#confirm-ok').addEventListener('click', () => {
       const target = conf.dataset.targetUrl;
-      if (target) {
-        try { window.open(target, '_blank', 'noopener'); } catch(e){}
-      }
+      if (target) { try { window.open(target, '_blank', 'noopener'); } catch(e){} }
       closeConfirm(); closeGameModal();
     });
     conf.querySelector('#confirm-cancel').addEventListener('click', closeConfirm);
@@ -388,7 +415,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const conf = document.getElementById('game-confirm-overlay');
     if (conf) conf.style.display = 'none'; 
   }
-
   function isConfirmOpen() {
     const conf = document.getElementById('game-confirm-overlay');
     return conf && conf.style.display === 'flex';
