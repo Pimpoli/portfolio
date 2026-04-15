@@ -98,19 +98,32 @@ body::after { z-index: -3; transform: scaleX(-1); }
 @keyframes scroll-left { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
 /* ===============================
-   Modo claro y Solución al Fondo
+   Modo claro
    =============================== */
 body.light-mode {
   background-color: var(--color-bg-light);
   color: var(--color-text-light);
-  text-shadow: 1px 1px var(--color-outline-light);
+  text-shadow: none;
 }
 
-body.light-mode::before,
+/* Modo claro: patrón sutil de puntos (igual de elegante que el oscuro) */
+body.light-mode::before {
+  background-image: radial-gradient(circle, rgba(0,0,0,0.07) 1px, transparent 1px) !important;
+  background-size: 22px 22px !important;
+  background-repeat: repeat !important;
+  opacity: 1 !important;
+  animation: none !important;
+}
 body.light-mode::after {
-    background-image: none !important;
-    opacity: 0 !important;
-    animation: none !important;
+  background-image: none !important;
+  opacity: 0 !important;
+  animation: none !important;
+}
+
+/* Home en modo claro: degradado suave claro en vez del oscuro */
+body.light-mode .home-section {
+  background: linear-gradient(rgba(230,240,255,0.6), rgba(220,230,250,0.6));
+  color: var(--color-text-light);
 }
 
 /* ===============================
@@ -866,3 +879,168 @@ button, .thumb-btn, .cover-nav { will-change: transform; }
   #game-modal .modal-icon { width: var(--modal-icon-size); height: var(--modal-icon-size); }
   #game-modal .modal-meta-row .meta-text h3 { font-size: 1rem; }
 }
+
+/* ===============================
+   Flecha de navegación entre páginas
+   =============================== */
+.nav-arrow {
+  display: inline-block;
+  font-size: 0.85em;
+  opacity: 0.6;
+  margin-left: 4px;
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
+}
+.logo a:hover .nav-arrow { transform: translateX(4px); opacity: 1; }
+.nav-arrow-back { margin-left: 0; margin-right: 4px; }
+.logo a:hover .nav-arrow-back { transform: translateX(-4px); opacity: 1; }
+
+/* ===============================
+   DestroyGame — estilos del minijuego en la página
+   =============================== */
+body.dg-active { cursor: none !important; user-select: none; }
+
+#dg-hud {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 30px;
+  z-index: 999999;
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  font-family: monospace;
+  font-size: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  pointer-events: none;
+  white-space: nowrap;
+}
+#dg-exit-btn {
+  pointer-events: auto;
+  cursor: pointer !important;
+  background: rgba(220,50,50,0.85);
+  border: none;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-family: monospace;
+  font-size: 13px;
+  transition: background 0.15s;
+}
+#dg-exit-btn:hover { background: #ff3333; }
+
+#dg-ship {
+  position: fixed;
+  width: 22px;
+  height: 30px;
+  background: #00ffff;
+  clip-path: polygon(50% 0%, 0% 100%, 22% 76%, 50% 86%, 78% 76%, 100% 100%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 999998;
+  filter: drop-shadow(0 0 6px #00ffff);
+  transition: filter 0.1s;
+}
+
+.dg-bullet {
+  position: fixed;
+  width: 3px;
+  height: 18px;
+  background: #00ffff;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 999997;
+  box-shadow: 0 0 8px #00ffff;
+  transform: translateX(-50%);
+}
+
+.dg-particle {
+  position: fixed;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 999997;
+  transform: translate(-50%, -50%);
+  opacity: 1;
+}
+.dg-particle.dg-go {
+  opacity: 0;
+  transition: transform 0.55s ease-out, opacity 0.55s ease-out;
+}
+
+.dg-enemy {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ff8844, #cc2200);
+  box-shadow: 0 0 8px rgba(255,100,0,0.7);
+  pointer-events: auto;
+  cursor: crosshair !important;
+  z-index: 999996;
+}
+
+/* Hit flash */
+.dg-hit {
+  animation: dg-hit-flash 0.25s ease;
+}
+@keyframes dg-hit-flash {
+  0%   { filter: brightness(1); }
+  40%  { filter: brightness(3) saturate(0); }
+  100% { filter: brightness(1); }
+}
+
+/* Destrucción */
+.dg-destroying {
+  transition: transform 0.35s ease, opacity 0.4s ease !important;
+  transform: scale(1.15) rotate(6deg) !important;
+  opacity: 0.2 !important;
+  pointer-events: none !important;
+}
+.dg-destroyed {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Game Over overlay */
+#dg-gameover {
+  position: fixed;
+  inset: 0;
+  z-index: 9999999;
+  background: rgba(0,0,0,0.82);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: monospace;
+}
+#dg-gameover h2 {
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  color: #ff3333;
+  text-shadow: 0 0 20px #ff0000;
+  margin-bottom: 12px;
+}
+#dg-gameover p { font-size: 1.4rem; margin: 6px 0; }
+#dg-gameover button {
+  margin-top: 20px;
+  padding: 10px 28px;
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: monospace;
+}
+
+/* ===============================
+   Performance hints
+   =============================== */
+.game-card, .project-card { contain: layout style; }
+.social-icon { image-rendering: -webkit-optimize-contrast; }

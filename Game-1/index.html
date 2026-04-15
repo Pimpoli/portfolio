@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Color Block — PimpoliDev</title>
+  <link rel="icon" href="../img/MultiGameInc.webp" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0a0a0f;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    #topbar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background: rgba(0,0,0,0.5);
+      position: fixed;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(6px);
+    }
+    #topbar a {
+      color: #ff4500;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+    #topbar a:hover { text-decoration: underline; }
+    #game-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100vh;
+      padding-top: 50px;
+    }
+    canvas {
+      border-radius: 12px;
+      box-shadow: 0 0 40px rgba(255,69,0,0.2);
+      display: block;
+      image-rendering: pixelated;
+    }
+    #ui-bar {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    #ui-bar span { opacity: 0.8; font-size: 0.85rem; }
+    .score-val { color: #fff; font-size: 1.2rem; }
+    #controls-hint {
+      margin-top: 10px;
+      font-size: 0.78rem;
+      opacity: 0.45;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="topbar">
+    <a href="https://pimpolidev.com">← PimpoliDev</a>
+    <span style="font-weight:700;letter-spacing:1px;">COLOR BLOCK</span>
+    <span id="hiscore-top" style="font-size:0.85rem;opacity:0.6;">BEST: 0</span>
+  </div>
+
+  <div id="game-wrap">
+    <div id="ui-bar">
+      <div><span>SCORE </span><span class="score-val" id="score-display">0</span></div>
+      <div><span>LIVES </span><span class="score-val" id="lives-display">♥♥♥</span></div>
+      <div><span>ROUND </span><span class="score-val" id="round-display">1</span></div>
+    </div>
+    <canvas id="c"></canvas>
+    <div id="controls-hint">A / ← → / D para moverse &nbsp;|&nbsp; W / ↑ / Space para saltar &nbsp;|&nbsp; ESC para pausar</div>
+  </div>
+
+<script>
+(function(){
+  'use strict';
+
+  const canvas = document.getElementById('c');
+  const ctx    = canvas.getContext('2d');
+
+  // Responsive canvas
+  function resize() {
+    const max = Math.min(window.innerWidth - 20, 900);
+    const h   = Math.min(window.innerHeight - 130, 500);
+    canvas.width  = max;
+    canvas.height = h;
+    generatePlatforms();
+  }
+  window.addEventListener('resize', () => { resize(); });
+
+  // ─── Colores del juego ────────────────────────────────────────────────────
+  const COLORS = [
+    { name:'Rojo',    hex:'#e74c3c' },
+    { name:'Azul',    hex:'#3498db' },
+    { name:'Verde',   hex:'#2ecc71' },
+    { name:'Amarillo',hex:'#f1c40f' },
+    { name:'Morado',  hex:'#9b59b6' },
+    { name:'Naranja', hex:'#e67e22' },
+  ];
+
+  // ─── Estado ───────────────────────────────────────────────────────────────
+  let score    = 0;
+  let lives    = 3;
+  let round    = 1;
+  let hiScore  = parseInt(localStorage.getItem('cb_hs') || '0', 10);
+  let gameOver = false;
+  let paused   = false;
+
+  let targetColorIdx = 0;
+  let roundTimer  = 0;
+  let roundMs     = 3000; // ms para elegir el color
+  let lastRoundTs = 0;
+  let roundActive = false; // true cuando el countdown está corriendo
+
+  document.getElementById('hiscore-top').textContent = 'BEST: ' + hiScore;
+
+  // ─── Jugador ──────────────────────────────────────────────────────────────
+  const GRAVITY = 0.55;
+  const JUMP_FORCE = -13;
+  const SPEED = 4.5;
+
+  const player = {
+    x: 60, y: 100,
+    w: 28, h: 42,
+    vx: 0, vy: 0,
+    grounded: false,
+    colorIdx: -1, // índice del bloque en el que está
+  };
+
+  // ─── Plataformas ──────────────────────────────────────────────────────────
+  let platforms = [];
+
+  function generatePlatforms() {
+    const W = canvas.width;
+    const H = canvas.height;
+    platforms = [];
+
+    // Suelo: fila de bloques de colores
+    const bw = Math.floor(W / 6);
+    for (let i = 0; i < 6; i++) {
+      platforms.push({
+        x: i * bw, y: H - 60,
+        w: bw - 2, h: 30,
+        colorIdx: i,
+        row: 0
+      });
+    }
+
+    // Fila 2 (altura media)
+    const bw2 = Math.floor(W / 6);
+    for (let i = 0; i < 6; i++) {
+      platforms.push({
+        x: i * bw2 + (i % 2 === 0 ? 0 : 8), y: H - 160,
+        w: bw2 - 12, h: 22,
+        colorIdx: (i + 2) % 6,
+        row: 1
+      });
+    }
+
+    // Fila 3 (más arriba, más pequeñas)
+    const bw3 = Math.floor(W / 7);
+    for (let i = 0; i < 7; i++) {
+      platforms.push({
+        x: i * bw3 + 5, y: H - 260,
+        w: bw3 - 18, h: 20,
+        colorIdx: (i + 4) % 6,
+        row: 2
+      });
+    }
+
+    // Recolocar jugador encima del suelo
+    player.x = platforms[0].x + 20;
+    player.y = platforms[0].y - player.h - 2;
+    player.vx = 0; player.vy = 0; player.grounded = true;
+  }
+
+  // ─── Input ────────────────────────────────────────────────────────────────
+  const keys = {};
+  document.addEventListener('keydown', e => {
+    keys[e.code] = true;
+    if (e.code === 'Escape') paused = !paused;
+    if ((e.code === 'Space' || e.code === 'KeyW' || e.code === 'ArrowUp') && player.grounded) {
+      player.vy = JUMP_FORCE;
+      player.grounded = false;
+    }
+    e.preventDefault();
+  });
+  document.addEventListener('keyup', e => { keys[e.code] = false; });
+
+  // ─── Nueva ronda ──────────────────────────────────────────────────────────
+  function newRound() {
+    targetColorIdx = Math.floor(Math.random() * COLORS.length);
+    lastRoundTs    = performance.now();
+    roundMs        = Math.max(1400, 3000 - round * 80);
+    roundActive    = true;
+  }
+
+  function checkRoundResult(now) {
+    if (!roundActive) return;
+    const elapsed = now - lastRoundTs;
+    roundTimer = 1 - Math.min(elapsed / roundMs, 1);
+
+    if (elapsed >= roundMs) {
+      roundActive = false;
+      // ¿El jugador está sobre el color correcto?
+      if (player.colorIdx === targetColorIdx) {
+        score += 10 + round;
+        round++;
+        document.getElementById('score-display').textContent = score;
+        document.getElementById('round-display').textContent = round;
+        if (score > hiScore) {
+          hiScore = score;
+          localStorage.setItem('cb_hs', hiScore);
+          document.getElementById('hiscore-top').textContent = 'BEST: ' + hiScore;
+        }
+        setTimeout(newRound, 800);
+      } else {
+        lives--;
+        document.getElementById('lives-display').textContent = '♥'.repeat(Math.max(0,lives)) + '♡'.repeat(Math.max(0,3-lives));
+        if (lives <= 0) { gameOver = true; }
+        else { setTimeout(newRound, 1000); }
+      }
+    }
+  }
+
+  // ─── Física & Colisiones ─────────────────────────────────────────────────
+  function updatePlayer(dt) {
+    // Movimiento horizontal
+    if (keys['ArrowLeft'] || keys['KeyA']) player.vx = -SPEED;
+    else if (keys['ArrowRight'] || keys['KeyD']) player.vx = SPEED;
+    else player.vx *= 0.8;
+
+    // Gravedad
+    player.vy += GRAVITY;
+    player.x  += player.vx;
+    player.y  += player.vy;
+    player.grounded = false;
+    player.colorIdx = -1;
+
+    // Límites laterales
+    if (player.x < 0) player.x = 0;
+    if (player.x + player.w > canvas.width) player.x = canvas.width - player.w;
+
+    // Colisión con plataformas
+    for (const p of platforms) {
+      if (player.x + player.w > p.x && player.x < p.x + p.w) {
+        const py_bot = player.y + player.h;
+        const py_bot_prev = py_bot - player.vy;
+        if (py_bot_prev <= p.y && py_bot >= p.y && player.vy >= 0) {
+          player.y = p.y - player.h;
+          player.vy = 0;
+          player.grounded = true;
+          player.colorIdx = p.colorIdx;
+        }
+      }
+    }
+
+    // Cayó por debajo de la pantalla → pierde vida
+    if (player.y > canvas.height + 20) {
+      lives--;
+      document.getElementById('lives-display').textContent = '♥'.repeat(Math.max(0,lives)) + '♡'.repeat(Math.max(0,3-lives));
+      if (lives <= 0) { gameOver = true; return; }
+      // Respawn encima del suelo
+      const floor = platforms.find(p => p.row === 0);
+      player.x = floor.x + 20;
+      player.y = floor.y - player.h - 2;
+      player.vy = 0;
+    }
+  }
+
+  // ─── Dibujar ──────────────────────────────────────────────────────────────
+  function draw(now) {
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    // Fondo
+    ctx.fillStyle = '#0d0d1a';
+    ctx.fillRect(0, 0, W, H);
+
+    // Plataformas
+    for (const p of platforms) {
+      const col = COLORS[p.colorIdx];
+      const isTarget = roundActive && p.colorIdx === targetColorIdx;
+
+      ctx.shadowBlur  = isTarget ? 18 : 4;
+      ctx.shadowColor = isTarget ? col.hex : 'transparent';
+      ctx.fillStyle   = isTarget ? col.hex : col.hex + 'bb';
+      ctx.beginPath();
+      ctx.roundRect(p.x, p.y, p.w, p.h, 6);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Borde brillante si es el target
+      if (isTarget) {
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth   = 2;
+        ctx.globalAlpha = 0.5 + 0.5 * Math.sin(now / 150);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    // Jugador
+    const plColor = player.colorIdx >= 0 ? COLORS[player.colorIdx].hex : '#ffffff';
+    ctx.shadowBlur  = 10;
+    ctx.shadowColor = '#00ffff';
+    ctx.fillStyle   = '#e0f8ff';
+    ctx.beginPath();
+    ctx.roundRect(player.x, player.y, player.w, player.h, 5);
+    ctx.fill();
+    // Ojos
+    ctx.fillStyle = '#000';
+    ctx.shadowBlur = 0;
+    ctx.fillRect(player.x + 6, player.y + 10, 5, 5);
+    ctx.fillRect(player.x + 17, player.y + 10, 5, 5);
+
+    // HUD: color objetivo arriba
+    if (!gameOver) {
+      const tCol = COLORS[targetColorIdx];
+      const barW = Math.min(W * 0.55, 360);
+      const barX = (W - barW) / 2;
+      const barY = 14;
+      const barH = 40;
+
+      // Fondo del indicador
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.beginPath();
+      ctx.roundRect(barX - 60, barY - 4, barW + 120, barH + 8, 14);
+      ctx.fill();
+
+      // Color objetivo (circulo)
+      ctx.fillStyle = tCol.hex;
+      ctx.shadowBlur = roundActive ? 12 : 0;
+      ctx.shadowColor = tCol.hex;
+      ctx.beginPath();
+      ctx.arc(barX - 30, barY + barH/2, 14, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Texto
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 18px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`VE AL COLOR: ${tCol.name.toUpperCase()}`, W / 2, barY + 26);
+
+      // Barra de tiempo
+      if (roundActive) {
+        ctx.fillStyle = 'rgba(255,255,255,0.12)';
+        ctx.beginPath();
+        ctx.roundRect(barX, barY + barH + 2, barW, 7, 4);
+        ctx.fill();
+        const timerColor = roundTimer > 0.4 ? '#2ecc71' : roundTimer > 0.2 ? '#f1c40f' : '#e74c3c';
+        ctx.fillStyle = timerColor;
+        ctx.beginPath();
+        ctx.roundRect(barX, barY + barH + 2, barW * roundTimer, 7, 4);
+        ctx.fill();
+      } else {
+        // Mensaje de resultado
+        ctx.font = 'bold 22px monospace';
+        ctx.textAlign = 'center';
+        if (player.colorIdx === targetColorIdx || player.colorIdx === -1) {
+          ctx.fillStyle = '#2ecc71';
+          ctx.fillText('¡CORRECTO!', W/2, barY + barH + 22);
+        }
+      }
+    }
+
+    // Game Over
+    if (gameOver) {
+      ctx.fillStyle = 'rgba(0,0,0,0.75)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#e74c3c';
+      ctx.font = `bold ${Math.min(52, W*0.09)}px monospace`;
+      ctx.shadowBlur = 20; ctx.shadowColor = '#ff0000';
+      ctx.fillText('GAME OVER', W/2, H/2 - 40);
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#fff';
+      ctx.font = `bold ${Math.min(26, W*0.045)}px monospace`;
+      ctx.fillText(`SCORE: ${score}`, W/2, H/2 + 10);
+      ctx.fillStyle = '#f1c40f';
+      ctx.font = `${Math.min(20,W*0.035)}px monospace`;
+      ctx.fillText(`MEJOR: ${hiScore}`, W/2, H/2 + 44);
+      ctx.fillStyle = '#aaa';
+      ctx.font = '14px monospace';
+      ctx.fillText('Pulsa ENTER para reiniciar', W/2, H/2 + 80);
+    }
+
+    // Pausa
+    if (paused && !gameOver) {
+      ctx.fillStyle = 'rgba(0,0,0,0.6)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 36px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('PAUSA', W/2, H/2);
+      ctx.font = '16px monospace';
+      ctx.fillStyle = '#aaa';
+      ctx.fillText('ESC para continuar', W/2, H/2 + 36);
+    }
+
+    ctx.textAlign = 'left';
+  }
+
+  // ─── Reiniciar ────────────────────────────────────────────────────────────
+  function resetGame() {
+    score = 0; lives = 3; round = 1; gameOver = false; paused = false;
+    document.getElementById('score-display').textContent = '0';
+    document.getElementById('round-display').textContent = '1';
+    document.getElementById('lives-display').textContent = '♥♥♥';
+    generatePlatforms();
+    newRound();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.code === 'Enter' && gameOver) resetGame();
+  });
+
+  // ─── Loop ─────────────────────────────────────────────────────────────────
+  let lastTs = 0;
+  function loop(ts) {
+    const dt = ts - lastTs;
+    lastTs = ts;
+
+    if (!paused && !gameOver) {
+      updatePlayer(dt);
+      checkRoundResult(ts);
+    }
+    draw(ts);
+    requestAnimationFrame(loop);
+  }
+
+  resize();
+  newRound();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

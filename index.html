@@ -47,9 +47,9 @@
   <header class="header">
     <div class="container nav-container">
       <div class="logo fade-in scroll-delay-1">
-        <a href="https://PimpoliDev.com/MultiGameInc" target="_blank" rel="noopener">
-          <img src="img/MultiGameInc.webp" alt="Logo MultiGame Inc" class="logo-img" />
-          <span class="logo-text">Multi Game Inc</span>
+        <a href="https://pimpolidev.com/MultiGameInc" rel="noopener">
+          <img src="img/MultiGameInc.webp" alt="Logo MultiGame Inc" class="logo-img" loading="lazy" />
+          <span class="logo-text">Multi Game Inc <span class="nav-arrow">→</span></span>
         </a>
       </div>
       <nav class="nav">
@@ -133,28 +133,20 @@
     <div class="container"><p>© <span id="year"></span> PimpoliDev. All rights reserved.</p></div>
   </footer>
 
-  <script src="js/projects.js"></script>
-  <script src="js/games.js"></script>
-  <script src="js/products.js"></script>
-  <script src="js/about.js"></script>
-
-  <script src="js/i18n.js"></script>
+  <script src="js/projects.js" defer></script>
+  <script src="js/games.js" defer></script>
+  <script src="js/products.js" defer></script>
+  <script src="js/about.js" defer></script>
+  <script src="js/i18n.js" defer></script>
 
   <script>
+    // Sincronizar el selector con el idioma guardado (i18n.js lo carga automáticamente)
     (function(){
       const sel = document.getElementById('languageSwitcher');
       if (!sel) return;
-      const saved = localStorage.getItem('locale') || (navigator.language ? navigator.language.slice(0,2) : 'en');
-      sel.value = saved.startsWith('es') ? 'es' : 'en';
-      sel.addEventListener('change', (e) => {
-        const v = e.target.value;
-        localStorage.setItem('locale', v);
-        if (window.i18n && typeof window.i18n.setLocale === 'function') {
-          try { window.i18n.setLocale(v); } catch(e){}
-        }
-        window.dispatchEvent(new CustomEvent('localechange', { detail: v }));
-        if (!window.i18n) location.reload();
-      });
+      const saved = localStorage.getItem('locale') || 'en';
+      const valid = ['es','en','pt'];
+      sel.value = valid.includes(saved) ? saved : 'en';
     })();
   </script>
 

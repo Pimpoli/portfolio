@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="locale-base" content="../" />
+  <title>Multi Game Inc — PimpoliDev</title>
+  <meta name="description" content="Multi Game Inc — Estudio de desarrollo de juegos fundado por PimpoliDev. Proyectos Roblox y más." />
+  <link rel="icon" href="../img/MultiGameInc.webp" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    .mgi-hero {
+      text-align: center;
+      padding: 5rem 0 3rem;
+      background: linear-gradient(135deg, rgba(255,69,0,0.15), rgba(0,0,0,0.4));
+    }
+    body.light-mode .mgi-hero {
+      background: linear-gradient(135deg, rgba(255,69,0,0.08), rgba(200,220,255,0.4));
+    }
+    .mgi-logo-big { width: 120px; height: 120px; border-radius: 24px; object-fit: cover; box-shadow: 0 8px 30px rgba(255,69,0,0.3); margin-bottom: 1.2rem; }
+    .mgi-badge {
+      display: inline-block;
+      background: var(--color-accent);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+    .mgi-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    .mgi-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    body.light-mode .mgi-card {
+      background: rgba(0,0,0,0.04);
+      border-color: rgba(0,0,0,0.08);
+    }
+    .mgi-card:hover { transform: translateY(-4px); }
+    .mgi-card .mgi-num { font-family: 'Fredoka One', cursive; font-size: 2.5rem; color: var(--color-accent); line-height: 1; }
+    .mgi-card .mgi-label { font-size: 0.9rem; opacity: 0.7; margin-top: 6px; }
+    .mgi-divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 2.5rem 0; }
+    body.light-mode .mgi-divider { border-top-color: rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body>
+
+  <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+    <img id="theme-icon-img" src="../img/moon.webp" alt="Theme Icon" class="theme-icon" />
+  </button>
+
+  <header class="header">
+    <div class="container nav-container">
+      <div class="logo fade-in">
+        <a href="https://pimpolidev.com" rel="noopener">
+          <img src="../img/MultiGameInc.webp" alt="PimpoliDev" class="logo-img" loading="lazy" />
+          <span class="logo-text"><span class="nav-arrow nav-arrow-back">←</span> PimpoliDev</span>
+        </a>
+      </div>
+      <nav class="nav">
+        <ul class="nav-list">
+          <li><a href="#about"   class="nav-link">Estudio</a></li>
+          <li><a href="#games"   class="nav-link">Juegos</a></li>
+          <li><a href="#contact" class="nav-link">Contacto</a></li>
+          <li>
+            <select id="languageSwitcher">
+              <option value="es">Español</option>
+              <option value="en">English</option>
+              <option value="pt">Português (BR)</option>
+            </select>
+          </li>
+        </ul>
+        <div class="hamburger" id="hamburger">
+          <span></span><span></span><span></span>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="mgi-hero fade-in">
+    <div class="container">
+      <img src="../img/MultiGameInc.webp" alt="Multi Game Inc" class="mgi-logo-big fade-in" loading="lazy" />
+      <div class="mgi-badge">Estudio independiente</div>
+      <h1 style="font-size:clamp(2rem,6vw,3.5rem);">Multi Game Inc <span class="nav-arrow" style="opacity:0.5;font-size:0.7em;">→</span></h1>
+      <p style="opacity:0.75;font-size:1.1rem;max-width:600px;margin:0 auto;">
+        Estudio de desarrollo de juegos fundado por PimpoliDev. Creamos experiencias en Roblox y más plataformas.
+      </p>
+
+      <!-- Stats -->
+      <div class="mgi-info-grid" style="max-width:700px;margin:2rem auto 0;">
+        <div class="mgi-card fade-in scroll-delay-1">
+          <div class="mgi-num">2020</div>
+          <div class="mgi-label">Año de fundación</div>
+        </div>
+        <div class="mgi-card fade-in scroll-delay-2">
+          <div class="mgi-num">4+</div>
+          <div class="mgi-label">Años de experiencia</div>
+        </div>
+        <div class="mgi-card fade-in scroll-delay-3">
+          <div class="mgi-num">4</div>
+          <div class="mgi-label">Juegos publicados</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT STUDIO -->
+  <section id="about" class="section fade-in">
+    <div class="container">
+      <h2 class="fade-in">Sobre el Estudio</h2>
+      <hr class="mgi-divider" />
+      <ul class="about-list">
+        <li class="about-item fade-in scroll-delay-1"><strong>Nombre:</strong> <span>Multi Game Inc</span></li>
+        <li class="about-item fade-in scroll-delay-2"><strong>Fundador:</strong>
+          <a href="https://pimpolidev.com" class="studio-link">
+            <span>PimpoliDev</span>
+            <img src="../img/MultiGameInc.webp" alt="PimpoliDev" class="studio-logo-small" loading="lazy" />
+          </a>
+        </li>
+        <li class="about-item fade-in scroll-delay-3"><strong>Fundado en:</strong> <span>2020</span></li>
+        <li class="about-item fade-in scroll-delay-4"><strong>Plataforma principal:</strong> <span>Roblox Studio</span></li>
+        <li class="about-item fade-in scroll-delay-5"><strong>Especialidad:</strong> <span>Juegos multijugador, sistemas de gameplay y UIs</span></li>
+        <li class="about-item fade-in scroll-delay-6"><strong>Lenguaje principal:</strong> <span>Luau — dominio avanzado 4+ años</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- GAMES -->
+  <section id="games" class="section games-section fade-in">
+    <div class="container">
+      <h2 class="fade-in">Juegos del Estudio</h2>
+      <div id="games-container" class="fade-in scroll-delay-1"></div>
+      <button id="load-more-games" class="expand-btn fade-in scroll-delay-2" data-target="more-games">+</button>
+      <div id="more-games" class="more-content"></div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="section contact-section fade-in">
+    <div class="container">
+      <h2 class="fade-in">Contacto</h2>
+      <p class="fade-in scroll-delay-1">Puedes contactarnos a través de las mismas redes sociales de PimpoliDev:</p>
+      <div class="social-icons fade-in scroll-delay-2">
+        <a href="https://discord.gg/SgjguUvTwE" target="_blank" rel="noopener" title="Discord"><img src="../img/discord.webp" alt="Discord" class="social-icon" loading="lazy" /></a>
+        <a href="https://twitter.com/PimpoliDev"  target="_blank" rel="noopener" title="Twitter/X"><img src="../img/twitter.webp" alt="Twitter" class="social-icon" loading="lazy" /></a>
+        <a href="https://www.roblox.com/es/communities/17387910/Multi-Game-Inc#!/about" target="_blank" rel="noopener" title="Roblox Group"><img src="../img/roblox.webp" alt="Roblox" class="social-icon" loading="lazy" /></a>
+        <a href="https://www.youtube.com/@PimpoliDev" target="_blank" rel="noopener" title="YouTube"><img src="../img/youtube.webp" alt="YouTube" class="social-icon" loading="lazy" /></a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container"><p>© <span id="year"></span> Multi Game Inc — PimpoliDev. All rights reserved.</p></div>
+  </footer>
+
+  <script>
+    if (typeof window.PROXY_BASE === 'undefined') {
+      const host = location.hostname;
+      window.PROXY_BASE = (host === 'localhost' || host === '127.0.0.1') ? 'http://localhost:3000' : null;
+    }
+  </script>
+
+  <script src="../js/games.js" defer></script>
+  <script src="../js/i18n.js" defer></script>
+  <script src="../js/destroygame.js" defer></script>
+  <script src="../js/main.js" defer></script>
+
+  <script>
+    (function(){
+      const sel = document.getElementById('languageSwitcher');
+      if (sel) {
+        const saved = localStorage.getItem('locale') || 'en';
+        sel.value = ['es','en','pt'].includes(saved) ? saved : 'en';
+      }
+    })();
+  </script>
+</body>
+</html>

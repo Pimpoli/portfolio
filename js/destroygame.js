@@ -1,521 +1,300 @@
 // js/destroygame.js
-// Actívalo visitando la página con "DestroyGame" en la URL:
-//   PimpoliDev.com/DestroyGame
-//   PimpoliDev.com/#DestroyGame
-//   PimpoliDev.com/MultiGameInc/DestroyGame
-//   index.html#DestroyGame  (para pruebas locales)
-// También se puede activar desde la consola del navegador: window.activateDestroyGame()
+// Activa con: pimpolidev.com/#DestroyGame  o  ?destroygame  o  /DestroyGame
+// También: window.activateDestroyGame()
 
 (function () {
   'use strict';
 
-  // ─── Detección de URL ───────────────────────────────────────────────────────
-  const urlToCheck = window.location.href;
-  const shouldActivate = /destroygame/i.test(urlToCheck);
-
   function initDestroyGame() {
-    // Evitar doble instancia
-    if (document.getElementById('destroy-game-overlay')) return;
+    if (document.getElementById('dg-hud')) return; // ya activo
 
-    // ─── Overlay principal ────────────────────────────────────────────────────
-    const overlay = document.createElement('div');
-    overlay.id = 'destroy-game-overlay';
-    overlay.style.cssText = [
-      'position:fixed', 'inset:0', 'z-index:999999',
-      'background:#00000f', 'cursor:none', 'overflow:hidden',
-      'user-select:none', '-webkit-user-select:none'
-    ].join(';');
-
-    const canvas = document.createElement('canvas');
-    canvas.id = 'destroy-canvas';
-    canvas.style.cssText = 'display:block;width:100%;height:100%;';
-    overlay.appendChild(canvas);
-
-    // ─── Botón salir ──────────────────────────────────────────────────────────
-    const exitBtn = document.createElement('button');
-    exitBtn.textContent = '✕ SALIR';
-    exitBtn.style.cssText = [
-      'position:absolute', 'top:14px', 'right:14px', 'z-index:10',
-      'background:rgba(220,40,40,0.85)', 'color:#fff', 'border:none',
-      'padding:7px 16px', 'border-radius:6px', 'cursor:pointer',
-      'font:bold 13px monospace', 'letter-spacing:1px',
-      'transition:background 0.2s'
-    ].join(';');
-    exitBtn.addEventListener('mouseenter', () => { exitBtn.style.background = 'rgba(255,60,60,1)'; });
-    exitBtn.addEventListener('mouseleave', () => { exitBtn.style.background = 'rgba(220,40,40,0.85)'; });
-    overlay.appendChild(exitBtn);
-
-    document.body.appendChild(overlay);
-    document.body.style.overflow = 'hidden';
-
-    const ctx = canvas.getContext('2d');
-
-    // ─── Resize ───────────────────────────────────────────────────────────────
-    function resize() {
-      canvas.width  = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
-    // ─── Estado del juego ────────────────────────────────────────────────────
-    let running    = true;
-    let gameOver   = false;
+    // ─── Estado ────────────────────────────────────────────────────────────────
     let score      = 0;
     let lives      = 3;
-    let wave       = 1;
-    let frameCount = 0;
-    let highScore  = parseInt(localStorage.getItem('dg_hs') || '0', 10);
-    let lastSpawn  = 0;
-    let spawnMs    = 1600;
+    let active     = true;
+    let shootCooldown = 0;
+    let mouseDown  = false;
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    const highScore = parseInt(localStorage.getItem('dg_hs') || '0', 10);
 
-    // ─── Ratón ────────────────────────────────────────────────────────────────
-    const mouse = { x: canvas.width / 2, y: canvas.height - 120 };
-    overlay.addEventListener('mousemove', e => {
-      const r = canvas.getBoundingClientRect();
-      mouse.x = (e.clientX - r.left) * (canvas.width  / r.width);
-      mouse.y = (e.clientY - r.top)  * (canvas.height / r.height);
-    });
+    // ─── Cursor nave ───────────────────────────────────────────────────────────
+    const ship = document.createElement('div');
+    ship.id = 'dg-ship';
+    document.body.appendChild(ship);
+    document.body.classList.add('dg-active');
 
-    // ─── Jugador ─────────────────────────────────────────────────────────────
-    const player = {
-      x: canvas.width / 2, y: canvas.height - 120,
-      w: 32, h: 44,
-      invincible: 0,
-      shootCd: 0,
-    };
+    // ─── HUD ───────────────────────────────────────────────────────────────────
+    const hud = document.createElement('div');
+    hud.id = 'dg-hud';
+    hud.innerHTML = `
+      <span id="dg-score-txt">SCORE: 0</span>
+      <span id="dg-lives-txt">♥♥♥</span>
+      <span id="dg-hs-txt" style="opacity:0.6">BEST: ${highScore}</span>
+      <button id="dg-exit-btn">✕ SALIR</button>
+    `;
+    document.body.appendChild(hud);
 
-    // ─── Arrays de entidades ──────────────────────────────────────────────────
-    const bullets   = [];
-    const enemies   = [];
-    const particles = [];
-    const stars     = [];
+    // ─── Elementos destruibles ─────────────────────────────────────────────────
+    const TARGETS_SEL = [
+      'h1','h2','h3','p',
+      '.project-card','.game-card','.about-item',
+      '.social-icons a','.nav-link','.logo-text',
+      'footer p', '.studio-link'
+    ].join(',');
 
-    // ─── Estrellas de fondo ───────────────────────────────────────────────────
-    for (let i = 0; i < 140; i++) {
-      stars.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        sz: Math.random() * 1.8 + 0.4,
-        sp: Math.random() * 1.4 + 0.2,
-        op: Math.random() * 0.6 + 0.3,
+    const destroyable = Array.from(document.querySelectorAll(TARGETS_SEL))
+      .filter(el => {
+        if (el.closest('#dg-hud') || el.id === 'dg-ship') return false;
+        const r = el.getBoundingClientRect();
+        return r.width > 5 && r.height > 5;
       });
+
+    // HP por elemento (3 hits para destruir)
+    const hp = new Map(destroyable.map(el => [el, 3]));
+
+    // ─── Actualizar HUD ────────────────────────────────────────────────────────
+    function updateHUD() {
+      document.getElementById('dg-score-txt').textContent = `SCORE: ${score}`;
+      document.getElementById('dg-lives-txt').textContent = '♥'.repeat(Math.max(0, lives)) + '♡'.repeat(Math.max(0, 3 - lives));
+      const hsEl = document.getElementById('dg-hs-txt');
+      if (hsEl) hsEl.textContent = `BEST: ${Math.max(score, highScore)}`;
     }
 
-    // ─── Input ────────────────────────────────────────────────────────────────
-    let mouseDown = false;
-    overlay.addEventListener('mousedown',  e => { if (e.button === 0) mouseDown = true;  });
-    overlay.addEventListener('mouseup',    e => { if (e.button === 0) mouseDown = false; });
-    overlay.addEventListener('mouseleave', () => { mouseDown = false; });
-
-    // ─── Salir ────────────────────────────────────────────────────────────────
-    function exit() {
-      running = false;
-      if (score > highScore) { highScore = score; localStorage.setItem('dg_hs', score); }
-      window.removeEventListener('resize', resize);
-      document.removeEventListener('keydown', onKey);
-      overlay.remove();
-      document.body.style.overflow = '';
-    }
-
-    exitBtn.addEventListener('click', exit);
-
-    function onKey(e) {
-      if (e.key === 'Escape') exit();
-      if ((e.key === ' ' || e.key === 'Spacebar') && !gameOver) tryShoot();
-    }
-    document.addEventListener('keydown', onKey);
-
-    // ─── Disparar ────────────────────────────────────────────────────────────
-    function tryShoot() {
-      if (player.shootCd > 0) return;
-      player.shootCd = 9;
-      // Bala central
-      bullets.push({ x: player.x, y: player.y - player.h / 2, w: 4, h: 14, sp: 14, col: '#00ffff' });
-      // Doble lateral tras 150 pts
-      if (score >= 150) {
-        bullets.push({ x: player.x - 13, y: player.y - player.h / 4, w: 3, h: 10, sp: 13, col: '#0088ff' });
-        bullets.push({ x: player.x + 13, y: player.y - player.h / 4, w: 3, h: 10, sp: 13, col: '#0088ff' });
+    // ─── Partículas de explosión ───────────────────────────────────────────────
+    function explode(cx, cy, col) {
+      for (let i = 0; i < 10; i++) {
+        const p = document.createElement('div');
+        p.className = 'dg-particle';
+        const angle = (Math.PI * 2 / 10) * i;
+        const dist  = 30 + Math.random() * 40;
+        p.style.cssText = `
+          left:${cx}px; top:${cy}px;
+          background:${col || `hsl(${20 + Math.random()*40},100%,60%)`};
+          --dx:${Math.cos(angle) * dist}px;
+          --dy:${Math.sin(angle) * dist}px;
+        `;
+        document.body.appendChild(p);
+        requestAnimationFrame(() => {
+          p.classList.add('dg-go');
+          p.style.transform = `translate(calc(-50% + ${Math.cos(angle)*dist}px), calc(-50% + ${Math.sin(angle)*dist}px))`;
+          p.style.opacity = '0';
+          p.style.transition = 'transform 0.55s ease-out, opacity 0.55s ease-out';
+        });
+        setTimeout(() => p.remove(), 600);
       }
     }
 
-    // ─── Spawn de enemigos ───────────────────────────────────────────────────
-    const ENEMY_TYPES = [
-      // scout: rápido, 1 HP, en zigzag
-      { key:'scout',  w:22, h:28, hp:1, sp:2.2, col:'#ff3333', pts:10, zigzag:true  },
-      // heavy: lento, 3 HP, recto
-      { key:'heavy',  w:42, h:46, hp:3, sp:1.1, col:'#ff8800', pts:30, zigzag:false },
-      // ninja: muy rápido, 1 HP, diagonal
-      { key:'ninja',  w:18, h:22, hp:1, sp:3.5, col:'#cc44ff', pts:20, zigzag:false },
-    ];
+    // ─── Golpear un elemento ───────────────────────────────────────────────────
+    function hitElement(el) {
+      const current = hp.get(el);
+      if (current === undefined || current <= 0) return;
+
+      const rect = el.getBoundingClientRect();
+      const cx   = rect.left + rect.width / 2;
+      const cy   = rect.top  + rect.height / 2;
+
+      explode(cx, cy, '#ff8844');
+      el.classList.add('dg-hit');
+      setTimeout(() => el.classList.remove('dg-hit'), 260);
+
+      const newHp = current - 1;
+      hp.set(el, newHp);
+
+      if (newHp <= 0) {
+        // Destruir
+        score += 10;
+        updateHUD();
+        el.classList.add('dg-destroying');
+        explode(cx, cy, '#ff4400');
+        setTimeout(() => {
+          el.classList.remove('dg-destroying');
+          el.classList.add('dg-destroyed');
+        }, 420);
+      } else {
+        score += 3;
+        updateHUD();
+      }
+    }
+
+    // ─── Disparar ─────────────────────────────────────────────────────────────
+    function shoot() {
+      if (shootCooldown > 0 || !active) return;
+      shootCooldown = 8;
+
+      // Bala visual
+      const b = document.createElement('div');
+      b.className = 'dg-bullet';
+      b.style.left = mouseX + 'px';
+      b.style.top  = mouseY + 'px';
+      document.body.appendChild(b);
+      requestAnimationFrame(() => {
+        b.style.transition = 'top 0.35s linear, opacity 0.35s linear';
+        b.style.top = (mouseY - 400) + 'px';
+        b.style.opacity = '0';
+      });
+      setTimeout(() => b.remove(), 380);
+
+      // Detección de impacto: buscar elemento debajo del cursor
+      ship.style.display = 'none';
+      const el = document.elementFromPoint(mouseX, mouseY);
+      ship.style.display = '';
+
+      if (!el || el.closest('#dg-hud')) return;
+      const target = destroyable.find(d => d === el || d.contains(el) || el.closest && el.closest(TARGETS_SEL) === d);
+      if (target) hitElement(target);
+    }
+
+    // ─── Enemigos (asteroides que dañan la página) ─────────────────────────────
+    let enemyTimer = null;
+    let spawnInterval = 2200;
 
     function spawnEnemy() {
-      const cfg = ENEMY_TYPES[Math.floor(Math.random() * ENEMY_TYPES.length)];
-      const margin = cfg.w + 10;
-      const x = margin + Math.random() * (canvas.width - margin * 2);
-      const spBonus = wave * 0.2;
-      // Ninjas vienen en diagonal desde los lados
-      const fromSide = cfg.key === 'ninja' && Math.random() < 0.5;
-      const ex = fromSide ? (Math.random() < 0.5 ? -cfg.w : canvas.width + cfg.w) : x;
-      const ey = fromSide ? Math.random() * canvas.height * 0.4 : -cfg.h;
-      const dx = fromSide ? (ex < 0 ? 1 : -1) * (cfg.sp + spBonus) : 0;
-      enemies.push({
-        x: ex, y: ey,
-        w: cfg.w, h: cfg.h,
-        hp: cfg.hp, maxHp: cfg.hp,
-        sp: cfg.sp + spBonus,
-        dx,
-        col: cfg.col,
-        pts: cfg.pts,
-        t: Math.random() * Math.PI * 2,
-        zigzag: cfg.zigzag,
-        key: cfg.key,
+      if (!active) return;
+
+      const enemy   = document.createElement('div');
+      enemy.className = 'dg-enemy';
+      const fromLeft  = Math.random() < 0.5;
+      const startY    = 60 + Math.random() * (window.innerHeight * 0.7);
+      const endX      = fromLeft ? window.innerWidth + 30 : -30;
+      const duration  = 3200 + Math.random() * 1800;
+
+      enemy.style.cssText = `
+        left:${fromLeft ? '-25px' : window.innerWidth + 'px'};
+        top:${startY}px;
+      `;
+      document.body.appendChild(enemy);
+
+      // Animación CSS custom property
+      requestAnimationFrame(() => {
+        enemy.style.transition = `left ${duration}ms linear, top ${duration}ms ease-in-out`;
+        enemy.style.left = endX + 'px';
+        enemy.style.top  = (startY + (Math.random() - 0.5) * 120) + 'px';
       });
+
+      // Click al enemigo lo destruye
+      enemy.addEventListener('click', e => {
+        e.stopPropagation();
+        explode(e.clientX, e.clientY, '#ff8800');
+        score += 25;
+        updateHUD();
+        enemy.remove();
+      });
+
+      // Si llega al otro lado → daña al jugador
+      const cleanup = setTimeout(() => {
+        if (!enemy.parentNode) return;
+        // Busca el elemento de página más cercano y lo daña
+        const nearest = destroyable.find(el => !el.classList.contains('dg-destroyed'));
+        if (nearest) hitElement(nearest);
+        lives = Math.max(0, lives - 1);
+        updateHUD();
+        enemy.remove();
+        if (lives === 0 && active) showGameOver();
+      }, duration + 100);
+
+      enemy._cleanup = cleanup;
+
+      // Limpiar si juego terminó
+      enemy._remove = () => { clearTimeout(cleanup); enemy.remove(); };
     }
 
-    // ─── Explosión de partículas ──────────────────────────────────────────────
-    function explode(x, y, col, n = 14) {
-      for (let i = 0; i < n; i++) {
-        const ang = (Math.PI * 2 / n) * i + Math.random() * 0.5;
-        const spd = Math.random() * 4 + 1;
-        particles.push({
-          x, y,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd - 1,
-          life: 1,
-          decay: Math.random() * 0.035 + 0.018,
-          col,
-          sz: Math.random() * 4 + 1.5,
-        });
-      }
+    function startEnemySpawns() {
+      enemyTimer = setInterval(() => {
+        spawnEnemy();
+        // Dificultad incremental
+        spawnInterval = Math.max(900, spawnInterval - 40);
+        clearInterval(enemyTimer);
+        if (active) startEnemySpawns();
+      }, spawnInterval);
+    }
+    startEnemySpawns();
+
+    // ─── Game Over ─────────────────────────────────────────────────────────────
+    function showGameOver() {
+      active = false;
+      clearInterval(enemyTimer);
+      const finalScore = score;
+      if (score > highScore) localStorage.setItem('dg_hs', score);
+
+      const go = document.createElement('div');
+      go.id = 'dg-gameover';
+      go.innerHTML = `
+        <h2>DESTRUCCIÓN COMPLETADA</h2>
+        <p>SCORE: ${finalScore}</p>
+        <p style="color:#ffdd44;font-size:1rem;">MEJOR: ${Math.max(finalScore, highScore)}</p>
+        <button onclick="document.getElementById('dg-gameover').remove(); window.activateDestroyGame && window.activateDestroyGame()">VOLVER A JUGAR</button>
+        <button style="background:transparent;border:1px solid rgba(255,255,255,0.3);margin-left:10px;" id="dg-go-exit">SALIR</button>
+      `;
+      document.body.appendChild(go);
+      document.getElementById('dg-go-exit').addEventListener('click', exitGame);
     }
 
-    // ─── AABB ────────────────────────────────────────────────────────────────
-    function hits(a, b) {
-      return (
-        a.x - a.w / 2 < b.x + b.w / 2 &&
-        a.x + a.w / 2 > b.x - b.w / 2 &&
-        a.y - a.h / 2 < b.y + b.h / 2 &&
-        a.y + a.h / 2 > b.y - b.h / 2
-      );
+    // ─── Salir y restaurar la página ──────────────────────────────────────────
+    function exitGame() {
+      active = false;
+      clearInterval(enemyTimer);
+      if (score > highScore) localStorage.setItem('dg_hs', score);
+
+      // Restaurar todos los elementos
+      destroyable.forEach(el => {
+        el.classList.remove('dg-hit','dg-destroying','dg-destroyed');
+        el.style.transform = '';
+        el.style.opacity   = '';
+        el.style.visibility = '';
+        el.style.transition = '';
+        el.style.pointerEvents = '';
+      });
+
+      // Limpiar enemigos
+      document.querySelectorAll('.dg-enemy').forEach(e => {
+        if (e._cleanup) clearTimeout(e._cleanup);
+        e.remove();
+      });
+      document.querySelectorAll('.dg-bullet,.dg-particle').forEach(e => e.remove());
+
+      ['dg-hud','dg-ship','dg-gameover'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+      });
+
+      document.body.classList.remove('dg-active');
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mousedown', onMouseDown);
+      document.removeEventListener('mouseup',   onMouseUp);
+      document.removeEventListener('keydown',   onKey);
     }
 
-    // ─── Dibujar nave (triángulo estilizado) ──────────────────────────────────
-    function drawShip(x, y, w, h, col, flip = false) {
-      ctx.save();
-      ctx.translate(x, y);
-      if (flip) ctx.rotate(Math.PI);
-      ctx.shadowBlur  = 12;
-      ctx.shadowColor = col;
-      ctx.fillStyle = col;
-      ctx.beginPath();
-      ctx.moveTo(0,       -h / 2);
-      ctx.lineTo(-w / 2,   h / 2);
-      ctx.lineTo(-w / 5,   h / 4);
-      ctx.lineTo(0,        h / 5);
-      ctx.lineTo( w / 5,   h / 4);
-      ctx.lineTo( w / 2,   h / 2);
-      ctx.closePath();
-      ctx.fill();
-      // cockpit
-      ctx.fillStyle = 'rgba(255,255,255,0.25)';
-      ctx.beginPath();
-      ctx.arc(0, -h / 6, w / 5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-      ctx.restore();
+    // ─── Eventos de input ─────────────────────────────────────────────────────
+    function onMouseMove(e) {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      ship.style.left = e.clientX + 'px';
+      ship.style.top  = e.clientY + 'px';
     }
+    function onMouseDown(e) { if (e.button === 0) mouseDown = true; }
+    function onMouseUp(e)   { if (e.button === 0) mouseDown = false; }
+    function onKey(e) { if (e.key === 'Escape') exitGame(); }
 
-    // ─── HUD ─────────────────────────────────────────────────────────────────
-    function drawHUD() {
-      ctx.save();
-      ctx.font = 'bold 18px monospace';
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mousedown', onMouseDown);
+    document.addEventListener('mouseup',   onMouseUp);
+    document.addEventListener('keydown',   onKey);
+    document.getElementById('dg-exit-btn').addEventListener('click', exitGame);
 
-      // Puntuación
-      ctx.fillStyle = '#ffffff';
-      ctx.textAlign = 'left';
-      ctx.fillText(`SCORE: ${score}`, 18, 32);
-      ctx.font = '14px monospace';
-      ctx.fillStyle = '#aaaaaa';
-      ctx.fillText(`WAVE: ${wave}`, 18, 52);
-
-      // High score
-      ctx.font = 'bold 15px monospace';
-      ctx.fillStyle = '#ffdd44';
-      ctx.textAlign = 'right';
-      ctx.fillText(`BEST: ${Math.max(score, highScore)}`, canvas.width - 18, 32);
-
-      // Vidas (corazones dibujados)
-      ctx.textAlign = 'center';
-      const lifeX = canvas.width / 2;
-      const lifeSize = 13;
-      const total = 3;
-      const spacing = 28;
-      const startX = lifeX - (total - 1) * spacing / 2;
-      for (let i = 0; i < total; i++) {
-        ctx.fillStyle = i < lives ? '#ff3355' : '#333344';
-        ctx.shadowBlur = i < lives ? 8 : 0;
-        ctx.shadowColor = '#ff3355';
-        drawHeart(ctx, startX + i * spacing, 26, lifeSize);
-        ctx.shadowBlur = 0;
-      }
-
-      // Pista de controles (desaparece al 4s)
-      if (frameCount < 240) {
-        const alpha = Math.max(0, 1 - frameCount / 240);
-        ctx.globalAlpha = alpha;
-        ctx.font = '13px monospace';
-        ctx.fillStyle = '#888888';
-        ctx.textAlign = 'center';
-        ctx.fillText('CLICK / ESPACIO para disparar  •  ESC para salir', canvas.width / 2, canvas.height - 18);
-        ctx.globalAlpha = 1;
-      }
-
-      ctx.restore();
+    // ─── Loop de disparo automático ───────────────────────────────────────────
+    let rafId;
+    function gameLoop() {
+      if (!active) return;
+      if (shootCooldown > 0) shootCooldown--;
+      if (mouseDown) shoot();
+      rafId = requestAnimationFrame(gameLoop);
     }
-
-    function drawHeart(c, x, y, r) {
-      c.save();
-      c.translate(x, y);
-      c.beginPath();
-      c.moveTo(0, r * 0.3);
-      c.bezierCurveTo(-r * 0.1, -r * 0.4,  -r, -r * 0.4, -r,  r * 0.1);
-      c.bezierCurveTo(-r,  r * 0.7,  0,  r * 1.1,  0, r * 1.4);
-      c.bezierCurveTo( 0,  r * 1.1,  r,  r * 0.7,  r,  r * 0.1);
-      c.bezierCurveTo( r, -r * 0.4,  r * 0.1, -r * 0.4, 0, r * 0.3);
-      c.closePath();
-      c.fill();
-      c.restore();
-    }
-
-    // ─── Pantalla GAME OVER ───────────────────────────────────────────────────
-    function drawGameOver() {
-      // Fondo semitransparente
-      ctx.fillStyle = 'rgba(0,0,0,0.6)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      const cx = canvas.width / 2;
-      const cy = canvas.height / 2;
-
-      ctx.textAlign = 'center';
-      ctx.shadowBlur  = 30;
-      ctx.shadowColor = '#ff2222';
-      ctx.fillStyle   = '#ff3333';
-      ctx.font        = `bold ${Math.min(64, canvas.width * 0.1)}px monospace`;
-      ctx.fillText('GAME OVER', cx, cy - 60);
-
-      ctx.shadowBlur  = 10;
-      ctx.shadowColor = '#ffffff';
-      ctx.fillStyle   = '#ffffff';
-      ctx.font        = `bold ${Math.min(28, canvas.width * 0.045)}px monospace`;
-      ctx.fillText(`SCORE: ${score}`, cx, cy);
-
-      ctx.fillStyle = '#ffdd44';
-      ctx.font      = `${Math.min(22, canvas.width * 0.035)}px monospace`;
-      ctx.fillText(`MEJOR: ${highScore}`, cx, cy + 38);
-
-      ctx.shadowBlur  = 0;
-      ctx.fillStyle   = '#888888';
-      ctx.font        = '15px monospace';
-      ctx.fillText('Pulsa ESC para salir', cx, cy + 84);
-    }
-
-    // ─── Cursor personalizado (nave pequeña) ──────────────────────────────────
-    function drawCursor() {
-      ctx.save();
-      ctx.globalAlpha = 0.5;
-      drawShip(mouse.x, mouse.y, 14, 18, '#ffffff');
-      ctx.restore();
-    }
-
-    // ─── Loop principal ───────────────────────────────────────────────────────
-    let lastTs = 0;
-
-    function loop(ts) {
-      if (!running) return;
-
-      lastTs = ts;
-      frameCount++;
-
-      // ─ Fondo
-      ctx.fillStyle = '#00000f';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // ─ Estrellas
-      ctx.globalAlpha = 1;
-      for (const s of stars) {
-        s.y += s.sp;
-        if (s.y > canvas.height) { s.y = 0; s.x = Math.random() * canvas.width; }
-        ctx.globalAlpha = s.op;
-        ctx.fillStyle   = '#ffffff';
-        ctx.fillRect(s.x, s.y, s.sz, s.sz);
-      }
-      ctx.globalAlpha = 1;
-
-      if (!gameOver) {
-        // ─ Mover jugador hacia el ratón (suave)
-        player.x += (mouse.x - player.x) * 0.14;
-        player.y += (mouse.y - player.y) * 0.14;
-        player.x = Math.max(player.w / 2, Math.min(canvas.width  - player.w / 2, player.x));
-        player.y = Math.max(player.h / 2, Math.min(canvas.height - player.h / 2, player.y));
-
-        if (player.invincible > 0) player.invincible--;
-        if (player.shootCd   > 0) player.shootCd--;
-        if (mouseDown) tryShoot();
-
-        // ─ Spawn
-        if (ts - lastSpawn > spawnMs) {
-          spawnEnemy();
-          lastSpawn = ts;
-          spawnMs = Math.max(500, 1600 - wave * 70);
-          if (frameCount % 3 === 0 && wave > 2) spawnEnemy(); // doble spawn en waves altas
-        }
-
-        // ─ Progresión de wave
-        if (score >= wave * 120) wave++;
-
-        // ─ Actualizar balas
-        for (let i = bullets.length - 1; i >= 0; i--) {
-          bullets[i].y -= bullets[i].sp;
-          if (bullets[i].y < -20) { bullets.splice(i, 1); }
-        }
-
-        // ─ Actualizar enemigos
-        for (let i = enemies.length - 1; i >= 0; i--) {
-          const e = enemies[i];
-          e.y += e.sp;
-          e.t += 0.05;
-          if (e.zigzag) e.x += Math.sin(e.t * 3) * 2.5;
-          if (e.dx)     e.x += e.dx;
-          e.x = Math.max(e.w / 2, Math.min(canvas.width - e.w / 2, e.x));
-
-          // Salió por abajo → pierde vida
-          if (e.y > canvas.height + e.h + 5) {
-            enemies.splice(i, 1);
-            if (player.invincible === 0) {
-              lives--;
-              player.invincible = 110;
-              explode(player.x, player.y, '#ff3333', 18);
-              if (lives <= 0) {
-                gameOver = true;
-                if (score > highScore) { highScore = score; localStorage.setItem('dg_hs', score); }
-              }
-            }
-            continue;
-          }
-
-          // Colisión con jugador
-          if (player.invincible === 0 && hits(player, e)) {
-            enemies.splice(i, 1);
-            lives--;
-            player.invincible = 110;
-            explode(player.x, player.y, '#ff3333', 18);
-            if (lives <= 0) {
-              gameOver = true;
-              if (score > highScore) { highScore = score; localStorage.setItem('dg_hs', score); }
-            }
-            continue;
-          }
-
-          // Colisión con balas
-          let killed = false;
-          for (let j = bullets.length - 1; j >= 0; j--) {
-            if (hits(bullets[j], e)) {
-              bullets.splice(j, 1);
-              e.hp--;
-              if (e.hp <= 0) {
-                score += e.pts;
-                explode(e.x, e.y, e.col, 14);
-                enemies.splice(i, 1);
-                killed = true;
-                break;
-              }
-              explode(e.x, e.y, '#ffffff', 4);
-              break;
-            }
-          }
-          if (killed) continue;
-        }
-
-        // ─ Actualizar partículas
-        for (let i = particles.length - 1; i >= 0; i--) {
-          const p = particles[i];
-          p.x += p.vx; p.y += p.vy; p.vy += 0.06;
-          p.life -= p.decay;
-          if (p.life <= 0) particles.splice(i, 1);
-        }
-
-        // ─ Dibujar partículas
-        for (const p of particles) {
-          ctx.globalAlpha = Math.max(0, p.life);
-          ctx.fillStyle   = p.col;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.sz, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        ctx.globalAlpha = 1;
-
-        // ─ Dibujar balas
-        ctx.shadowBlur  = 8;
-        for (const b of bullets) {
-          ctx.fillStyle   = b.col;
-          ctx.shadowColor = b.col;
-          ctx.fillRect(b.x - b.w / 2, b.y, b.w, b.h);
-        }
-        ctx.shadowBlur = 0;
-
-        // ─ Dibujar enemigos
-        for (const e of enemies) {
-          if (e.maxHp > 1) {
-            // barra de vida
-            ctx.fillStyle = 'rgba(255,255,255,0.15)';
-            ctx.fillRect(e.x - e.w / 2, e.y - e.h / 2 - 9, e.w, 4);
-            ctx.fillStyle = e.col;
-            ctx.fillRect(e.x - e.w / 2, e.y - e.h / 2 - 9, e.w * (e.hp / e.maxHp), 4);
-          }
-          drawShip(e.x, e.y, e.w, e.h, e.col, true);
-        }
-
-        // ─ Dibujar jugador (parpadea si es invencible)
-        if (player.invincible === 0 || Math.floor(player.invincible / 7) % 2 === 0) {
-          drawShip(player.x, player.y, player.w, player.h, '#00ffff');
-        }
-
-        // ─ Cursor
-        drawCursor();
-
-        // ─ HUD
-        drawHUD();
-
-      } else {
-        // Partículas aún se animan en game over
-        for (let i = particles.length - 1; i >= 0; i--) {
-          const p = particles[i];
-          p.x += p.vx; p.y += p.vy; p.vy += 0.06;
-          p.life -= p.decay;
-          if (p.life <= 0) particles.splice(i, 1);
-        }
-        for (const p of particles) {
-          ctx.globalAlpha = Math.max(0, p.life);
-          ctx.fillStyle   = p.col;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.sz, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        ctx.globalAlpha = 1;
-
-        drawGameOver();
-        drawCursor();
-      }
-
-      requestAnimationFrame(loop);
-    }
-
-    requestAnimationFrame(loop);
+    rafId = requestAnimationFrame(gameLoop);
   }
 
-  // ─── Activar si la URL contiene "destroygame" ─────────────────────────────
-  if (shouldActivate) {
+  // ─── Activación por URL ────────────────────────────────────────────────────
+  if (/destroygame/i.test(window.location.href)) {
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', initDestroyGame);
     } else {
@@ -523,7 +302,5 @@
     }
   }
 
-  // Exposición manual para activación desde consola
   window.activateDestroyGame = initDestroyGame;
-
 })();

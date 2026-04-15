@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ambidextro — PimpoliDev</title>
+  <link rel="icon" href="../img/MultiGameInc.webp" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #080810;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    #topbar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background: rgba(0,0,0,0.5);
+      position: fixed;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(6px);
+    }
+    #topbar a { color: #4ecdc4; text-decoration: none; font-weight: 700; font-size: 0.9rem; }
+    #topbar a:hover { text-decoration: underline; }
+    #game-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100vh;
+      padding-top: 50px;
+      gap: 8px;
+    }
+    canvas {
+      border-radius: 12px;
+      box-shadow: 0 0 40px rgba(78,205,196,0.15);
+      display: block;
+    }
+    #controls-wrap {
+      display: flex;
+      gap: 40px;
+      font-size: 0.78rem;
+      opacity: 0.45;
+      text-align: center;
+    }
+    .ctrl-left  { color: #ff6b6b; }
+    .ctrl-right { color: #4ecdc4; }
+  </style>
+</head>
+<body>
+
+<div id="topbar">
+  <a href="https://pimpolidev.com">← PimpoliDev</a>
+  <span style="font-weight:700;letter-spacing:1px;">AMBIDEXTRO</span>
+  <span id="level-top" style="font-size:0.85rem;opacity:0.6;">NIVEL 1 / 10</span>
+</div>
+
+<div id="game-wrap">
+  <canvas id="c"></canvas>
+  <div id="controls-wrap">
+    <div class="ctrl-left">Jugador 1: A ← &nbsp; W ↑ &nbsp; D →</div>
+    <div class="ctrl-right">Jugador 2: J ← &nbsp; I ↑ &nbsp; L →</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  const canvas = document.getElementById('c');
+  const ctx    = canvas.getContext('2d');
+
+  // ─── Responsive ────────────────────────────────────────────────────────────
+  let W = 800, H = 450;
+  function resize() {
+    W = Math.min(window.innerWidth - 10, 860);
+    H = Math.min(window.innerHeight - 120, 480);
+    canvas.width  = W;
+    canvas.height = H;
+    // Plataformas se reescalan al tamaño actual
+    if (typeof currentLevel === 'number') buildLevel(currentLevel);
+  }
+  window.addEventListener('resize', resize);
+
+  // ─── Física ────────────────────────────────────────────────────────────────
+  const GRAVITY   = 0.58;
+  const JUMP_FORCE= -13.5;
+  const SPD       = 4.2;
+
+  // ─── Colores ───────────────────────────────────────────────────────────────
+  const C1 = '#ff6b6b';  // Jugador 1 (rojo)
+  const C2 = '#4ecdc4';  // Jugador 2 (cyan)
+  const PFCOL = '#2c2c3a';
+
+  // ─── Jugadores ─────────────────────────────────────────────────────────────
+  const mkPlayer = (col) => ({ x:0,y:0,w:28,h:40,vx:0,vy:0,grounded:false,col,alive:true });
+  let p1 = mkPlayer(C1);
+  let p2 = mkPlayer(C2);
+
+  // ─── Niveles (definidos en % del canvas) ───────────────────────────────────
+  // Cada nivel: { p1:[x%,y%], p2:[x%,y%], platforms:[[x%,y%,w%,h%,color?], ...] }
+  const LEVELS = [
+    // Nivel 1: misma plataforma, lejos
+    { p1:[0.08,0.6], p2:[0.84,0.6],
+      pf:[ [0,0.72,1,0.06] ] },
+
+    // Nivel 2: separados por un hueco
+    { p1:[0.06,0.6], p2:[0.86,0.6],
+      pf:[ [0,0.72,0.42,0.06], [0.58,0.72,0.42,0.06] ] },
+
+    // Nivel 3: uno arriba otro abajo
+    { p1:[0.06,0.35], p2:[0.82,0.65],
+      pf:[ [0,0.45,0.38,0.05], [0.62,0.72,0.38,0.05], [0.36,0.6,0.28,0.05] ] },
+
+    // Nivel 4: escalera
+    { p1:[0.05,0.75], p2:[0.85,0.28],
+      pf:[ [0,0.82,0.25,0.05], [0.2,0.65,0.22,0.05], [0.38,0.5,0.22,0.05], [0.57,0.36,0.22,0.05], [0.75,0.22,0.25,0.05] ] },
+
+    // Nivel 5: plataformas flotantes pequeñas
+    { p1:[0.04,0.68], p2:[0.88,0.68],
+      pf:[ [0,0.75,0.18,0.05],[0.2,0.55,0.18,0.05],[0.4,0.38,0.2,0.05],
+           [0.62,0.55,0.18,0.05],[0.82,0.75,0.18,0.05] ] },
+
+    // Nivel 6: en lados opuestos con puente estrecho arriba
+    { p1:[0.04,0.72], p2:[0.86,0.72],
+      pf:[ [0,0.78,0.35,0.04],[0.65,0.78,0.35,0.04],[0.3,0.48,0.4,0.04],
+           [0,0.65,0.15,0.04],[0.85,0.65,0.15,0.04] ] },
+
+    // Nivel 7: zigzag
+    { p1:[0.04,0.82], p2:[0.86,0.12],
+      pf:[ [0,0.88,0.22,0.04],[0.18,0.72,0.22,0.04],[0.36,0.56,0.22,0.04],
+           [0.54,0.4,0.22,0.04],[0.72,0.24,0.24,0.04] ] },
+
+    // Nivel 8: laberinto simple
+    { p1:[0.05,0.4], p2:[0.82,0.7],
+      pf:[ [0,0.46,0.3,0.04],[0.28,0.62,0.3,0.04],[0.56,0.78,0.3,0.04],
+           [0.56,0.46,0.3,0.04],[0.28,0.78,0.28,0.04] ] },
+
+    // Nivel 9: plataformas muy pequeñas
+    { p1:[0.03,0.7], p2:[0.88,0.7],
+      pf:[ [0,0.76,0.12,0.04],[0.14,0.6,0.1,0.04],[0.26,0.45,0.1,0.04],
+           [0.38,0.6,0.1,0.04],[0.5,0.45,0.12,0.04],[0.64,0.6,0.1,0.04],
+           [0.76,0.45,0.1,0.04],[0.88,0.76,0.12,0.04] ] },
+
+    // Nivel 10: el más difícil
+    { p1:[0.04,0.82], p2:[0.84,0.12],
+      pf:[ [0,0.88,0.15,0.04],[0.13,0.7,0.12,0.04],[0.26,0.55,0.12,0.04],
+           [0.4,0.4,0.12,0.04],[0.54,0.26,0.12,0.04],[0.68,0.4,0.12,0.04],
+           [0.8,0.12,0.2,0.04],[0.54,0.55,0.12,0.04],[0.26,0.7,0.12,0.04] ] },
+  ];
+
+  // ─── Estado del juego ──────────────────────────────────────────────────────
+  let currentLevel = 0;
+  let platforms    = [];
+  let timer        = 15;
+  let lastTs       = 0;
+  let gameState    = 'playing'; // 'playing' | 'win' | 'lost' | 'complete'
+  let winAnim      = 0;
+  let lostAnim     = 0;
+  let touchedAt    = -1;
+
+  function buildLevel(idx) {
+    const lv   = LEVELS[idx];
+    platforms  = lv.pf.map(([px,py,pw,ph]) => ({
+      x: px * W, y: py * H,
+      w: pw * W, h: ph * H,
+    }));
+    p1 = mkPlayer(C1);
+    p2 = mkPlayer(C2);
+    p1.x = lv.p1[0] * W; p1.y = lv.p1[1] * H;
+    p2.x = lv.p2[0] * W; p2.y = lv.p2[1] * H;
+    timer     = 15;
+    gameState = 'playing';
+    winAnim   = 0;
+    lostAnim  = 0;
+    touchedAt = -1;
+    document.getElementById('level-top').textContent = `NIVEL ${idx+1} / 10`;
+  }
+
+  // ─── Input ─────────────────────────────────────────────────────────────────
+  const keys = {};
+  document.addEventListener('keydown', e => {
+    keys[e.code] = true;
+    if (e.code === 'Enter' || e.code === 'Space') {
+      if (gameState === 'win' && currentLevel < LEVELS.length - 1) {
+        currentLevel++;
+        buildLevel(currentLevel);
+      } else if (gameState === 'lost') {
+        buildLevel(currentLevel);
+      } else if (gameState === 'complete') {
+        currentLevel = 0;
+        buildLevel(0);
+      }
+    }
+    e.preventDefault();
+  });
+  document.addEventListener('keyup', e => { keys[e.code] = false; });
+
+  // ─── Física de un jugador ─────────────────────────────────────────────────
+  function updatePlayer(p, left, right, jump) {
+    if (!p.alive) return;
+    if (keys[left])  p.vx = -SPD;
+    else if (keys[right]) p.vx = SPD;
+    else p.vx *= 0.78;
+
+    if (keys[jump] && p.grounded) {
+      p.vy = JUMP_FORCE;
+      p.grounded = false;
+    }
+
+    p.vy += GRAVITY;
+    p.x  += p.vx;
+    p.y  += p.vy;
+    p.grounded  = false;
+
+    // Límites
+    if (p.x < 0) p.x = 0;
+    if (p.x + p.w > W) p.x = W - p.w;
+
+    // Plataformas
+    for (const pf of platforms) {
+      if (p.x + p.w > pf.x && p.x < pf.x + pf.w) {
+        const bot     = p.y + p.h;
+        const bot_prev = bot - p.vy;
+        if (bot_prev <= pf.y && bot >= pf.y && p.vy >= 0) {
+          p.y = pf.y - p.h;
+          p.vy = 0;
+          p.grounded = true;
+        }
+      }
+    }
+
+    // Cayó → reaparece arriba
+    if (p.y > H + 30) {
+      const lv = LEVELS[currentLevel];
+      const spawn = p === p1 ? lv.p1 : lv.p2;
+      p.x = spawn[0] * W; p.y = spawn[1] * H;
+      p.vx = 0; p.vy = 0;
+    }
+  }
+
+  // ─── Detección de toque ────────────────────────────────────────────────────
+  function touching() {
+    return p1.x < p2.x + p2.w && p1.x + p1.w > p2.x &&
+           p1.y < p2.y + p2.h && p1.y + p1.h > p2.y;
+  }
+
+  // ─── Dibujar jugador ─────────────────────────────────────────────────────
+  function drawPlayer(p, label) {
+    if (!p.alive) return;
+    ctx.shadowBlur  = 12;
+    ctx.shadowColor = p.col;
+    ctx.fillStyle   = p.col;
+    ctx.beginPath();
+    ctx.roundRect(p.x, p.y, p.w, p.h, 6);
+    ctx.fill();
+    // Cara
+    ctx.fillStyle   = 'rgba(0,0,0,0.7)';
+    ctx.shadowBlur  = 0;
+    ctx.fillRect(p.x + 5,  p.y + 10, 5, 5);
+    ctx.fillRect(p.x + 18, p.y + 10, 5, 5);
+    // Nombre
+    ctx.fillStyle   = p.col;
+    ctx.font        = 'bold 11px monospace';
+    ctx.textAlign   = 'center';
+    ctx.fillText(label, p.x + p.w/2, p.y - 5);
+  }
+
+  // ─── Dibujar ──────────────────────────────────────────────────────────────
+  function draw(now) {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = '#080810';
+    ctx.fillRect(0,0,W,H);
+
+    // Plataformas
+    for (const pf of platforms) {
+      ctx.fillStyle   = PFCOL;
+      ctx.shadowBlur  = 4;
+      ctx.shadowColor = 'rgba(78,205,196,0.15)';
+      ctx.beginPath();
+      ctx.roundRect(pf.x, pf.y, pf.w, pf.h, 5);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    // Jugadores
+    drawPlayer(p1, 'P1');
+    drawPlayer(p2, 'P2');
+
+    // Timer
+    const timerRatio = timer / 15;
+    const barW       = W * 0.6;
+    const barX       = (W - barW) / 2;
+    const barY       = 14;
+    ctx.fillStyle = 'rgba(255,255,255,0.1)';
+    ctx.beginPath(); ctx.roundRect(barX, barY, barW, 8, 4); ctx.fill();
+    const tCol = timerRatio > 0.5 ? '#4ecdc4' : timerRatio > 0.25 ? '#f1c40f' : '#e74c3c';
+    ctx.fillStyle = tCol;
+    ctx.shadowBlur = timerRatio < 0.25 ? 8 : 0;
+    ctx.shadowColor = '#e74c3c';
+    ctx.beginPath(); ctx.roundRect(barX, barY, barW * timerRatio, 8, 4); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#fff';
+    ctx.font = '12px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${Math.ceil(timer)}s`, W/2, barY + 22);
+
+    // Nivel
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.font = '12px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(`NIVEL ${currentLevel+1}/10`, 12, barY + 22);
+
+    // Pantalla de victoria
+    if (gameState === 'win') {
+      ctx.fillStyle = 'rgba(0,0,0,0.65)';
+      ctx.fillRect(0,0,W,H);
+      ctx.textAlign = 'center';
+      ctx.shadowBlur = 25; ctx.shadowColor = '#4ecdc4';
+      ctx.fillStyle = '#4ecdc4';
+      ctx.font = `bold ${Math.min(52, W*0.09)}px monospace`;
+      ctx.fillText('¡SE TOCARON!', W/2, H/2 - 30);
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#fff';
+      ctx.font = `${Math.min(20,W*0.035)}px monospace`;
+      ctx.fillText(currentLevel < LEVELS.length-1 ? 'ENTER / SPACE para siguiente nivel' : '', W/2, H/2 + 20);
+    }
+
+    // Pantalla de tiempo agotado
+    if (gameState === 'lost') {
+      ctx.fillStyle = 'rgba(0,0,0,0.65)';
+      ctx.fillRect(0,0,W,H);
+      ctx.textAlign = 'center';
+      ctx.shadowBlur = 20; ctx.shadowColor = '#e74c3c';
+      ctx.fillStyle = '#e74c3c';
+      ctx.font = `bold ${Math.min(44, W*0.08)}px monospace`;
+      ctx.fillText('TIEMPO AGOTADO', W/2, H/2 - 30);
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#aaa';
+      ctx.font = '18px monospace';
+      ctx.fillText('ENTER / SPACE para reintentar', W/2, H/2 + 20);
+    }
+
+    // Completaste todos los niveles
+    if (gameState === 'complete') {
+      ctx.fillStyle = 'rgba(0,0,0,0.8)';
+      ctx.fillRect(0,0,W,H);
+      ctx.textAlign = 'center';
+      ctx.shadowBlur = 30; ctx.shadowColor = '#f1c40f';
+      ctx.fillStyle = '#f1c40f';
+      ctx.font = `bold ${Math.min(44,W*0.08)}px monospace`;
+      ctx.fillText('¡COMPLETADO!', W/2, H/2 - 50);
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#fff';
+      ctx.font = `${Math.min(22,W*0.04)}px monospace`;
+      ctx.fillText('Pasaste los 10 niveles de Ambidextro', W/2, H/2 - 5);
+      ctx.fillStyle = '#aaa';
+      ctx.font = '16px monospace';
+      ctx.fillText('ENTER / SPACE para volver a empezar', W/2, H/2 + 40);
+    }
+
+    ctx.textAlign = 'left';
+    ctx.shadowBlur = 0;
+  }
+
+  // ─── Loop principal ───────────────────────────────────────────────────────
+  function loop(ts) {
+    const dt = (ts - lastTs) / 1000;
+    lastTs   = ts;
+
+    if (gameState === 'playing') {
+      // Jugador 1: A, W, D
+      updatePlayer(p1, 'KeyA', 'KeyD', 'KeyW');
+      // Jugador 2: J, I, L
+      updatePlayer(p2, 'KeyJ', 'KeyL', 'KeyI');
+
+      // Timer
+      timer -= dt;
+      if (timer <= 0) {
+        timer     = 0;
+        gameState = 'lost';
+      }
+
+      // Colisión entre jugadores
+      if (touching()) {
+        gameState = 'win';
+        if (currentLevel >= LEVELS.length - 1) {
+          setTimeout(() => { gameState = 'complete'; }, 1200);
+        }
+      }
+    }
+
+    draw(ts);
+    requestAnimationFrame(loop);
+  }
+
+  resize();
+  buildLevel(0);
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
