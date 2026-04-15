@@ -8,7 +8,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // CONFIGURACIÓN
   // ==========================================
   const YOUTUBE_PLAYLIST_ID = 'UUH7nYiCQfSa78XfWIc5Nh6w';
-  // La API Key SOLO vive en el servidor (server.js). El cliente usa el proxy.
+  // En local: la key vive en server.js (proxy). En producción (GitHub Pages): se usa directa.
+  // Restringe esta key por referrer HTTP en console.cloud.google.com para mayor seguridad.
+  const _YK = 'AIzaSyAI0klDbsko8_UrYOe0Rwu6aK6vrIS2iNc';
 
   const staticProjects = [
     { id: 'nodes', type: 'img', src: 'img/Nodos.webp', title: 'Nodes System', desc: '' },
@@ -21,28 +23,38 @@ document.addEventListener('DOMContentLoaded', async () => {
   h2.innerText = 'My Work / Examples';
   projectsContainer.appendChild(h2);
 
-  // 1. Fetch YouTube Videos (usa el proxy del servidor para no exponer la API Key)
+  // 1. Fetch YouTube Videos
   async function fetchYouTubeVideos() {
-    // Intentar a través del proxy local
+    // Estrategia 1: proxy local (cuando el servidor Node está corriendo)
     if (window.PROXY_BASE) {
       try {
         const res = await fetch(`${window.PROXY_BASE}/youtube/playlist?playlistId=${YOUTUBE_PLAYLIST_ID}&maxResults=6`);
         if (res.ok) {
           const data = await res.json();
-          if (data.items && !data.error) {
-            return data.items.map(item => ({
-              type: 'youtube',
-              id: item.snippet.resourceId.videoId,
-              title: item.snippet.title,
-              desc: item.snippet.description || '',
-              thumb: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.default?.url,
-            }));
-          }
+          if (data.items && !data.error) return mapItems(data.items);
         }
       } catch (e) { /* continúa */ }
     }
-    // Si el proxy no está disponible, devuelve vacío (no exponer la key en cliente)
+    // Estrategia 2: llamada directa a YouTube (producción / GitHub Pages)
+    try {
+      const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${YOUTUBE_PLAYLIST_ID}&maxResults=6&key=${_YK}`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.items && !data.error) return mapItems(data.items);
+      }
+    } catch (e) { /* continúa */ }
     return [];
+  }
+
+  function mapItems(items) {
+    return items.map(item => ({
+      type: 'youtube',
+      id: item.snippet.resourceId.videoId,
+      title: item.snippet.title,
+      desc: item.snippet.description || '',
+      thumb: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.default?.url,
+    }));
   }
 
   // 2. Función para crear las tarjetas

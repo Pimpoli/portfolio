@@ -20,7 +20,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   ];
 
-  // La API Key SOLO vive en server.js. El cliente usa el proxy.
+  // En local: la key vive en server.js (proxy). En producción (GitHub Pages): se usa directa.
+  const _YK = 'AIzaSyAI0klDbsko8_UrYOe0Rwu6aK6vrIS2iNc';
 
   storeSection.innerHTML = '';
   storeSection.className = ''; 
@@ -43,29 +44,43 @@ document.addEventListener('DOMContentLoaded', async () => {
     const ids = STORE_PRODUCTS.map(p => p.youtubeId).filter(id => id).join(',');
     if (!ids) return STORE_PRODUCTS;
 
-    // Usar el proxy del servidor para no exponer la API Key en el cliente
+    async function parseYouTubeResponse(data) {
+      if (!data.items) return null;
+      return STORE_PRODUCTS.map(product => {
+        const ytData = data.items.find(item => item.id === product.youtubeId);
+        if (ytData) {
+          return {
+            ...product,
+            title: ytData.snippet.title,
+            desc: ytData.snippet.description,
+            thumb: ytData.snippet.thumbnails?.high?.url || ytData.snippet.thumbnails?.default?.url
+          };
+        }
+        return { ...product, title: 'Producto', desc: 'Descripción no disponible', thumb: 'img/MultiGameInc.webp' };
+      });
+    }
+
+    // Estrategia 1: proxy local
     if (window.PROXY_BASE) {
       try {
         const res = await fetch(`${window.PROXY_BASE}/youtube/videos?ids=${ids}`);
         if (res.ok) {
-          const data = await res.json();
-          if (data.items) {
-            return STORE_PRODUCTS.map(product => {
-              const ytData = data.items.find(item => item.id === product.youtubeId);
-              if (ytData) {
-                return {
-                  ...product,
-                  title: ytData.snippet.title,
-                  desc: ytData.snippet.description,
-                  thumb: ytData.snippet.thumbnails?.high?.url || ytData.snippet.thumbnails?.default?.url
-                };
-              }
-              return { ...product, title: 'Producto', desc: 'Descripción no disponible', thumb: 'img/MultiGameInc.webp' };
-            });
-          }
+          const result = await parseYouTubeResponse(await res.json());
+          if (result) return result;
         }
       } catch (e) { /* continúa */ }
     }
+
+    // Estrategia 2: llamada directa (producción / GitHub Pages)
+    try {
+      const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${ids}&key=${_YK}`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const result = await parseYouTubeResponse(await res.json());
+        if (result) return result;
+      }
+    } catch (e) { /* continúa */ }
+
     return STORE_PRODUCTS;
   }
 

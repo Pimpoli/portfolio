@@ -527,6 +527,15 @@ body.light-mode .footer { background-color: var(--color-bg-light); color: var(--
 .fade-in { opacity: 0; transform: translateY(20px); transition: opacity .8s ease, transform .8s ease; }
 .fade-in.visible { opacity: 1; transform: translateY(0); }
 
+/* Delays escalonados para animaciones de entrada */
+.scroll-delay-1 { transition-delay: 0.05s; }
+.scroll-delay-2 { transition-delay: 0.12s; }
+.scroll-delay-3 { transition-delay: 0.20s; }
+.scroll-delay-4 { transition-delay: 0.28s; }
+.scroll-delay-5 { transition-delay: 0.36s; }
+.scroll-delay-6 { transition-delay: 0.44s; }
+.scroll-delay-7 { transition-delay: 0.52s; }
+
 /* ===============================
    Modal & Gallery styles Juegos
    =============================== */
