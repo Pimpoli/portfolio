@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title data-i18n="title">PimpoliDev Portfolio</title>
+
+  <meta name="description" content="PimpoliDev Portfolio. Roblox Developer and Programmer with over 4 years of experience. Expertise in Lua (Roblox Studio) and Godot Engine 4. Founder of Multi Game Inc." />
+
+  <script>
+    if (typeof window.PROXY_BASE === 'undefined') {
+      (function(){
+        const host = location.hostname;
+        // Si estamos en localhost O abriendo el archivo directamente (file://), intentamos usar el servidor local
+        if (host === 'localhost' || host === '127.0.0.1' || location.protocol === 'file:') {
+          window.PROXY_BASE = 'http://localhost:3000'; // desarrollo
+        } else {
+          window.PROXY_BASE = '/api'; // producción (proxy en mismo dominio) o adapta aquí
+        }
+      })();
+    }
+  </script>
+
+  <link rel="icon" href="img/MultiGameInc.webp" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css" />
+
+  <style>
+    /* Solo estilos esenciales que no rompan layout si CSS no carga */
+    #avatar-img { display:block; width:150px; height:150px; border-radius:50%; object-fit:cover; }
+    .avatar-container { position:relative; display:inline-flex; }
+  </style>
+</head>
+<body>
+  <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+    <img id="theme-icon-img" src="img/moon.webp" alt="Theme Icon" class="theme-icon" />
+  </button>
+
+  <header class="header">
+    <div class="container nav-container">
+      <div class="logo fade-in scroll-delay-1">
+        <a href="https://PimpoliDev.com/MultiGameInc" target="_blank" rel="noopener">
+          <img src="img/MultiGameInc.webp" alt="Logo MultiGame Inc" class="logo-img" />
+          <span class="logo-text">Multi Game Inc</span>
+        </a>
+      </div>
+      <nav class="nav">
+        <ul class="nav-list">
+          <li><a href="#home" class="nav-link" data-i18n="nav.home">Home</a></li>
+          <li><a href="#about" class="nav-link" data-i18n="nav.about">About</a></li>
+          <li><a href="#projects" class="nav-link" data-i18n="nav.projects">Projects</a></li>
+          <li><a href="#games" class="nav-link" data-i18n="nav.games">Games</a></li>
+          <li><a href="#store" class="nav-link" data-i18n="nav.store">Store</a></li>
+          <li><a href="#contact" class="nav-link" data-i18n="nav.contact">Contact</a></li>
+          <li>
+            <select id="languageSwitcher">
+              <option value="es">Español</option>
+              <option value="en">English</option>
+              <option value="pt">Português (BR)</option>
+            </select>
+          </li>
+        </ul>
+        <div class="hamburger" id="hamburger">
+          <span></span><span></span><span></span>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <section id="home" class="section home-section fade-in">
+    <div class="container">
+      <h1 class="fade-in" data-i18n="home.title">Hello, I'm PimpoliDev</h1>
+      <p class="fade-in scroll-delay-1" data-i18n="home.subtitle">Roblox Developer with +3 years experience • Expertise in Lua (Roblox Studio)</p>
+
+      <a href="https://www.roblox.com/es/users/3404416545/profile" target="_blank" rel="noopener">
+        <div id="roblox-profile-container" class="roblox-profile-container status-offline">
+          <img id="roblox-profile-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Roblox Profile" referrerpolicy="no-referrer" />
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section id="about" class="section about-section fade-in">
+    <div id="about-container" class="container">
+      </div>
+  </section>
+
+  <section id="projects" class="section projects-section fade-in">
+    <div id="projects-container" class="container"></div>
+  </section>
+
+  <section id="games" class="section games-section fade-in">
+    <div class="container">
+      <h2 class="fade-in" data-i18n="games.title">Games I've Created</h2>
+      <div id="games-container" class="fade-in scroll-delay-1"></div>
+      <button id="load-more-games" class="expand-btn fade-in scroll-delay-2" data-target="more-games">+</button>
+      <div id="more-games" class="more-content"></div>
+    </div>
+  </section>
+
+  <section id="store" class="section store-section fade-in">
+    <div class="container">
+      <h2 class="fade-in" data-i18n="store.title">Products / Store</h2>
+      <div id="products-container" class="products-grid"></div>
+      <button id="load-more-products" class="expand-btn fade-in scroll-delay-2" data-target="more-products">+</button>
+      <div id="more-products" class="more-content"></div>
+    </div>
+  </section>
+
+  <section id="contact" class="section contact-section fade-in">
+    <div class="container">
+      <h2 class="fade-in" data-i18n="contact.title">Contact & Social Media</h2>
+      <p class="fade-in scroll-delay-1" data-i18n="contact.text">Feel free to reach out via any of these platforms:</p>
+      <div class="social-icons fade-in scroll-delay-2">
+        <a href="https://discord.gg/SgjguUvTwE" target="_blank" rel="noopener" title="Discord"><img src="img/discord.png" alt="Discord" class="social-icon" /></a>
+        <a href="https://twitter.com/PimpoliDev" target="_blank" rel="noopener" title="Twitter/X"><img src="img/twitter.png" alt="Twitter" class="social-icon" /></a>
+        <a href="https://www.roblox.com/es/users/3404416545/profile" target="_blank" rel="noopener" title="Roblox Profile"><img src="img/roblox.webp" alt="Roblox" class="social-icon" /></a>
+        <a href="https://www.roblox.com/es/communities/17387910/Multi-Game-Inc#!/about" target="_blank" rel="noopener" title="Multi Game Inc (Grupo)"><img src="img/MultiGameInc.webp" alt="Multi Game Inc" class="social-icon" /></a>
+        <a href="https://www.youtube.com/@PimpoliDev" target="_blank" rel="noopener" title="YouTube"><img src="img/youtube.png" alt="YouTube" class="social-icon" /></a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container"><p>© <span id="year"></span> PimpoliDev. All rights reserved.</p></div>
+  </footer>
+
+  <script src="js/projects.js"></script>
+  <script src="js/games.js"></script>
+  <script src="js/products.js"></script>
+  <script src="js/about.js"></script>
+
+  <script src="js/i18n.js"></script>
+
+  <script>
+    (function(){
+      const sel = document.getElementById('languageSwitcher');
+      if (!sel) return;
+      const saved = localStorage.getItem('locale') || (navigator.language ? navigator.language.slice(0,2) : 'en');
+      sel.value = saved.startsWith('es') ? 'es' : 'en';
+      sel.addEventListener('change', (e) => {
+        const v = e.target.value;
+        localStorage.setItem('locale', v);
+        if (window.i18n && typeof window.i18n.setLocale === 'function') {
+          try { window.i18n.setLocale(v); } catch(e){}
+        }
+        window.dispatchEvent(new CustomEvent('localechange', { detail: v }));
+        if (!window.i18n) location.reload();
+      });
+    })();
+  </script>
+
+  <script src="js/main.js"></script>
+  <script src="js/destroygame.js"></script>
+
+  <div id="img-modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <div id="modal-media-container"></div>
+    </div>
+  </div>
+
+  <script src="https://gumroad.com/js/gumroad.js"></script>
+</body>
+</html>

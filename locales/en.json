@@ -1,0 +1,67 @@
+{
+  "title": "PimpoliDev Portfolio",
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "projects": "Projects",
+    "games": "Games",
+    "store": "Store",
+    "contact": "Contact"
+  },
+  "home": {
+    "title": "Hello, I'm PimpoliDev",
+    "subtitle": "Roblox Developer with +4 years experience • Expertise in Lua (Roblox Studio)"
+  },
+  "about": {
+    "title": "About me",
+    "list": {
+      "nameLabel": "My name:",
+      "nameValue": "Anthony // Alias: PimpoliDev",
+      "expLabel": "Experience:",
+      "expValue": "More than 4 years of experience as a Programmer",
+      "luauLabel": "Main language:",
+      "luauValue": "Luau (Roblox) — advanced mastery for 4+ years",
+      "uiLabel": "UIs & animations:",
+      "uiValue": "UI design and smooth animations for games",
+      "systemsLabel": "Custom systems:",
+      "systemsValue": "Reusable modular frameworks that speed up development",
+      "enginesLabel": "Engines I use:",
+      "enginesValue": "Roblox Studio and Godot Engine 4",
+      "studioLabel": "Founder of",
+      "studioName": "Multi Game Inc"
+    }
+  },
+  "projects": {
+    "title": "My Work / Examples",
+    "nodes": {
+      "title": "Nodes System",
+      "desc": ""
+    },
+    "nodesDemo": {
+      "title": "Nodes System Demo",
+      "desc": "Visual connection between nodes."
+    },
+    "comingSoon": {
+      "title": "Coming Soon",
+      "desc": "Coming Soon"
+    }
+  },
+  "games": {
+    "title": "Games I've Created"
+  },
+  "store": {
+    "title": "Products / Store",
+    "moreInfo": "More Information",
+    "buy": "Buy",
+    "for": "for",
+    "comingSoon": {
+      "name": "Coming Soon",
+      "desc": "Coming Soon.",
+      "price": "$TBA USD"
+    }
+  },
+  "contact": {
+    "title": "Contact & Social Media",
+    "text": "Feel free to reach out via any of these platforms:"
+  }
+}
