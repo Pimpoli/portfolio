@@ -63,5 +63,27 @@
   "contact": {
     "title": "Contato e Redes Sociais",
     "text": "Sinta-se à vontade para entrar em contato através de qualquer uma destas plataformas:"
+  },
+  "mgi": {
+    "badge": "Estúdio independente",
+    "desc": "Estúdio de desenvolvimento de jogos fundado pelo PimpoliDev. Criamos experiências no Roblox e mais plataformas.",
+    "foundedLabel": "Fundado em",
+    "membersLabel": "Membros do grupo",
+    "gamesPublished": "Jogos publicados",
+    "aboutTitle": "Sobre o Estúdio",
+    "nameRow": "Nome:",
+    "founderRow": "Fundador:",
+    "foundedRow": "Fundado em:",
+    "platformRow": "Plataforma principal:",
+    "specialtyRow": "Especialidade:",
+    "specialtyVal": "Jogos multijogador, sistemas de gameplay e UIs",
+    "langRow": "Linguagem principal:",
+    "langVal": "Luau — domínio avançado há 4+ anos",
+    "gamesTitle": "Jogos do Estúdio",
+    "contactTitle": "Contato",
+    "contactText": "Você pode nos contatar pelas redes sociais do PimpoliDev:",
+    "navStudio": "Estúdio",
+    "navGames": "Jogos",
+    "navContact": "Contato"
   }
 }

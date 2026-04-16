@@ -8,53 +8,27 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: #080810;
-      color: #fff;
+      background: #080810; color: #fff;
       font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      overflow: hidden;
+      display: flex; flex-direction: column;
+      align-items: center; min-height: 100vh; overflow: hidden;
     }
     #topbar {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 20px;
-      background: rgba(0,0,0,0.5);
-      position: fixed;
-      top: 0;
-      z-index: 100;
-      backdrop-filter: blur(6px);
+      width: 100%; display: flex; align-items: center;
+      justify-content: space-between; padding: 10px 20px;
+      background: rgba(0,0,0,0.5); position: fixed; top: 0;
+      z-index: 100; backdrop-filter: blur(6px);
     }
     #topbar a { color: #4ecdc4; text-decoration: none; font-weight: 700; font-size: 0.9rem; }
     #topbar a:hover { text-decoration: underline; }
     #game-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100vh;
-      padding-top: 50px;
-      gap: 8px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      width: 100%; height: 100vh; padding-top: 50px; gap: 8px;
     }
-    canvas {
-      border-radius: 12px;
-      box-shadow: 0 0 40px rgba(78,205,196,0.15);
-      display: block;
-    }
-    #controls-wrap {
-      display: flex;
-      gap: 40px;
-      font-size: 0.78rem;
-      opacity: 0.45;
-      text-align: center;
-    }
-    .ctrl-left  { color: #ff6b6b; }
-    .ctrl-right { color: #4ecdc4; }
+    canvas { border-radius: 12px; box-shadow: 0 0 40px rgba(78,205,196,0.15); display: block; }
+    #controls-wrap { display: flex; gap: 32px; font-size: 0.75rem; opacity: 0.42; text-align: center; }
+    .ctrl-p1 { color: #ff6b6b; } .ctrl-p2 { color: #4ecdc4; }
   </style>
 </head>
 <body>
@@ -62,339 +36,573 @@
 <div id="topbar">
   <a href="https://pimpolidev.com">← PimpoliDev</a>
   <span style="font-weight:700;letter-spacing:1px;">AMBIDEXTRO</span>
-  <span id="level-top" style="font-size:0.85rem;opacity:0.6;">NIVEL 1 / 10</span>
+  <span id="level-top" style="font-size:0.85rem;opacity:0.6;">NIVEL 1 / 25</span>
 </div>
 
 <div id="game-wrap">
   <canvas id="c"></canvas>
   <div id="controls-wrap">
-    <div class="ctrl-left">Jugador 1: A ← &nbsp; W ↑ &nbsp; D →</div>
-    <div class="ctrl-right">Jugador 2: J ← &nbsp; I ↑ &nbsp; L →</div>
+    <div class="ctrl-p1">P1: A ← / D → / W ↑  (también ← → ↑)</div>
+    <div class="ctrl-p2">P2: J ← / L → / I ↑</div>
   </div>
 </div>
 
 <script>
 (function(){
   'use strict';
+
+  // ─── roundRect polyfill ───────────────────────────────────────────────────
+  if (!CanvasRenderingContext2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h,r){
+      r = Math.min(r||0,w/2,h/2);
+      this.moveTo(x+r,y); this.lineTo(x+w-r,y);
+      this.quadraticCurveTo(x+w,y,x+w,y+r); this.lineTo(x+w,y+h-r);
+      this.quadraticCurveTo(x+w,y+h,x+w-r,y+h); this.lineTo(x+r,y+h);
+      this.quadraticCurveTo(x,y+h,x,y+h-r); this.lineTo(x,y+r);
+      this.quadraticCurveTo(x,y,x+r,y); this.closePath(); return this;
+    };
+  }
+
   const canvas = document.getElementById('c');
   const ctx    = canvas.getContext('2d');
-
-  // ─── Responsive ────────────────────────────────────────────────────────────
   let W = 800, H = 450;
+
+  // ─── Responsive ───────────────────────────────────────────────────────────
   function resize() {
     W = Math.min(window.innerWidth - 10, 860);
     H = Math.min(window.innerHeight - 120, 480);
     canvas.width  = W;
     canvas.height = H;
-    // Plataformas se reescalan al tamaño actual
     if (typeof currentLevel === 'number') buildLevel(currentLevel);
   }
   window.addEventListener('resize', resize);
 
-  // ─── Física ────────────────────────────────────────────────────────────────
-  const GRAVITY   = 0.58;
-  const JUMP_FORCE= -13.5;
-  const SPD       = 4.2;
+  // ─── Constants ────────────────────────────────────────────────────────────
+  const GRAVITY    = 0.58;
+  const JUMP_FORCE = -13.5;
+  const SPD        = 4.2;
+  const C1         = '#ff6b6b';
+  const C2         = '#4ecdc4';
+  const PFCOL      = '#2c2c3a';
+  const TOTAL_LVLS = 25;
 
-  // ─── Colores ───────────────────────────────────────────────────────────────
-  const C1 = '#ff6b6b';  // Jugador 1 (rojo)
-  const C2 = '#4ecdc4';  // Jugador 2 (cyan)
-  const PFCOL = '#2c2c3a';
+  // ─── Tutorial levels (5 fixed) ────────────────────────────────────────────
+  // p1/p2: [x%, y%]  pf: [[x%,y%,w%,h%], ...]  spikes: []  time: seconds | null
+  const TUTORIAL = [
+    // 1 — wide floor, unlimited time, players close together
+    { p1:[0.07,0.72], p2:[0.84,0.72],
+      pf:[[0,0.79,1,0.055]], spikes:[], time:null },
 
-  // ─── Jugadores ─────────────────────────────────────────────────────────────
-  const mkPlayer = (col) => ({ x:0,y:0,w:28,h:40,vx:0,vy:0,grounded:false,col,alive:true });
+    // 2 — two platforms with one gap
+    { p1:[0.06,0.68], p2:[0.84,0.68],
+      pf:[[0,0.75,0.44,0.05],[0.56,0.75,0.44,0.05]], spikes:[], time:20 },
+
+    // 3 — two different heights + connecting platform
+    { p1:[0.05,0.35], p2:[0.82,0.65],
+      pf:[[0,0.42,0.38,0.05],[0.62,0.72,0.38,0.05],[0.36,0.58,0.28,0.05]], spikes:[], time:20 },
+
+    // 4 — staircase
+    { p1:[0.04,0.82], p2:[0.84,0.28],
+      pf:[[0,0.88,0.22,0.05],[0.18,0.72,0.22,0.05],[0.36,0.56,0.22,0.05],
+          [0.54,0.40,0.22,0.05],[0.74,0.24,0.26,0.05]], spikes:[], time:22 },
+
+    // 5 — floating stepping stones
+    { p1:[0.03,0.72], p2:[0.86,0.72],
+      pf:[[0,0.78,0.17,0.05],[0.19,0.58,0.17,0.05],[0.38,0.40,0.22,0.05],
+          [0.61,0.58,0.17,0.05],[0.80,0.78,0.20,0.05]], spikes:[], time:22 },
+  ];
+
+  // ─── Procedural level generator ───────────────────────────────────────────
+  let sessionSeed = Math.trunc(Date.now() * (Math.random() + 0.1));
+
+  function makeLevels() {
+    const levels = [...TUTORIAL];
+    let s = sessionSeed | 0;
+    const rng = () => {
+      s = Math.imul(s ^ (s >>> 16), 0x45d9f3b);
+      s = Math.imul(s ^ (s >>> 16), 0x45d9f3b);
+      return ((s >>> 0) / 0x100000000);
+    };
+
+    for (let i = 5; i < TOTAL_LVLS; i++) {
+      const t     = (i - 5) / Math.max(1, TOTAL_LVLS - 6); // 0→1 difficulty
+      const lerp  = (a,b,v) => a + (b-a)*v;
+      const lw    = lerp(0.18, 0.10, t);                   // spawn platform width
+      const pfW   = lerp(0.18, 0.09, t);                   // mid platform width
+      const numMid= Math.round(lerp(6, 3, t));              // mid platforms count
+      const timer = Math.round(lerp(22, 10, t));
+
+      // Spawn platforms
+      const pf = [
+        [0,          lerp(0.82,0.82,t), lw, 0.04],           // P1 base (left)
+        [1-lw,       lerp(0.82,0.15,t), lw, 0.04],           // P2 base (right, climbs higher with difficulty)
+      ];
+      const p1Y = pf[0][1];
+      const p2Y = pf[1][1];
+
+      // Column-based middle platforms
+      const midStart = lw + 0.02;
+      const midEnd   = 1 - lw - 0.02;
+      const colW     = (midEnd - midStart) / numMid;
+      let prevY = p1Y;
+
+      for (let col = 0; col < numMid; col++) {
+        const progress = (col + 1) / (numMid + 1);
+        const baseY    = lerp(p1Y, p2Y, progress);
+        const dy       = (rng() - 0.5) * lerp(0.24, 0.40, t);
+        const y        = Math.max(0.12, Math.min(0.84, baseY + dy));
+        const xOff     = rng() * Math.max(0, colW - pfW);
+        const x        = midStart + col * colW + xOff;
+        pf.push([Math.max(midStart, Math.min(midEnd - pfW, x)), y, pfW, 0.04]);
+        prevY = y;
+      }
+
+      // Spawn positions (above their base platforms)
+      const p1s = [pf[0][0] + 0.02,               pf[0][1] - 0.11];
+      const p2s = [pf[1][0] + pf[1][2] - 0.08,    pf[1][1] - 0.11];
+
+      // Spikes on middle platforms (levels get more dangerous)
+      const spikeCount = Math.round(lerp(0, 5, t));
+      const spikes = [];
+      const midPfs = pf.slice(2);
+      for (let si = 0; si < spikeCount && midPfs.length > 0; si++) {
+        const tgt = midPfs[Math.floor(rng() * midPfs.length)];
+        const margin = 0.04;
+        const xOnPf  = tgt[0] + margin + rng() * Math.max(0, tgt[2] - margin*2);
+        spikes.push({ xPct: xOnPf, yPct: tgt[1], triggerDist: lerp(130, 90, t) });
+      }
+
+      levels.push({ p1: p1s, p2: p2s, pf, spikes, time: timer });
+    }
+    return levels;
+  }
+
+  let LEVELS = makeLevels();
+
+  // ─── Player factory ───────────────────────────────────────────────────────
+  const mkPlayer = col => ({
+    x:0, y:0, w:28, h:40,
+    vx:0, vy:0, grounded:false,
+    col, lives:3, shielded:false, invincible:0,
+    spawn:{ x:0, y:0 },
+  });
+
   let p1 = mkPlayer(C1);
   let p2 = mkPlayer(C2);
 
-  // ─── Niveles (definidos en % del canvas) ───────────────────────────────────
-  // Cada nivel: { p1:[x%,y%], p2:[x%,y%], platforms:[[x%,y%,w%,h%,color?], ...] }
-  const LEVELS = [
-    // Nivel 1: misma plataforma, lejos
-    { p1:[0.08,0.6], p2:[0.84,0.6],
-      pf:[ [0,0.72,1,0.06] ] },
-
-    // Nivel 2: separados por un hueco
-    { p1:[0.06,0.6], p2:[0.86,0.6],
-      pf:[ [0,0.72,0.42,0.06], [0.58,0.72,0.42,0.06] ] },
-
-    // Nivel 3: uno arriba otro abajo
-    { p1:[0.06,0.35], p2:[0.82,0.65],
-      pf:[ [0,0.45,0.38,0.05], [0.62,0.72,0.38,0.05], [0.36,0.6,0.28,0.05] ] },
-
-    // Nivel 4: escalera
-    { p1:[0.05,0.75], p2:[0.85,0.28],
-      pf:[ [0,0.82,0.25,0.05], [0.2,0.65,0.22,0.05], [0.38,0.5,0.22,0.05], [0.57,0.36,0.22,0.05], [0.75,0.22,0.25,0.05] ] },
-
-    // Nivel 5: plataformas flotantes pequeñas
-    { p1:[0.04,0.68], p2:[0.88,0.68],
-      pf:[ [0,0.75,0.18,0.05],[0.2,0.55,0.18,0.05],[0.4,0.38,0.2,0.05],
-           [0.62,0.55,0.18,0.05],[0.82,0.75,0.18,0.05] ] },
-
-    // Nivel 6: en lados opuestos con puente estrecho arriba
-    { p1:[0.04,0.72], p2:[0.86,0.72],
-      pf:[ [0,0.78,0.35,0.04],[0.65,0.78,0.35,0.04],[0.3,0.48,0.4,0.04],
-           [0,0.65,0.15,0.04],[0.85,0.65,0.15,0.04] ] },
-
-    // Nivel 7: zigzag
-    { p1:[0.04,0.82], p2:[0.86,0.12],
-      pf:[ [0,0.88,0.22,0.04],[0.18,0.72,0.22,0.04],[0.36,0.56,0.22,0.04],
-           [0.54,0.4,0.22,0.04],[0.72,0.24,0.24,0.04] ] },
-
-    // Nivel 8: laberinto simple
-    { p1:[0.05,0.4], p2:[0.82,0.7],
-      pf:[ [0,0.46,0.3,0.04],[0.28,0.62,0.3,0.04],[0.56,0.78,0.3,0.04],
-           [0.56,0.46,0.3,0.04],[0.28,0.78,0.28,0.04] ] },
-
-    // Nivel 9: plataformas muy pequeñas
-    { p1:[0.03,0.7], p2:[0.88,0.7],
-      pf:[ [0,0.76,0.12,0.04],[0.14,0.6,0.1,0.04],[0.26,0.45,0.1,0.04],
-           [0.38,0.6,0.1,0.04],[0.5,0.45,0.12,0.04],[0.64,0.6,0.1,0.04],
-           [0.76,0.45,0.1,0.04],[0.88,0.76,0.12,0.04] ] },
-
-    // Nivel 10: el más difícil
-    { p1:[0.04,0.82], p2:[0.84,0.12],
-      pf:[ [0,0.88,0.15,0.04],[0.13,0.7,0.12,0.04],[0.26,0.55,0.12,0.04],
-           [0.4,0.4,0.12,0.04],[0.54,0.26,0.12,0.04],[0.68,0.4,0.12,0.04],
-           [0.8,0.12,0.2,0.04],[0.54,0.55,0.12,0.04],[0.26,0.7,0.12,0.04] ] },
-  ];
-
-  // ─── Estado del juego ──────────────────────────────────────────────────────
+  // ─── Game state ───────────────────────────────────────────────────────────
   let currentLevel = 0;
   let platforms    = [];
+  let spikes       = [];
+  let pickups      = [];
   let timer        = 15;
+  let timerMax     = 15;
   let lastTs       = 0;
-  let gameState    = 'playing'; // 'playing' | 'win' | 'lost' | 'complete'
-  let winAnim      = 0;
-  let lostAnim     = 0;
-  let touchedAt    = -1;
+  let gameState    = 'playing'; // 'playing'|'win'|'lost'|'complete'
 
+  // ─── Build level ──────────────────────────────────────────────────────────
   function buildLevel(idx) {
-    const lv   = LEVELS[idx];
-    platforms  = lv.pf.map(([px,py,pw,ph]) => ({
-      x: px * W, y: py * H,
-      w: pw * W, h: ph * H,
+    const lv = LEVELS[idx];
+
+    platforms = lv.pf.map(([px,py,pw,ph]) => ({
+      x:px*W, y:py*H, w:pw*W, h:ph*H,
+      xPct:px, yPct:py, wPct:pw, hPct:ph,
     }));
+
+    spikes = lv.spikes.map(sp => ({
+      x: sp.xPct * W,
+      yBase: sp.yPct * H,    // top surface of the platform the spike sits on
+      triggerDist: sp.triggerDist,
+      emerge: 0, width:13, height:22,
+      dmgP1:false, dmgP2:false,
+    }));
+
+    // Pickups on some mid platforms (only in random levels)
+    pickups = [];
+    if (idx >= 5) {
+      platforms.slice(2).forEach((pf, i) => {
+        if (i % 3 === 1 && Math.random() > 0.45) {
+          const types = ['heart','shield','time'];
+          pickups.push({
+            type: types[Math.floor(Math.random() * types.length)],
+            x: pf.x + pf.w/2,
+            y: pf.y - 22,
+            collected: false,
+          });
+        }
+      });
+    }
+
     p1 = mkPlayer(C1);
     p2 = mkPlayer(C2);
-    p1.x = lv.p1[0] * W; p1.y = lv.p1[1] * H;
-    p2.x = lv.p2[0] * W; p2.y = lv.p2[1] * H;
-    timer     = 15;
+    p1.x = lv.p1[0]*W; p1.y = lv.p1[1]*H; p1.spawn = { x:p1.x, y:p1.y };
+    p2.x = lv.p2[0]*W; p2.y = lv.p2[1]*H; p2.spawn = { x:p2.x, y:p2.y };
+
+    timerMax  = lv.time !== null ? lv.time : Infinity;
+    timer     = timerMax;
     gameState = 'playing';
-    winAnim   = 0;
-    lostAnim  = 0;
-    touchedAt = -1;
-    document.getElementById('level-top').textContent = `NIVEL ${idx+1} / 10`;
+
+    document.getElementById('level-top').textContent = `NIVEL ${idx+1} / ${TOTAL_LVLS}`;
   }
 
-  // ─── Input ─────────────────────────────────────────────────────────────────
+  // ─── Input ────────────────────────────────────────────────────────────────
   const keys = {};
   document.addEventListener('keydown', e => {
     keys[e.code] = true;
     if (e.code === 'Enter' || e.code === 'Space') {
-      if (gameState === 'win' && currentLevel < LEVELS.length - 1) {
-        currentLevel++;
-        buildLevel(currentLevel);
+      if (gameState === 'win' && currentLevel < TOTAL_LVLS - 1) {
+        currentLevel++; buildLevel(currentLevel);
+      } else if (gameState === 'win' && currentLevel >= TOTAL_LVLS - 1) {
+        // After last level, same as complete
+        gameState = 'complete';
       } else if (gameState === 'lost') {
         buildLevel(currentLevel);
       } else if (gameState === 'complete') {
-        currentLevel = 0;
-        buildLevel(0);
+        sessionSeed = Math.trunc(Date.now() * (Math.random() + 0.1));
+        LEVELS = makeLevels();
+        currentLevel = 5; // skip to first random level
+        buildLevel(currentLevel);
       }
     }
     e.preventDefault();
   });
   document.addEventListener('keyup', e => { keys[e.code] = false; });
 
-  // ─── Física de un jugador ─────────────────────────────────────────────────
-  function updatePlayer(p, left, right, jump) {
-    if (!p.alive) return;
-    if (keys[left])  p.vx = -SPD;
-    else if (keys[right]) p.vx = SPD;
-    else p.vx *= 0.78;
+  // ─── Player physics ───────────────────────────────────────────────────────
+  function updatePlayer(p, leftKeys, rightKeys, jumpKeys, dtMs) {
+    const goLeft  = leftKeys.some(k  => keys[k]);
+    const goRight = rightKeys.some(k => keys[k]);
+    const doJump  = jumpKeys.some(k  => keys[k]);
 
-    if (keys[jump] && p.grounded) {
-      p.vy = JUMP_FORCE;
-      p.grounded = false;
-    }
+    if (goLeft)        p.vx = -SPD;
+    else if (goRight)  p.vx = SPD;
+    else               p.vx *= 0.78;
+
+    if (doJump && p.grounded) { p.vy = JUMP_FORCE; p.grounded = false; }
 
     p.vy += GRAVITY;
     p.x  += p.vx;
     p.y  += p.vy;
-    p.grounded  = false;
+    p.grounded = false;
 
-    // Límites
     if (p.x < 0) p.x = 0;
     if (p.x + p.w > W) p.x = W - p.w;
 
-    // Plataformas
     for (const pf of platforms) {
       if (p.x + p.w > pf.x && p.x < pf.x + pf.w) {
         const bot     = p.y + p.h;
-        const bot_prev = bot - p.vy;
-        if (bot_prev <= pf.y && bot >= pf.y && p.vy >= 0) {
-          p.y = pf.y - p.h;
-          p.vy = 0;
-          p.grounded = true;
+        const bot_prv = bot - p.vy;
+        if (bot_prv <= pf.y && bot >= pf.y && p.vy >= 0) {
+          p.y = pf.y - p.h; p.vy = 0; p.grounded = true;
         }
       }
     }
 
-    // Cayó → reaparece arriba
+    // Fell off → respawn with timer penalty
     if (p.y > H + 30) {
-      const lv = LEVELS[currentLevel];
-      const spawn = p === p1 ? lv.p1 : lv.p2;
-      p.x = spawn[0] * W; p.y = spawn[1] * H;
-      p.vx = 0; p.vy = 0;
+      p.x = p.spawn.x; p.y = p.spawn.y;
+      p.vx = 0; p.vy = -4;
+      if (timer !== Infinity) timer = Math.max(0, timer - 3);
+    }
+
+    if (p.invincible > 0) p.invincible -= dtMs;
+  }
+
+  // ─── Spikes ───────────────────────────────────────────────────────────────
+  function updateSpikes(dtMs) {
+    for (const sp of spikes) {
+      const midX   = p => p.x + p.w/2;
+      const near1  = Math.abs(midX(p1) - sp.x) < sp.triggerDist;
+      const near2  = Math.abs(midX(p2) - sp.x) < sp.triggerDist;
+
+      if (near1 || near2) sp.emerge = Math.min(1, sp.emerge + 0.038);
+      else                sp.emerge = Math.max(0, sp.emerge - 0.025);
+
+      if (sp.emerge < 0.65) { sp.dmgP1 = false; sp.dmgP2 = false; }
+
+      if (sp.emerge >= 0.65) {
+        const sLeft = sp.x - sp.width * 0.4;
+        const sRight= sp.x + sp.width * 0.4;
+        const sTip  = sp.yBase - sp.height * sp.emerge;
+
+        if (!sp.dmgP1 && p1.invincible <= 0 &&
+            p1.x < sRight && p1.x+p1.w > sLeft &&
+            p1.y < sp.yBase && p1.y+p1.h > sTip) {
+          sp.dmgP1 = true; damagePlayer(p1);
+        }
+        if (!sp.dmgP2 && p2.invincible <= 0 &&
+            p2.x < sRight && p2.x+p2.w > sLeft &&
+            p2.y < sp.yBase && p2.y+p2.h > sTip) {
+          sp.dmgP2 = true; damagePlayer(p2);
+        }
+      }
     }
   }
 
-  // ─── Detección de toque ────────────────────────────────────────────────────
+  function damagePlayer(p) {
+    if (p.shielded) { p.shielded = false; p.invincible = 2000; return; }
+    p.lives = Math.max(0, p.lives - 1);
+    p.invincible = 1800;
+    const penalty = p.lives === 0 ? 5 : 3;
+    if (timer !== Infinity) timer = Math.max(0, timer - penalty);
+    p.x = p.spawn.x; p.y = p.spawn.y; p.vx = 0; p.vy = -5;
+  }
+
+  // ─── Pickups ──────────────────────────────────────────────────────────────
+  function updatePickups(ts) {
+    for (const pk of pickups) {
+      if (pk.collected) continue;
+      const bobY = Math.sin(ts/600 + pk.x/50) * 4;
+      const rx = pk.x - 12, ry = pk.y + bobY - 12, rw = 24, rh = 24;
+      if (p1.x < rx+rw && p1.x+p1.w > rx && p1.y < ry+rh && p1.y+p1.h > ry) {
+        pk.collected = true; applyPickup(pk, p1);
+      }
+      if (p2.x < rx+rw && p2.x+p2.w > rx && p2.y < ry+rh && p2.y+p2.h > ry) {
+        pk.collected = true; applyPickup(pk, p2);
+      }
+    }
+  }
+
+  function applyPickup(pk, p) {
+    switch (pk.type) {
+      case 'heart':  p.lives = Math.min(5, p.lives + 1); break;
+      case 'shield': p.shielded = true; break;
+      case 'time':   if (timer !== Infinity) timer += 5; break;
+    }
+  }
+
+  // ─── Touching check ───────────────────────────────────────────────────────
   function touching() {
-    return p1.x < p2.x + p2.w && p1.x + p1.w > p2.x &&
-           p1.y < p2.y + p2.h && p1.y + p1.h > p2.y;
+    return p1.x < p2.x+p2.w && p1.x+p1.w > p2.x &&
+           p1.y < p2.y+p2.h && p1.y+p1.h > p2.y;
   }
 
-  // ─── Dibujar jugador ─────────────────────────────────────────────────────
-  function drawPlayer(p, label) {
-    if (!p.alive) return;
-    ctx.shadowBlur  = 12;
-    ctx.shadowColor = p.col;
-    ctx.fillStyle   = p.col;
+  // ─── Draw helpers ─────────────────────────────────────────────────────────
+  function drawSpawnMarker(sx, sy, col) {
+    // Downward-pointing triangle above spawn point
+    ctx.save();
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle   = col;
+    ctx.shadowBlur  = 10; ctx.shadowColor = col;
+    const tx = sx + 14; // center of player
     ctx.beginPath();
-    ctx.roundRect(p.x, p.y, p.w, p.h, 6);
-    ctx.fill();
-    // Cara
-    ctx.fillStyle   = 'rgba(0,0,0,0.7)';
-    ctx.shadowBlur  = 0;
-    ctx.fillRect(p.x + 5,  p.y + 10, 5, 5);
-    ctx.fillRect(p.x + 18, p.y + 10, 5, 5);
-    // Nombre
-    ctx.fillStyle   = p.col;
-    ctx.font        = 'bold 11px monospace';
-    ctx.textAlign   = 'center';
-    ctx.fillText(label, p.x + p.w/2, p.y - 5);
+    ctx.moveTo(tx,       sy - 28);
+    ctx.lineTo(tx - 10,  sy - 46);
+    ctx.lineTo(tx + 10,  sy - 46);
+    ctx.closePath(); ctx.fill();
+    // Small label
+    ctx.shadowBlur = 0;
+    ctx.fillStyle  = col;
+    ctx.font       = 'bold 9px monospace';
+    ctx.textAlign  = 'center';
+    ctx.fillText('SPAWN', tx, sy - 50);
+    ctx.restore();
   }
 
-  // ─── Dibujar ──────────────────────────────────────────────────────────────
-  function draw(now) {
-    ctx.clearRect(0,0,W,H);
-    ctx.fillStyle = '#080810';
-    ctx.fillRect(0,0,W,H);
+  function drawPlayer(p, label, ts) {
+    const blink = p.invincible > 0 && Math.floor(ts/90) % 2 === 0;
+    if (blink) return;
 
-    // Plataformas
-    for (const pf of platforms) {
-      ctx.fillStyle   = PFCOL;
-      ctx.shadowBlur  = 4;
-      ctx.shadowColor = 'rgba(78,205,196,0.15)';
-      ctx.beginPath();
-      ctx.roundRect(pf.x, pf.y, pf.w, pf.h, 5);
-      ctx.fill();
-      ctx.shadowBlur = 0;
+    if (p.shielded) {
+      ctx.globalAlpha = 0.6 + 0.4 * Math.sin(ts/180);
+      ctx.shadowBlur  = 22; ctx.shadowColor = '#f1c40f';
+      ctx.strokeStyle = '#f1c40f'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(p.x+p.w/2, p.y+p.h/2, p.w*0.95, 0, Math.PI*2); ctx.stroke();
+      ctx.globalAlpha = 1; ctx.shadowBlur = 0;
     }
 
-    // Jugadores
-    drawPlayer(p1, 'P1');
-    drawPlayer(p2, 'P2');
+    ctx.shadowBlur  = 13; ctx.shadowColor = p.col;
+    ctx.fillStyle   = p.col;
+    ctx.beginPath(); ctx.roundRect(p.x, p.y, p.w, p.h, 6); ctx.fill();
+    ctx.fillStyle   = 'rgba(0,0,0,0.7)'; ctx.shadowBlur = 0;
+    ctx.fillRect(p.x+5,  p.y+10, 5, 5);
+    ctx.fillRect(p.x+18, p.y+10, 5, 5);
+    ctx.fillStyle   = p.col; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center';
+    ctx.fillText(label, p.x+p.w/2, p.y-5);
+  }
 
-    // Timer
-    const timerRatio = timer / 15;
-    const barW       = W * 0.6;
-    const barX       = (W - barW) / 2;
-    const barY       = 14;
+  function drawSpikes(ts) {
+    for (const sp of spikes) {
+      if (sp.emerge <= 0) continue;
+      const h = sp.height * sp.emerge;
+
+      // Red glow at danger level
+      ctx.shadowBlur  = sp.emerge > 0.7 ? 14 : 4;
+      ctx.shadowColor = '#ff2200';
+      ctx.fillStyle   = sp.emerge > 0.7 ? '#e74c3c' : '#993322';
+      ctx.beginPath();
+      ctx.moveTo(sp.x - sp.width/2, sp.yBase);
+      ctx.lineTo(sp.x + sp.width/2, sp.yBase);
+      ctx.lineTo(sp.x,              sp.yBase - h);
+      ctx.closePath(); ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Warning pulse ring when not yet fully emerged
+      if (sp.emerge < 0.4) {
+        ctx.strokeStyle = `rgba(255,80,0,${0.15 + 0.1*Math.sin(ts/150)})`;
+        ctx.lineWidth   = 1.5;
+        ctx.beginPath(); ctx.arc(sp.x, sp.yBase, sp.triggerDist * 0.3, Math.PI, Math.PI*2); ctx.stroke();
+      }
+    }
+  }
+
+  function drawPickups(ts) {
+    for (const pk of pickups) {
+      if (pk.collected) continue;
+      const bobY = Math.sin(ts/600 + pk.x/50) * 4;
+      const col  = pk.type==='heart' ? '#ff6b6b' : pk.type==='shield' ? '#f1c40f' : '#4ecdc4';
+      const sym  = pk.type==='heart' ? '♥' : pk.type==='shield' ? '🛡' : '⏱';
+      ctx.shadowBlur = 14; ctx.shadowColor = col;
+      ctx.fillStyle  = col;
+      ctx.beginPath(); ctx.roundRect(pk.x-12, pk.y+bobY-12, 24, 24, 6); ctx.fill();
+      ctx.shadowBlur = 0; ctx.fillStyle = '#fff';
+      ctx.font = 'bold 12px monospace'; ctx.textAlign = 'center';
+      ctx.fillText(sym, pk.x, pk.y+bobY+5);
+    }
+  }
+
+  function drawHUD(ts) {
+    const isInf   = timer === Infinity;
+    const ratio   = isInf ? 1 : Math.min(timer / timerMax, 1);
+    const barW    = W * 0.44;
+    const barX    = (W - barW) / 2;
+    const barY    = 10;
+
+    // Timer bar background
     ctx.fillStyle = 'rgba(255,255,255,0.1)';
     ctx.beginPath(); ctx.roundRect(barX, barY, barW, 8, 4); ctx.fill();
-    const tCol = timerRatio > 0.5 ? '#4ecdc4' : timerRatio > 0.25 ? '#f1c40f' : '#e74c3c';
-    ctx.fillStyle = tCol;
-    ctx.shadowBlur = timerRatio < 0.25 ? 8 : 0;
-    ctx.shadowColor = '#e74c3c';
-    ctx.beginPath(); ctx.roundRect(barX, barY, barW * timerRatio, 8, 4); ctx.fill();
-    ctx.shadowBlur = 0;
-    ctx.fillStyle = '#fff';
-    ctx.font = '12px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(`${Math.ceil(timer)}s`, W/2, barY + 22);
 
-    // Nivel
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
-    ctx.font = '12px monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText(`NIVEL ${currentLevel+1}/10`, 12, barY + 22);
-
-    // Pantalla de victoria
-    if (gameState === 'win') {
-      ctx.fillStyle = 'rgba(0,0,0,0.65)';
-      ctx.fillRect(0,0,W,H);
-      ctx.textAlign = 'center';
-      ctx.shadowBlur = 25; ctx.shadowColor = '#4ecdc4';
-      ctx.fillStyle = '#4ecdc4';
-      ctx.font = `bold ${Math.min(52, W*0.09)}px monospace`;
-      ctx.fillText('¡SE TOCARON!', W/2, H/2 - 30);
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = '#fff';
-      ctx.font = `${Math.min(20,W*0.035)}px monospace`;
-      ctx.fillText(currentLevel < LEVELS.length-1 ? 'ENTER / SPACE para siguiente nivel' : '', W/2, H/2 + 20);
+    if (!isInf) {
+      const tc = ratio>0.5 ? '#4ecdc4' : ratio>0.25 ? '#f1c40f' : '#e74c3c';
+      ctx.fillStyle   = tc;
+      ctx.shadowBlur  = ratio<0.25 ? 9 : 0; ctx.shadowColor = '#e74c3c';
+      ctx.beginPath(); ctx.roundRect(barX, barY, barW*ratio, 8, 4); ctx.fill();
+      ctx.shadowBlur  = 0;
+      ctx.fillStyle   = '#fff'; ctx.font = '12px monospace'; ctx.textAlign = 'center';
+      ctx.fillText(Math.ceil(timer) + 's', W/2, barY+22);
+    } else {
+      ctx.fillStyle   = 'rgba(78,205,196,0.5)';
+      ctx.beginPath(); ctx.roundRect(barX, barY, barW, 8, 4); ctx.fill();
+      ctx.fillStyle   = 'rgba(255,255,255,0.4)'; ctx.font = '11px monospace'; ctx.textAlign = 'center';
+      ctx.fillText('∞  SIN LÍMITE DE TIEMPO', W/2, barY+22);
     }
 
-    // Pantalla de tiempo agotado
-    if (gameState === 'lost') {
-      ctx.fillStyle = 'rgba(0,0,0,0.65)';
-      ctx.fillRect(0,0,W,H);
-      ctx.textAlign = 'center';
-      ctx.shadowBlur = 20; ctx.shadowColor = '#e74c3c';
-      ctx.fillStyle = '#e74c3c';
-      ctx.font = `bold ${Math.min(44, W*0.08)}px monospace`;
-      ctx.fillText('TIEMPO AGOTADO', W/2, H/2 - 30);
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = '#aaa';
-      ctx.font = '18px monospace';
-      ctx.fillText('ENTER / SPACE para reintentar', W/2, H/2 + 20);
-    }
+    // P1 lives
+    ctx.textAlign   = 'left'; ctx.font = '13px monospace';
+    const h1 = '♥'.repeat(Math.max(0,p1.lives)) + '♡'.repeat(Math.max(0,3-Math.min(p1.lives,3)));
+    ctx.fillStyle   = C1;
+    ctx.shadowBlur  = p1.shielded ? 12 : 0; ctx.shadowColor = '#f1c40f';
+    ctx.fillText('P1 ' + h1, 10, barY + 10);
+    ctx.shadowBlur  = 0;
 
-    // Completaste todos los niveles
-    if (gameState === 'complete') {
-      ctx.fillStyle = 'rgba(0,0,0,0.8)';
-      ctx.fillRect(0,0,W,H);
-      ctx.textAlign = 'center';
-      ctx.shadowBlur = 30; ctx.shadowColor = '#f1c40f';
-      ctx.fillStyle = '#f1c40f';
-      ctx.font = `bold ${Math.min(44,W*0.08)}px monospace`;
-      ctx.fillText('¡COMPLETADO!', W/2, H/2 - 50);
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = '#fff';
-      ctx.font = `${Math.min(22,W*0.04)}px monospace`;
-      ctx.fillText('Pasaste los 10 niveles de Ambidextro', W/2, H/2 - 5);
-      ctx.fillStyle = '#aaa';
-      ctx.font = '16px monospace';
-      ctx.fillText('ENTER / SPACE para volver a empezar', W/2, H/2 + 40);
-    }
+    // P2 lives
+    ctx.textAlign   = 'right';
+    const h2 = '♥'.repeat(Math.max(0,p2.lives)) + '♡'.repeat(Math.max(0,3-Math.min(p2.lives,3)));
+    ctx.fillStyle   = C2;
+    ctx.shadowBlur  = p2.shielded ? 12 : 0; ctx.shadowColor = '#f1c40f';
+    ctx.fillText(h2 + ' P2', W-10, barY + 10);
+    ctx.shadowBlur  = 0;
 
-    ctx.textAlign = 'left';
-    ctx.shadowBlur = 0;
+    // Level (bottom)
+    ctx.textAlign   = 'left'; ctx.fillStyle = 'rgba(255,255,255,0.28)';
+    ctx.font        = '11px monospace';
+    ctx.fillText('NIVEL ' + (currentLevel+1) + '/' + TOTAL_LVLS, 10, H-8);
+
+    // Tutorial tip on level 1
+    if (currentLevel === 0 && gameState === 'playing') {
+      ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(255,255,255,0.38)';
+      ctx.font = '13px monospace';
+      ctx.fillText('¡Toca a tu compañero para ganar!', W/2, H-10);
+    }
   }
 
-  // ─── Loop principal ───────────────────────────────────────────────────────
+  // ─── Main draw ────────────────────────────────────────────────────────────
+  function draw(ts) {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = '#080810'; ctx.fillRect(0,0,W,H);
+
+    // Platforms
+    for (const pf of platforms) {
+      ctx.fillStyle   = PFCOL;
+      ctx.shadowBlur  = 4; ctx.shadowColor = 'rgba(78,205,196,0.12)';
+      ctx.beginPath(); ctx.roundRect(pf.x, pf.y, pf.w, pf.h, 5); ctx.fill();
+      ctx.shadowBlur  = 0;
+    }
+
+    // Spawn markers (always visible)
+    const lv = LEVELS[currentLevel];
+    drawSpawnMarker(lv.p1[0]*W, lv.p1[1]*H, C1);
+    drawSpawnMarker(lv.p2[0]*W, lv.p2[1]*H, C2);
+
+    drawSpikes(ts);
+    drawPickups(ts);
+    drawPlayer(p1, 'P1', ts);
+    drawPlayer(p2, 'P2', ts);
+    drawHUD(ts);
+
+    // ── State overlays ──
+    if (gameState === 'win') {
+      ctx.fillStyle = 'rgba(0,0,0,0.65)'; ctx.fillRect(0,0,W,H);
+      ctx.textAlign = 'center';
+      ctx.shadowBlur = 28; ctx.shadowColor = '#4ecdc4';
+      ctx.fillStyle  = '#4ecdc4'; ctx.font = `bold ${Math.min(52,W*0.09)}px monospace`;
+      ctx.fillText('¡SE TOCARON!', W/2, H/2-32);
+      ctx.shadowBlur = 0; ctx.fillStyle = '#fff';
+      ctx.font = `${Math.min(20,W*0.035)}px monospace`;
+      if (currentLevel < TOTAL_LVLS-1)
+        ctx.fillText('ENTER / SPACE → siguiente nivel', W/2, H/2+20);
+      else
+        ctx.fillText('ENTER / SPACE → ¡COMPLETADO!', W/2, H/2+20);
+    }
+
+    if (gameState === 'lost') {
+      ctx.fillStyle = 'rgba(0,0,0,0.65)'; ctx.fillRect(0,0,W,H);
+      ctx.textAlign  = 'center';
+      ctx.shadowBlur = 20; ctx.shadowColor = '#e74c3c';
+      ctx.fillStyle  = '#e74c3c'; ctx.font = `bold ${Math.min(44,W*0.08)}px monospace`;
+      ctx.fillText('TIEMPO AGOTADO', W/2, H/2-30);
+      ctx.shadowBlur = 0; ctx.fillStyle = '#aaa'; ctx.font = '18px monospace';
+      ctx.fillText('ENTER / SPACE para reintentar', W/2, H/2+20);
+    }
+
+    if (gameState === 'complete') {
+      ctx.fillStyle = 'rgba(0,0,0,0.82)'; ctx.fillRect(0,0,W,H);
+      ctx.textAlign  = 'center';
+      ctx.shadowBlur = 32; ctx.shadowColor = '#f1c40f';
+      ctx.fillStyle  = '#f1c40f'; ctx.font = `bold ${Math.min(46,W*0.08)}px monospace`;
+      ctx.fillText('¡COMPLETADO!', W/2, H/2-60);
+      ctx.shadowBlur = 0; ctx.fillStyle = '#fff';
+      ctx.font = `${Math.min(20,W*0.036)}px monospace`;
+      ctx.fillText('Superaste los ' + TOTAL_LVLS + ' niveles de Ambidextro', W/2, H/2-5);
+      ctx.fillStyle = '#4ecdc4'; ctx.font = `${Math.min(15,W*0.027)}px monospace`;
+      ctx.fillText('ENTER / SPACE → nuevos niveles aleatorios generados', W/2, H/2+38);
+    }
+
+    ctx.textAlign = 'left'; ctx.shadowBlur = 0;
+  }
+
+  // ─── Main loop ────────────────────────────────────────────────────────────
   function loop(ts) {
-    const dt = (ts - lastTs) / 1000;
-    lastTs   = ts;
+    const dt   = (ts - lastTs) / 1000;  // seconds
+    lastTs     = ts;
+    const dtMs = dt * 1000;
 
     if (gameState === 'playing') {
-      // Jugador 1: A, W, D
-      updatePlayer(p1, 'KeyA', 'KeyD', 'KeyW');
-      // Jugador 2: J, I, L
-      updatePlayer(p2, 'KeyJ', 'KeyL', 'KeyI');
+      updatePlayer(p1, ['KeyA','ArrowLeft'], ['KeyD','ArrowRight'], ['KeyW','ArrowUp'], dtMs);
+      updatePlayer(p2, ['KeyJ'],             ['KeyL'],              ['KeyI'],          dtMs);
 
-      // Timer
-      timer -= dt;
-      if (timer <= 0) {
-        timer     = 0;
-        gameState = 'lost';
+      if (timer !== Infinity) {
+        timer -= dt;
+        if (timer <= 0) { timer = 0; gameState = 'lost'; }
       }
 
-      // Colisión entre jugadores
+      updateSpikes(dtMs);
+      updatePickups(ts);
+
       if (touching()) {
         gameState = 'win';
-        if (currentLevel >= LEVELS.length - 1) {
-          setTimeout(() => { gameState = 'complete'; }, 1200);
+        if (currentLevel >= TOTAL_LVLS - 1) {
+          setTimeout(() => { gameState = 'complete'; }, 1300);
         }
       }
     }

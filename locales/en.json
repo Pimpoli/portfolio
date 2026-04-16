@@ -63,5 +63,27 @@
   "contact": {
     "title": "Contact & Social Media",
     "text": "Feel free to reach out via any of these platforms:"
+  },
+  "mgi": {
+    "badge": "Independent Studio",
+    "desc": "Game development studio founded by PimpoliDev. We create experiences on Roblox and more platforms.",
+    "foundedLabel": "Founded",
+    "membersLabel": "Group members",
+    "gamesPublished": "Published games",
+    "aboutTitle": "About the Studio",
+    "nameRow": "Name:",
+    "founderRow": "Founder:",
+    "foundedRow": "Founded in:",
+    "platformRow": "Main platform:",
+    "specialtyRow": "Specialty:",
+    "specialtyVal": "Multiplayer games, gameplay systems and UIs",
+    "langRow": "Main language:",
+    "langVal": "Luau — advanced mastery for 4+ years",
+    "gamesTitle": "Studio Games",
+    "contactTitle": "Contact",
+    "contactText": "You can reach us through PimpoliDev's social media:",
+    "navStudio": "Studio",
+    "navGames": "Games",
+    "navContact": "Contact"
   }
 }

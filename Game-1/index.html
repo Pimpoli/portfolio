@@ -8,65 +8,29 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: #0a0a0f;
-      color: #fff;
+      background: #0a0a0f; color: #fff;
       font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      overflow: hidden;
+      display: flex; flex-direction: column;
+      align-items: center; min-height: 100vh; overflow: hidden;
     }
     #topbar {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 20px;
-      background: rgba(0,0,0,0.5);
-      position: fixed;
-      top: 0;
-      z-index: 100;
-      backdrop-filter: blur(6px);
+      width: 100%; display: flex; align-items: center;
+      justify-content: space-between; padding: 10px 20px;
+      background: rgba(0,0,0,0.5); position: fixed; top: 0;
+      z-index: 100; backdrop-filter: blur(6px);
     }
-    #topbar a {
-      color: #ff4500;
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 0.9rem;
-    }
+    #topbar a { color: #ff4500; text-decoration: none; font-weight: 700; font-size: 0.9rem; }
     #topbar a:hover { text-decoration: underline; }
     #game-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100vh;
-      padding-top: 50px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      width: 100%; height: 100vh; padding-top: 50px;
     }
-    canvas {
-      border-radius: 12px;
-      box-shadow: 0 0 40px rgba(255,69,0,0.2);
-      display: block;
-      image-rendering: pixelated;
-    }
-    #ui-bar {
-      display: flex;
-      gap: 24px;
-      align-items: center;
-      margin-bottom: 12px;
-      font-size: 1rem;
-      font-weight: 700;
-    }
+    canvas { border-radius: 12px; box-shadow: 0 0 40px rgba(255,69,0,0.2); display: block; }
+    #ui-bar { display: flex; gap: 24px; align-items: center; margin-bottom: 12px; font-size: 1rem; font-weight: 700; }
     #ui-bar span { opacity: 0.8; font-size: 0.85rem; }
     .score-val { color: #fff; font-size: 1.2rem; }
-    #controls-hint {
-      margin-top: 10px;
-      font-size: 0.78rem;
-      opacity: 0.45;
-      text-align: center;
-    }
+    #controls-hint { margin-top: 10px; font-size: 0.76rem; opacity: 0.4; text-align: center; line-height: 1.6; }
   </style>
 </head>
 <body>
@@ -79,135 +43,234 @@
   <div id="game-wrap">
     <div id="ui-bar">
       <div><span>SCORE </span><span class="score-val" id="score-display">0</span></div>
-      <div><span>LIVES </span><span class="score-val" id="lives-display">♥♥♥</span></div>
-      <div><span>ROUND </span><span class="score-val" id="round-display">1</span></div>
+      <div><span>VIDAS </span><span class="score-val" id="lives-display">♥♥♥</span></div>
+      <div><span>RONDA </span><span class="score-val" id="round-display">1</span></div>
     </div>
     <canvas id="c"></canvas>
-    <div id="controls-hint">A / ← → / D para moverse &nbsp;|&nbsp; W / ↑ / Space para saltar &nbsp;|&nbsp; ESC para pausar</div>
+    <div id="controls-hint">
+      A / D / ← → mover &nbsp;|&nbsp; W / ↑ / Space saltar &nbsp;|&nbsp; S / ↓ bajar &nbsp;|&nbsp; ESC pausa
+    </div>
   </div>
 
 <script>
 (function(){
   'use strict';
 
+  // ─── roundRect polyfill ───────────────────────────────────────────────────
+  if (!CanvasRenderingContext2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h,r){
+      r = Math.min(r||0, w/2, h/2);
+      this.moveTo(x+r,y); this.lineTo(x+w-r,y);
+      this.quadraticCurveTo(x+w,y,x+w,y+r); this.lineTo(x+w,y+h-r);
+      this.quadraticCurveTo(x+w,y+h,x+w-r,y+h); this.lineTo(x+r,y+h);
+      this.quadraticCurveTo(x,y+h,x,y+h-r); this.lineTo(x,y+r);
+      this.quadraticCurveTo(x,y,x+r,y); this.closePath(); return this;
+    };
+  }
+
   const canvas = document.getElementById('c');
   const ctx    = canvas.getContext('2d');
 
-  // Responsive canvas
+  // ─── Responsive canvas ────────────────────────────────────────────────────
   function resize() {
-    const max = Math.min(window.innerWidth - 20, 900);
-    const h   = Math.min(window.innerHeight - 130, 500);
-    canvas.width  = max;
-    canvas.height = h;
+    canvas.width  = Math.min(window.innerWidth  - 20, 900);
+    canvas.height = Math.min(window.innerHeight - 130, 500);
     generatePlatforms();
   }
-  window.addEventListener('resize', () => { resize(); });
+  window.addEventListener('resize', resize);
 
-  // ─── Colores del juego ────────────────────────────────────────────────────
+  // ─── Colors ───────────────────────────────────────────────────────────────
   const COLORS = [
-    { name:'Rojo',    hex:'#e74c3c' },
-    { name:'Azul',    hex:'#3498db' },
-    { name:'Verde',   hex:'#2ecc71' },
-    { name:'Amarillo',hex:'#f1c40f' },
-    { name:'Morado',  hex:'#9b59b6' },
-    { name:'Naranja', hex:'#e67e22' },
+    { name:'ROJO',     hex:'#e74c3c' },
+    { name:'AZUL',     hex:'#3498db' },
+    { name:'VERDE',    hex:'#2ecc71' },
+    { name:'AMARILLO', hex:'#f1c40f' },
+    { name:'MORADO',   hex:'#9b59b6' },
+    { name:'NARANJA',  hex:'#e67e22' },
   ];
 
-  // ─── Estado ───────────────────────────────────────────────────────────────
-  let score    = 0;
-  let lives    = 3;
-  let round    = 1;
-  let hiScore  = parseInt(localStorage.getItem('cb_hs') || '0', 10);
-  let gameOver = false;
-  let paused   = false;
+  // ─── Pickup types ─────────────────────────────────────────────────────────
+  const PICKUP_TYPES = [
+    { id:'heart',  sym:'♥',  color:'#e74c3c', glow:'#ff4444', label:'+1 VIDA'     },
+    { id:'heal',   sym:'✚',  color:'#2ecc71', glow:'#44ff88', label:'CURACIÓN'    },
+    { id:'slow',   sym:'⏱', color:'#3498db', glow:'#44aaff', label:'TIEMPO +'    },
+    { id:'shield', sym:'🛡', color:'#f1c40f', glow:'#ffee00', label:'ESCUDO'      },
+    { id:'double', sym:'×2', color:'#e67e22', glow:'#ff8800', label:'×2 PUNTOS'  },
+  ];
 
-  let targetColorIdx = 0;
-  let roundTimer  = 0;
-  let roundMs     = 3000; // ms para elegir el color
-  let lastRoundTs = 0;
-  let roundActive = false; // true cuando el countdown está corriendo
+  // ─── Game state ───────────────────────────────────────────────────────────
+  let score          = 0;
+  let lives          = 3;
+  let round          = 1;
+  let hiScore        = parseInt(localStorage.getItem('cb_hs') || '0', 10);
+  let gameOver       = false;
+  let paused         = false;
+  let shieldActive   = false;
+  let scoreMultiplier= 1;
+  let slowRoundsLeft = 0;
 
   document.getElementById('hiscore-top').textContent = 'BEST: ' + hiScore;
 
-  // ─── Jugador ──────────────────────────────────────────────────────────────
-  const GRAVITY = 0.55;
+  // ─── Player ───────────────────────────────────────────────────────────────
+  const GRAVITY    = 0.55;
   const JUMP_FORCE = -13;
-  const SPEED = 4.5;
+  const SPEED      = 4.5;
 
-  const player = {
-    x: 60, y: 100,
-    w: 28, h: 42,
-    vx: 0, vy: 0,
-    grounded: false,
-    colorIdx: -1, // índice del bloque en el que está
-  };
+  const player = { x:60, y:100, w:28, h:42, vx:0, vy:0, grounded:false, colorIdx:-1 };
+  let dropTimer = 0; // ms — while > 0 skip platform collision (drop through)
 
-  // ─── Plataformas ──────────────────────────────────────────────────────────
+  // ─── Platforms ────────────────────────────────────────────────────────────
   let platforms = [];
 
   function generatePlatforms() {
-    const W = canvas.width;
-    const H = canvas.height;
+    const W = canvas.width, H = canvas.height;
     platforms = [];
 
-    // Suelo: fila de bloques de colores
+    // Floor row (row 0) — never eliminated
     const bw = Math.floor(W / 6);
-    for (let i = 0; i < 6; i++) {
-      platforms.push({
-        x: i * bw, y: H - 60,
-        w: bw - 2, h: 30,
-        colorIdx: i,
-        row: 0
-      });
-    }
+    for (let i = 0; i < 6; i++)
+      platforms.push({ x:i*bw, y:H-60, w:bw-2, h:30, colorIdx:i, row:0, dead:false, warningTimer:0 });
 
-    // Fila 2 (altura media)
+    // Mid row (row 1)
     const bw2 = Math.floor(W / 6);
-    for (let i = 0; i < 6; i++) {
-      platforms.push({
-        x: i * bw2 + (i % 2 === 0 ? 0 : 8), y: H - 160,
-        w: bw2 - 12, h: 22,
-        colorIdx: (i + 2) % 6,
-        row: 1
-      });
-    }
+    for (let i = 0; i < 6; i++)
+      platforms.push({ x:i*bw2+(i%2===0?0:8), y:H-160, w:bw2-12, h:22, colorIdx:(i+2)%6, row:1, dead:false, warningTimer:0 });
 
-    // Fila 3 (más arriba, más pequeñas)
+    // Top row (row 2)
     const bw3 = Math.floor(W / 7);
-    for (let i = 0; i < 7; i++) {
-      platforms.push({
-        x: i * bw3 + 5, y: H - 260,
-        w: bw3 - 18, h: 20,
-        colorIdx: (i + 4) % 6,
-        row: 2
-      });
-    }
+    for (let i = 0; i < 7; i++)
+      platforms.push({ x:i*bw3+5, y:H-260, w:bw3-18, h:20, colorIdx:(i+4)%6, row:2, dead:false, warningTimer:0 });
 
-    // Recolocar jugador encima del suelo
+    // Reposition player on first floor block
     player.x = platforms[0].x + 20;
     player.y = platforms[0].y - player.h - 2;
     player.vx = 0; player.vy = 0; player.grounded = true;
+  }
+
+  function triggerElimination() {
+    const candidates = platforms.filter(p => !p.dead && p.warningTimer <= 0 && p.row > 0);
+    if (!candidates.length) return;
+    const target = candidates[Math.floor(Math.random() * candidates.length)];
+    target.warningTimer = 2200; // 2.2 s pulse then die
+  }
+
+  function checkRebuildPlatforms() {
+    if (platforms.filter(p => p.row > 0).every(p => p.dead)) {
+      // Keep floor, rebuild upper rows
+      platforms = platforms.filter(p => p.row === 0);
+      platforms.forEach(p => { p.dead = false; p.warningTimer = 0; });
+      const W = canvas.width, H = canvas.height;
+      const bw2 = Math.floor(W/6);
+      for (let i = 0; i < 6; i++)
+        platforms.push({ x:i*bw2+(i%2===0?0:8), y:H-160, w:bw2-12, h:22, colorIdx:(i+2)%6, row:1, dead:false, warningTimer:0 });
+      const bw3 = Math.floor(W/7);
+      for (let i = 0; i < 7; i++)
+        platforms.push({ x:i*bw3+5, y:H-260, w:bw3-18, h:20, colorIdx:(i+4)%6, row:2, dead:false, warningTimer:0 });
+    }
+  }
+
+  // ─── Falling power-ups ────────────────────────────────────────────────────
+  let pickups = [];
+  let roundsSincePickup = 0;
+
+  function spawnPickup() {
+    const W = canvas.width;
+    const type = PICKUP_TYPES[Math.floor(Math.random() * PICKUP_TYPES.length)];
+    pickups.push({ ...type, x: 50 + Math.random()*(W-100), y: -20, vy: 0, collected: false, life: 12000 });
+  }
+
+  function updatePickups(dt) {
+    const H = canvas.height;
+    for (const pk of pickups) {
+      if (pk.collected) continue;
+      pk.life -= dt;
+      if (pk.life <= 0) { pk.collected = true; continue; }
+
+      // Gravity (lighter than player)
+      pk.vy = Math.min(pk.vy + GRAVITY * 0.45, 8);
+      pk.y += pk.vy;
+
+      // Bounce on alive platforms
+      for (const p of platforms) {
+        if (p.dead) continue;
+        if (pk.x > p.x && pk.x < p.x + p.w) {
+          const bot = pk.y + 14;
+          if (bot - pk.vy <= p.y && bot >= p.y) {
+            pk.y = p.y - 14;
+            pk.vy = -Math.abs(pk.vy) * 0.35;
+          }
+        }
+      }
+
+      if (pk.y > H + 30) { pk.collected = true; continue; }
+
+      // Player collision
+      if (player.x+player.w > pk.x-14 && player.x < pk.x+14 &&
+          player.y+player.h > pk.y-14 && player.y < pk.y+14) {
+        pk.collected = true;
+        applyPickup(pk);
+      }
+    }
+    pickups = pickups.filter(p => !p.collected);
+  }
+
+  function applyPickup(pk) {
+    switch (pk.id) {
+      case 'heart':  lives = Math.min(5, lives + 1);  updateHUD(); break;
+      case 'heal':   lives = Math.max(lives, 3);       updateHUD(); break;
+      case 'slow':   slowRoundsLeft = 2;                            break;
+      case 'shield': shieldActive = true;                           break;
+      case 'double': scoreMultiplier = 2;                           break;
+    }
+    addMessage(pk.label, pk.glow);
+  }
+
+  // ─── Floating messages ────────────────────────────────────────────────────
+  let messages = [];
+  function addMessage(text, color) {
+    messages.push({ text, color, x: canvas.width/2, y: canvas.height/2 - 30, life: 1400 });
   }
 
   // ─── Input ────────────────────────────────────────────────────────────────
   const keys = {};
   document.addEventListener('keydown', e => {
     keys[e.code] = true;
-    if (e.code === 'Escape') paused = !paused;
-    if ((e.code === 'Space' || e.code === 'KeyW' || e.code === 'ArrowUp') && player.grounded) {
-      player.vy = JUMP_FORCE;
-      player.grounded = false;
+    if (e.code === 'Escape' && !gameOver) paused = !paused;
+    if (!paused && !gameOver) {
+      if (['Space','KeyW','ArrowUp'].includes(e.code) && player.grounded) {
+        player.vy = JUMP_FORCE; player.grounded = false;
+      }
+      if (['KeyS','ArrowDown'].includes(e.code) && player.grounded && dropTimer <= 0) {
+        dropTimer = 300; player.vy = 5; player.grounded = false;
+      }
     }
+    if (e.code === 'Enter' && gameOver) resetGame();
     e.preventDefault();
   });
   document.addEventListener('keyup', e => { keys[e.code] = false; });
 
-  // ─── Nueva ronda ──────────────────────────────────────────────────────────
+  // ─── Round ────────────────────────────────────────────────────────────────
+  let targetColorIdx = 0;
+  let roundTimer     = 0;
+  let roundMs        = 3000;
+  let lastRoundTs    = 0;
+  let roundActive    = false;
+
   function newRound() {
     targetColorIdx = Math.floor(Math.random() * COLORS.length);
     lastRoundTs    = performance.now();
-    roundMs        = Math.max(1400, 3000 - round * 80);
-    roundActive    = true;
+    roundMs        = Math.max(1400, 3000 - round * 75);
+    if (slowRoundsLeft > 0) { roundMs = Math.min(roundMs * 1.6, 4000); slowRoundsLeft--; }
+    roundActive = true;
+    roundsSincePickup++;
+
+    // Eliminate platform every 3 rounds (after round 3)
+    if (round > 3 && round % 3 === 0) triggerElimination();
+
+    // Spawn a pickup every 4-6 rounds
+    if (roundsSincePickup >= 4 + Math.floor(Math.random() * 3)) {
+      spawnPickup(); roundsSincePickup = 0;
+    }
   }
 
   function checkRoundResult(now) {
@@ -215,53 +278,66 @@
     const elapsed = now - lastRoundTs;
     roundTimer = 1 - Math.min(elapsed / roundMs, 1);
 
-    if (elapsed >= roundMs) {
-      roundActive = false;
-      // ¿El jugador está sobre el color correcto?
-      if (player.colorIdx === targetColorIdx) {
-        score += 10 + round;
-        round++;
-        document.getElementById('score-display').textContent = score;
-        document.getElementById('round-display').textContent = round;
-        if (score > hiScore) {
-          hiScore = score;
-          localStorage.setItem('cb_hs', hiScore);
-          document.getElementById('hiscore-top').textContent = 'BEST: ' + hiScore;
-        }
-        setTimeout(newRound, 800);
+    if (elapsed < roundMs) return;
+    roundActive = false;
+
+    if (player.colorIdx === targetColorIdx) {
+      const pts = (10 + round) * scoreMultiplier;
+      scoreMultiplier = 1;
+      score += pts;
+      round++;
+      document.getElementById('score-display').textContent = score;
+      document.getElementById('round-display').textContent = round;
+      if (score > hiScore) {
+        hiScore = score;
+        localStorage.setItem('cb_hs', hiScore);
+        document.getElementById('hiscore-top').textContent = 'BEST: ' + hiScore;
+      }
+      setTimeout(newRound, 700);
+    } else {
+      if (shieldActive) {
+        shieldActive = false;
+        addMessage('¡ESCUDO ACTIVADO!', '#f1c40f');
+        setTimeout(newRound, 700);
       } else {
         lives--;
-        document.getElementById('lives-display').textContent = '♥'.repeat(Math.max(0,lives)) + '♡'.repeat(Math.max(0,3-lives));
+        updateHUD();
         if (lives <= 0) { gameOver = true; }
-        else { setTimeout(newRound, 1000); }
+        else { setTimeout(newRound, 900); }
       }
     }
   }
 
-  // ─── Física & Colisiones ─────────────────────────────────────────────────
+  function updateHUD() {
+    const filled = Math.max(0, lives);
+    const empty  = Math.max(0, 3 - Math.min(lives, 3));
+    document.getElementById('lives-display').textContent = '♥'.repeat(filled) + '♡'.repeat(empty);
+  }
+
+  // ─── Physics ──────────────────────────────────────────────────────────────
   function updatePlayer(dt) {
-    // Movimiento horizontal
-    if (keys['ArrowLeft'] || keys['KeyA']) player.vx = -SPEED;
+    if (keys['ArrowLeft']  || keys['KeyA']) player.vx = -SPEED;
     else if (keys['ArrowRight'] || keys['KeyD']) player.vx = SPEED;
     else player.vx *= 0.8;
 
-    // Gravedad
+    if (dropTimer > 0) dropTimer -= dt;
+
     player.vy += GRAVITY;
     player.x  += player.vx;
     player.y  += player.vy;
     player.grounded = false;
     player.colorIdx = -1;
 
-    // Límites laterales
     if (player.x < 0) player.x = 0;
     if (player.x + player.w > canvas.width) player.x = canvas.width - player.w;
 
-    // Colisión con plataformas
+    // Platform collision — skipped while dropTimer > 0
     for (const p of platforms) {
+      if (p.dead || dropTimer > 0) continue;
       if (player.x + player.w > p.x && player.x < p.x + p.w) {
-        const py_bot = player.y + player.h;
-        const py_bot_prev = py_bot - player.vy;
-        if (py_bot_prev <= p.y && py_bot >= p.y && player.vy >= 0) {
+        const bot     = player.y + player.h;
+        const bot_prv = bot - player.vy;
+        if (bot_prv <= p.y && bot >= p.y && player.vy >= 0) {
           player.y = p.y - player.h;
           player.vy = 0;
           player.grounded = true;
@@ -270,168 +346,195 @@
       }
     }
 
-    // Cayó por debajo de la pantalla → pierde vida
+    // Fell off screen → lose life
     if (player.y > canvas.height + 20) {
       lives--;
-      document.getElementById('lives-display').textContent = '♥'.repeat(Math.max(0,lives)) + '♡'.repeat(Math.max(0,3-lives));
+      updateHUD();
       if (lives <= 0) { gameOver = true; return; }
-      // Respawn encima del suelo
-      const floor = platforms.find(p => p.row === 0);
-      player.x = floor.x + 20;
-      player.y = floor.y - player.h - 2;
+      const floor = platforms.find(p => p.row === 0 && !p.dead);
+      if (floor) {
+        player.x = floor.x + 20;
+        player.y = floor.y - player.h - 2;
+      }
       player.vy = 0;
     }
   }
 
-  // ─── Dibujar ──────────────────────────────────────────────────────────────
-  function draw(now) {
-    const W = canvas.width, H = canvas.height;
-    ctx.clearRect(0, 0, W, H);
-
-    // Fondo
-    ctx.fillStyle = '#0d0d1a';
-    ctx.fillRect(0, 0, W, H);
-
-    // Plataformas
+  function updatePlatformWarnings(dt) {
     for (const p of platforms) {
-      const col = COLORS[p.colorIdx];
-      const isTarget = roundActive && p.colorIdx === targetColorIdx;
-
-      ctx.shadowBlur  = isTarget ? 18 : 4;
-      ctx.shadowColor = isTarget ? col.hex : 'transparent';
-      ctx.fillStyle   = isTarget ? col.hex : col.hex + 'bb';
-      ctx.beginPath();
-      ctx.roundRect(p.x, p.y, p.w, p.h, 6);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-
-      // Borde brillante si es el target
-      if (isTarget) {
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth   = 2;
-        ctx.globalAlpha = 0.5 + 0.5 * Math.sin(now / 150);
-        ctx.stroke();
-        ctx.globalAlpha = 1;
+      if (p.warningTimer <= 0) continue;
+      p.warningTimer -= dt;
+      if (p.warningTimer <= 0) {
+        p.dead = true;
+        checkRebuildPlatforms();
       }
     }
+  }
 
-    // Jugador
-    const plColor = player.colorIdx >= 0 ? COLORS[player.colorIdx].hex : '#ffffff';
-    ctx.shadowBlur  = 10;
-    ctx.shadowColor = '#00ffff';
-    ctx.fillStyle   = '#e0f8ff';
-    ctx.beginPath();
-    ctx.roundRect(player.x, player.y, player.w, player.h, 5);
-    ctx.fill();
-    // Ojos
-    ctx.fillStyle = '#000';
-    ctx.shadowBlur = 0;
-    ctx.fillRect(player.x + 6, player.y + 10, 5, 5);
-    ctx.fillRect(player.x + 17, player.y + 10, 5, 5);
+  // ─── Draw ─────────────────────────────────────────────────────────────────
+  function draw(now) {
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = '#0d0d1a';
+    ctx.fillRect(0,0,W,H);
 
-    // HUD: color objetivo arriba
-    if (!gameOver) {
-      const tCol = COLORS[targetColorIdx];
-      const barW = Math.min(W * 0.55, 360);
-      const barX = (W - barW) / 2;
-      const barY = 14;
-      const barH = 40;
+    // ── Platforms ──
+    for (const p of platforms) {
+      if (p.dead) continue;
+      const col      = COLORS[p.colorIdx];
+      const isTarget = roundActive && p.colorIdx === targetColorIdx;
 
-      // Fondo del indicador
-      ctx.fillStyle = 'rgba(0,0,0,0.5)';
-      ctx.beginPath();
-      ctx.roundRect(barX - 60, barY - 4, barW + 120, barH + 8, 14);
-      ctx.fill();
-
-      // Color objetivo (circulo)
-      ctx.fillStyle = tCol.hex;
-      ctx.shadowBlur = roundActive ? 12 : 0;
-      ctx.shadowColor = tCol.hex;
-      ctx.beginPath();
-      ctx.arc(barX - 30, barY + barH/2, 14, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-
-      // Texto
-      ctx.fillStyle = '#fff';
-      ctx.font = 'bold 18px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(`VE AL COLOR: ${tCol.name.toUpperCase()}`, W / 2, barY + 26);
-
-      // Barra de tiempo
-      if (roundActive) {
-        ctx.fillStyle = 'rgba(255,255,255,0.12)';
-        ctx.beginPath();
-        ctx.roundRect(barX, barY + barH + 2, barW, 7, 4);
-        ctx.fill();
-        const timerColor = roundTimer > 0.4 ? '#2ecc71' : roundTimer > 0.2 ? '#f1c40f' : '#e74c3c';
-        ctx.fillStyle = timerColor;
-        ctx.beginPath();
-        ctx.roundRect(barX, barY + barH + 2, barW * roundTimer, 7, 4);
-        ctx.fill();
+      if (p.warningTimer > 0) {
+        // Pulse animation: scale oscillates, orange glow
+        const progress = 1 - p.warningTimer / 2200;
+        const scale    = 1 + 0.20 * Math.sin(progress * Math.PI * 9);
+        const alpha    = 0.55 + 0.45 * Math.abs(Math.sin(progress * Math.PI * 9));
+        const cx = p.x + p.w/2, cy = p.y + p.h/2;
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.scale(scale, scale);
+        ctx.shadowBlur  = 22; ctx.shadowColor = '#ff4400';
+        ctx.fillStyle   = `rgba(255,80,0,${alpha})`;
+        ctx.beginPath(); ctx.roundRect(-p.w/2, -p.h/2, p.w, p.h, 6); ctx.fill();
+        // Warning icon in center
+        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+        ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center';
+        ctx.fillText('!', 0, 5);
+        ctx.shadowBlur = 0; ctx.restore();
       } else {
-        // Mensaje de resultado
-        ctx.font = 'bold 22px monospace';
-        ctx.textAlign = 'center';
-        if (player.colorIdx === targetColorIdx || player.colorIdx === -1) {
-          ctx.fillStyle = '#2ecc71';
-          ctx.fillText('¡CORRECTO!', W/2, barY + barH + 22);
+        ctx.shadowBlur  = isTarget ? 18 : 3;
+        ctx.shadowColor = isTarget ? col.hex : 'transparent';
+        ctx.fillStyle   = isTarget ? col.hex : col.hex + 'bb';
+        ctx.beginPath(); ctx.roundRect(p.x, p.y, p.w, p.h, 6); ctx.fill();
+        ctx.shadowBlur = 0;
+        if (isTarget) {
+          ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+          ctx.globalAlpha = 0.5 + 0.5 * Math.sin(now/150);
+          ctx.stroke(); ctx.globalAlpha = 1;
         }
       }
     }
 
-    // Game Over
-    if (gameOver) {
-      ctx.fillStyle = 'rgba(0,0,0,0.75)';
-      ctx.fillRect(0, 0, W, H);
-      ctx.textAlign = 'center';
-      ctx.fillStyle = '#e74c3c';
-      ctx.font = `bold ${Math.min(52, W*0.09)}px monospace`;
-      ctx.shadowBlur = 20; ctx.shadowColor = '#ff0000';
-      ctx.fillText('GAME OVER', W/2, H/2 - 40);
+    // ── Pickups ──
+    for (const pk of pickups) {
+      if (pk.collected) continue;
+      const bob = Math.sin(now/400 + pk.x/30) * 5;
+      ctx.shadowBlur  = 16; ctx.shadowColor = pk.glow;
+      ctx.fillStyle   = pk.color;
+      ctx.beginPath(); ctx.roundRect(pk.x-14, pk.y+bob-14, 28, 28, 8); ctx.fill();
+      ctx.shadowBlur  = 0;
+      ctx.fillStyle   = '#fff'; ctx.font = 'bold 14px monospace'; ctx.textAlign = 'center';
+      ctx.fillText(pk.sym, pk.x, pk.y + bob + 6);
+    }
+
+    // ── Player ──
+    // Shield aura
+    if (shieldActive) {
+      ctx.globalAlpha = 0.65 + 0.35 * Math.sin(now/180);
+      ctx.shadowBlur  = 24; ctx.shadowColor = '#f1c40f';
+      ctx.strokeStyle = '#f1c40f'; ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(player.x + player.w/2, player.y + player.h/2, player.w * 0.9, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+    }
+    ctx.shadowBlur = 10; ctx.shadowColor = '#00ffff';
+    ctx.fillStyle  = '#e0f8ff';
+    ctx.beginPath(); ctx.roundRect(player.x, player.y, player.w, player.h, 5); ctx.fill();
+    ctx.fillStyle  = '#000'; ctx.shadowBlur = 0;
+    ctx.fillRect(player.x+6,  player.y+10, 5, 5);
+    ctx.fillRect(player.x+17, player.y+10, 5, 5);
+
+    // ── HUD: target color bar ──
+    if (!gameOver) {
+      const tCol = COLORS[targetColorIdx];
+      const barW = Math.min(W*0.52, 340);
+      const barX = (W - barW) / 2;
+      const barY = 12; const barH = 38;
+
+      ctx.fillStyle = 'rgba(0,0,0,0.55)';
+      ctx.beginPath(); ctx.roundRect(barX-62, barY-4, barW+124, barH+8, 14); ctx.fill();
+
+      ctx.fillStyle = tCol.hex; ctx.shadowBlur = roundActive ? 12 : 0; ctx.shadowColor = tCol.hex;
+      ctx.beginPath(); ctx.arc(barX-32, barY+barH/2, 13, 0, Math.PI*2); ctx.fill();
       ctx.shadowBlur = 0;
-      ctx.fillStyle = '#fff';
-      ctx.font = `bold ${Math.min(26, W*0.045)}px monospace`;
-      ctx.fillText(`SCORE: ${score}`, W/2, H/2 + 10);
-      ctx.fillStyle = '#f1c40f';
-      ctx.font = `${Math.min(20,W*0.035)}px monospace`;
-      ctx.fillText(`MEJOR: ${hiScore}`, W/2, H/2 + 44);
-      ctx.fillStyle = '#aaa';
-      ctx.font = '14px monospace';
-      ctx.fillText('Pulsa ENTER para reiniciar', W/2, H/2 + 80);
+
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 17px monospace'; ctx.textAlign = 'center';
+      ctx.fillText('IR AL COLOR: ' + tCol.name, W/2, barY + 25);
+
+      if (roundActive) {
+        ctx.fillStyle = 'rgba(255,255,255,0.12)';
+        ctx.beginPath(); ctx.roundRect(barX, barY+barH+2, barW, 7, 4); ctx.fill();
+        const tc = roundTimer > 0.4 ? '#2ecc71' : roundTimer > 0.2 ? '#f1c40f' : '#e74c3c';
+        ctx.fillStyle = tc;
+        ctx.beginPath(); ctx.roundRect(barX, barY+barH+2, barW*roundTimer, 7, 4); ctx.fill();
+      }
+
+      // Active bonuses
+      let bonusTxt = [];
+      if (scoreMultiplier > 1) bonusTxt.push('×' + scoreMultiplier + ' PTS');
+      if (slowRoundsLeft > 0)  bonusTxt.push('⏱×' + slowRoundsLeft);
+      if (shieldActive)        bonusTxt.push('🛡 ESCUDO');
+      if (bonusTxt.length) {
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.beginPath(); ctx.roundRect(W-140, 10, 130, 22, 6); ctx.fill();
+        ctx.fillStyle = '#f1c40f'; ctx.font = '11px monospace'; ctx.textAlign = 'right';
+        ctx.fillText(bonusTxt.join(' · '), W-14, 25);
+      }
     }
 
-    // Pausa
-    if (paused && !gameOver) {
-      ctx.fillStyle = 'rgba(0,0,0,0.6)';
-      ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = '#fff';
-      ctx.font = 'bold 36px monospace';
+    // ── Floating messages ──
+    ctx.textAlign = 'center';
+    for (const m of messages) {
+      const a = Math.min(1, m.life / 500);
+      ctx.globalAlpha = a;
+      ctx.shadowBlur  = 12; ctx.shadowColor = m.color;
+      ctx.fillStyle   = m.color; ctx.font = 'bold 22px monospace';
+      ctx.fillText(m.text, m.x, m.y);
+    }
+    ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+
+    // ── Game Over ──
+    if (gameOver) {
+      ctx.fillStyle = 'rgba(0,0,0,0.78)'; ctx.fillRect(0,0,W,H);
       ctx.textAlign = 'center';
-      ctx.fillText('PAUSA', W/2, H/2);
-      ctx.font = '16px monospace';
-      ctx.fillStyle = '#aaa';
-      ctx.fillText('ESC para continuar', W/2, H/2 + 36);
+      ctx.shadowBlur = 22; ctx.shadowColor = '#ff0000';
+      ctx.fillStyle  = '#e74c3c'; ctx.font = `bold ${Math.min(52,W*0.09)}px monospace`;
+      ctx.fillText('GAME OVER', W/2, H/2-42);
+      ctx.shadowBlur = 0;
+      ctx.fillStyle  = '#fff'; ctx.font = `bold ${Math.min(26,W*0.045)}px monospace`;
+      ctx.fillText('SCORE: ' + score, W/2, H/2+10);
+      ctx.fillStyle  = '#f1c40f'; ctx.font = `${Math.min(20,W*0.035)}px monospace`;
+      ctx.fillText('MEJOR: ' + hiScore, W/2, H/2+44);
+      ctx.fillStyle  = '#aaa'; ctx.font = '14px monospace';
+      ctx.fillText('Pulsa ENTER para reiniciar', W/2, H/2+80);
     }
 
-    ctx.textAlign = 'left';
+    // ── Pause ──
+    if (paused && !gameOver) {
+      ctx.fillStyle = 'rgba(0,0,0,0.62)'; ctx.fillRect(0,0,W,H);
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 36px monospace'; ctx.textAlign = 'center';
+      ctx.fillText('PAUSA', W/2, H/2);
+      ctx.fillStyle = '#aaa'; ctx.font = '16px monospace';
+      ctx.fillText('ESC para continuar', W/2, H/2+36);
+    }
+
+    ctx.textAlign = 'left'; ctx.shadowBlur = 0;
   }
 
-  // ─── Reiniciar ────────────────────────────────────────────────────────────
+  // ─── Reset ────────────────────────────────────────────────────────────────
   function resetGame() {
     score = 0; lives = 3; round = 1; gameOver = false; paused = false;
+    shieldActive = false; scoreMultiplier = 1; slowRoundsLeft = 0;
+    pickups = []; messages = []; roundsSincePickup = 0;
     document.getElementById('score-display').textContent = '0';
     document.getElementById('round-display').textContent = '1';
-    document.getElementById('lives-display').textContent = '♥♥♥';
+    updateHUD();
     generatePlatforms();
     newRound();
   }
 
-  document.addEventListener('keydown', e => {
-    if (e.code === 'Enter' && gameOver) resetGame();
-  });
-
-  // ─── Loop ─────────────────────────────────────────────────────────────────
+  // ─── Game loop ────────────────────────────────────────────────────────────
   let lastTs = 0;
   function loop(ts) {
     const dt = ts - lastTs;
@@ -439,8 +542,15 @@
 
     if (!paused && !gameOver) {
       updatePlayer(dt);
+      updatePickups(dt);
+      updatePlatformWarnings(dt);
       checkRoundResult(ts);
+
+      // Animate messages
+      for (const m of messages) { m.y -= 1.2; m.life -= dt; }
+      messages = messages.filter(m => m.life > 0);
     }
+
     draw(ts);
     requestAnimationFrame(loop);
   }
