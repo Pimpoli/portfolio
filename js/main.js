@@ -55,16 +55,40 @@ async function loadAvatar(userId, imgEl) {
 /* ══════════════════════════════════════════════════════
    2. PRESENCIA  (Online / InGame / Studio / Offline)
    ══════════════════════════════════════════════════════ */
-function applyPresence(type) {
+function applyPresence(type, gameName) {
   const container = document.getElementById('roblox-profile-container');
   if (!container) return;
   container.classList.remove('status-online', 'status-ingame', 'status-studio', 'status-offline');
+
+  let stateLabel, stateColor;
   switch (type) {
-    case 1: container.classList.add('status-online');  container.title = 'Conectado';          break;
-    case 2: container.classList.add('status-ingame');  container.title = 'Jugando';             break;
-    case 3: container.classList.add('status-studio');  container.title = 'En Roblox Studio';    break;
-    default: container.classList.add('status-offline'); container.title = 'Desconectado';       break;
+    case 1:
+      container.classList.add('status-online');
+      stateLabel = 'Online'; stateColor = '#00b0ff'; break;
+    case 2:
+      container.classList.add('status-ingame');
+      stateLabel = 'In Game'; stateColor = '#00e676'; break;
+    case 3:
+      container.classList.add('status-studio');
+      stateLabel = 'In Studio'; stateColor = '#ff9100'; break;
+    default:
+      container.classList.add('status-offline');
+      stateLabel = 'Offline'; stateColor = '#9e9e9e'; break;
   }
+
+  // Rich HTML tooltip
+  let tooltip = container.querySelector('.roblox-tooltip');
+  if (!tooltip) {
+    tooltip = document.createElement('div');
+    tooltip.className = 'roblox-tooltip';
+    container.appendChild(tooltip);
+  }
+  let html = `<div><span style="opacity:0.55">Name:</span> <strong>PimpoliDev</strong></div>`;
+  html += `<div><span style="opacity:0.55">State:</span> <strong style="color:${stateColor}">${stateLabel}</strong></div>`;
+  if (type === 2 && gameName) {
+    html += `<div><span style="opacity:0.55">Game:</span> <strong>${gameName}</strong></div>`;
+  }
+  tooltip.innerHTML = html;
 }
 
 function resolvePresenceType(pres) {
@@ -145,7 +169,8 @@ async function updateAvatarStatus(userId) {
   try {
     const pres = await fetchPresenceData(userId);
     const resolved = resolvePresenceType(pres);
-    applyPresence(typeof resolved === 'number' && !Number.isNaN(resolved) ? resolved : 0);
+    const gameName = pres?.lastLocation || null;
+    applyPresence(typeof resolved === 'number' && !Number.isNaN(resolved) ? resolved : 0, gameName);
   } catch (e) {
     applyPresence(0);
   }
@@ -223,9 +248,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const themeBtn  = document.getElementById('theme-toggle');
   const themeIcon = document.getElementById('theme-icon-img');
 
+  const imgBase = (() => {
+    const m = document.querySelector('meta[name="locale-base"]');
+    return m ? m.content + 'img/' : 'img/';
+  })();
+
   function updateThemeUI() {
     if (themeIcon) {
-      themeIcon.src = document.body.classList.contains('light-mode') ? 'img/moon.webp' : 'img/sun.webp';
+      themeIcon.src = document.body.classList.contains('light-mode')
+        ? imgBase + 'moon.webp'
+        : imgBase + 'sun.webp';
     }
   }
 

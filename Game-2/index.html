@@ -235,8 +235,23 @@
 
     p1 = mkPlayer(C1);
     p2 = mkPlayer(C2);
-    p1.x = lv.p1[0]*W; p1.y = lv.p1[1]*H; p1.spawn = { x:p1.x, y:p1.y };
-    p2.x = lv.p2[0]*W; p2.y = lv.p2[1]*H; p2.spawn = { x:p2.x, y:p2.y };
+    p1.x = lv.p1[0]*W; p1.y = lv.p1[1]*H;
+    p2.x = lv.p2[0]*W; p2.y = lv.p2[1]*H;
+
+    // Push players out of any platforms they may overlap at spawn
+    function pushOutOfPlatforms(px, py, pw, ph) {
+      let y = py;
+      for (const pf of platforms) {
+        if (px + pw > pf.x && px < pf.x + pf.w && y + ph > pf.y && y < pf.y + pf.h) {
+          y = pf.y - ph - 2;
+        }
+      }
+      return y;
+    }
+    p1.y = pushOutOfPlatforms(p1.x, p1.y, p1.w, p1.h);
+    p2.y = pushOutOfPlatforms(p2.x, p2.y, p2.w, p2.h);
+    p1.spawn = { x:p1.x, y:p1.y };
+    p2.spawn = { x:p2.x, y:p2.y };
 
     timerMax  = lv.time !== null ? lv.time : Infinity;
     timer     = timerMax;
@@ -280,7 +295,7 @@
 
     if (doJump && p.grounded) { p.vy = JUMP_FORCE; p.grounded = false; }
 
-    p.vy += GRAVITY;
+    p.vy = Math.min(p.vy + GRAVITY, 16); // cap fall speed to prevent tunneling
     p.x  += p.vx;
     p.y  += p.vy;
     p.grounded = false;
@@ -292,7 +307,7 @@
       if (p.x + p.w > pf.x && p.x < pf.x + pf.w) {
         const bot     = p.y + p.h;
         const bot_prv = bot - p.vy;
-        if (bot_prv <= pf.y && bot >= pf.y && p.vy >= 0) {
+        if (bot_prv <= pf.y + 4 && bot >= pf.y - 2 && p.vy >= 0) {
           p.y = pf.y - p.h; p.vy = 0; p.grounded = true;
         }
       }
@@ -616,5 +631,6 @@
   requestAnimationFrame(loop);
 })();
 </script>
+<script src="../js/destroygame.js" defer></script>
 </body>
 </html>

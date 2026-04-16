@@ -117,7 +117,8 @@
   const SPEED      = 4.5;
 
   const player = { x:60, y:100, w:28, h:42, vx:0, vy:0, grounded:false, colorIdx:-1 };
-  let dropTimer = 0; // ms — while > 0 skip platform collision (drop through)
+  let dropPlatform = null; // specific platform to pass through when dropping
+  let dropTimer    = 0;   // ms countdown while drop is active
 
   // ─── Platforms ────────────────────────────────────────────────────────────
   let platforms = [];
@@ -241,7 +242,18 @@
         player.vy = JUMP_FORCE; player.grounded = false;
       }
       if (['KeyS','ArrowDown'].includes(e.code) && player.grounded && dropTimer <= 0) {
-        dropTimer = 300; player.vy = 5; player.grounded = false;
+        // Find the specific platform the player is standing on (row > 0 only — can't drop through floor)
+        const standingPf = platforms.find(p =>
+          !p.dead && p.row > 0 &&
+          player.x + player.w > p.x && player.x < p.x + p.w &&
+          Math.abs((player.y + player.h) - p.y) <= 4
+        );
+        if (standingPf) {
+          dropPlatform = standingPf;
+          dropTimer    = 350;
+          player.vy    = 5;
+          player.grounded = false;
+        }
       }
     }
     if (e.code === 'Enter' && gameOver) resetGame();
@@ -320,7 +332,7 @@
     else if (keys['ArrowRight'] || keys['KeyD']) player.vx = SPEED;
     else player.vx *= 0.8;
 
-    if (dropTimer > 0) dropTimer -= dt;
+    if (dropTimer > 0) { dropTimer -= dt; if (dropTimer <= 0) dropPlatform = null; }
 
     player.vy += GRAVITY;
     player.x  += player.vx;
@@ -331,9 +343,9 @@
     if (player.x < 0) player.x = 0;
     if (player.x + player.w > canvas.width) player.x = canvas.width - player.w;
 
-    // Platform collision — skipped while dropTimer > 0
+    // Platform collision — skip the specific platform being dropped through
     for (const p of platforms) {
-      if (p.dead || dropTimer > 0) continue;
+      if (p.dead || p === dropPlatform) continue;
       if (player.x + player.w > p.x && player.x < p.x + p.w) {
         const bot     = player.y + player.h;
         const bot_prv = bot - player.vy;
@@ -560,5 +572,6 @@
   requestAnimationFrame(loop);
 })();
 </script>
+<script src="../js/destroygame.js" defer></script>
 </body>
 </html>
