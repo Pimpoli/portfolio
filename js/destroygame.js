@@ -294,7 +294,8 @@
   }
 
   // ─── Activación por URL ────────────────────────────────────────────────────
-  if (/destroygame/i.test(window.location.href)) {
+  // Accepts: destroygame, destroy-game, destroy_game, dg, DG, etc.
+  if (/destroygame|destroy[-_]game|\bdg\b/i.test(window.location.href)) {
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', initDestroyGame);
     } else {

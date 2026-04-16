@@ -85,17 +85,17 @@ body::after {
   position: fixed;
   top: 0;
   left: 0;
-  width: 200%;
-  height: 200%;
+  width: 100%;
+  height: 100%;
   background-image: url("../img/FondoRepetido.webp");
-  background-repeat: repeat-x;
+  background-repeat: repeat;
   background-size: 1000px 1000px;
   opacity: 0.12;
   z-index: -2;
-  animation: scroll-left 40s linear infinite;
+  animation: scroll-bg 40s linear infinite;
 }
-body::after { z-index: -3; transform: scaleX(-1); }
-@keyframes scroll-left { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+body::after { z-index: -3; animation-direction: reverse; }
+@keyframes scroll-bg { from { background-position: 0 0; } to { background-position: -1000px 0; } }
 
 /* ===============================
    Modo claro
@@ -111,6 +111,7 @@ body.light-mode::before {
   background-image: radial-gradient(circle, rgba(0,0,0,0.07) 1px, transparent 1px) !important;
   background-size: 22px 22px !important;
   background-repeat: repeat !important;
+  background-position: 0 0 !important;
   opacity: 1 !important;
   animation: none !important;
 }
@@ -522,9 +523,13 @@ body.light-mode .expand-btn, body.light-mode #load-more-products {
 
 /* Contact / Social */
 .contact-section .social-icons { display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; }
-.contact-section .social-icons a { display: inline-flex; width: 50px; height: 50px; align-items: center; justify-content: center; }
+.contact-section .social-icons a { display: inline-flex; width: 50px; height: 50px; align-items: center; justify-content: center; transition: transform var(--transition-fast); }
 .contact-section .social-icons a img { width: 100%; height: 100%; object-fit: contain; display: block; }
-.contact-section .social-icons a:hover { color: var(--color-accent); }
+.contact-section .social-icons a:hover { color: var(--color-accent); transform: scale(1.18); }
+
+/* Generic social icons (used in MultiGameInc etc.) */
+.social-icons a { transition: transform var(--transition-fast); }
+.social-icons a:hover { transform: scale(1.15); }
 
 /* Footer */
 .footer {
@@ -1044,3 +1049,52 @@ body.dg-active { cursor: none !important; user-select: none; }
    =============================== */
 .game-card, .project-card { contain: layout style; }
 .social-icon { image-rendering: -webkit-optimize-contrast; }
+
+/* ===============================
+   Roblox presence tooltip
+   =============================== */
+.roblox-profile-container { overflow: visible; }
+
+.roblox-tooltip {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  left: 50%;
+  transform: translateX(-50%) scale(0.92);
+  background: rgba(18,18,28,0.97);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.8rem;
+  line-height: 1.8;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 20;
+  text-align: left;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.55);
+  text-shadow: none;
+  color: #e0e0e0;
+}
+.roblox-profile-container:hover .roblox-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+.roblox-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(18,18,28,0.97);
+}
+body.light-mode .roblox-tooltip {
+  background: rgba(250,250,255,0.98);
+  border-color: rgba(0,0,0,0.08);
+  color: #1e1e1e;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+body.light-mode .roblox-tooltip::after {
+  border-top-color: rgba(250,250,255,0.98);
+}
