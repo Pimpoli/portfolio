@@ -14,7 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
     16125269940,       // Anime Color Block Run
     71541333892738,    // Bloxidextro
     108138370693321,   // Avalanche of objects
-    107726833867004    // 67 Red Light Green Light
+    107726833867004,    // 67 Red Light Green Light
+    107848717127408    // No Seas Pisoteado por Brainrot
   ];
 
   // Datos de respaldo para si la API falla definitivamente
@@ -22,7 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
     16125269940:    { name: 'Anime Color Block Run',  desc: 'Corre por bloques de colores en un mapa dinámico.' },
     71541333892738: { name: 'Bloxidextro',            desc: 'Juego de Bloxidextro.' },
     108138370693321:{ name: 'Avalanche of objects',   desc: 'Sobrevive a la avalancha.' },
-    107726833867004:{ name: '67 Luz Roja Luz Verde',  desc: 'Juego de supervivencia.' }
+    107726833867004:{ name: '67 Luz Roja Luz Verde',  desc: 'Juego de supervivencia.' },
+    107848717127408:{ name: 'Dont get stomped by Brainrot',  desc: 'Dont get stomped by Brainrot.' },
   };
 
   const gameDatabase = {};
