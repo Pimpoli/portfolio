@@ -1582,3 +1582,41 @@ body.light-mode .skill-badge {
    Performance hints
    =============================== */
 .social-icon { image-rendering: -webkit-optimize-contrast; }
+
+/* ===============================
+   Responsive — nuevos elementos
+   =============================== */
+
+/* Tabletas (≤768px) */
+@media (max-width: 768px) {
+  .social-cards { max-width: 100%; }
+  .social-card  { padding: .85rem 1rem; gap: .85rem; }
+}
+
+/* Móviles (≤600px) */
+@media (max-width: 600px) {
+  .social-card-name   { font-size: .95rem; }
+  .social-card-handle { font-size: .78rem; }
+  .social-card-icon   { width: 34px; height: 34px; }
+
+  .skills-grid  { gap: .45rem; }
+  .skill-badge  { font-size: .82rem; padding: .38rem .78rem; }
+
+  .hero-cta { flex-direction: column; align-items: center; }
+  .btn-primary, .btn-secondary { width: 100%; max-width: 280px; text-align: center; }
+}
+
+/* Pantallas muy pequeñas (≤380px) */
+@media (max-width: 380px) {
+  .social-card  { padding: .7rem .85rem; gap: .65rem; }
+  .social-card-arrow { display: none; }
+}
+
+/* Dispositivos táctiles: desactivar hovers que no aplican */
+@media (hover: none) {
+  .social-card:hover        { transform: none; box-shadow: none; border-color: var(--glass-border); background: var(--glass-bg); }
+  .skill-badge:hover        { transform: none; box-shadow: none; }
+  .btn-primary:hover        { transform: none; }
+  .btn-secondary:hover      { transform: none; }
+  .stat-card:hover          { transform: none; }
+}
