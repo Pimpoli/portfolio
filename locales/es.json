@@ -10,7 +10,11 @@
   },
   "home": {
     "title": "Hola, soy PimpoliDev",
-    "subtitle": "Desarrollador de Roblox con +4 años de exp • Experto en Lua (Roblox Studio)"
+    "subtitle": "Desarrollador de Roblox con +4 años de exp • Experto en Lua (Roblox Studio)",
+    "cta": {
+      "projects": "Ver Proyectos",
+      "games": "Mis Juegos"
+    }
   },
   "about": {
     "title": "Sobre mí",
@@ -29,6 +33,14 @@
       "enginesValue": "Roblox Studio y Godot Engine 4",
       "studioLabel": "Fundador de",
       "studioName": "Multi Game Inc"
+    },
+    "skillsTitle": "Tech Stack",
+    "skills": {
+      "luau":    "Luau",
+      "studio":  "Roblox Studio",
+      "godot":   "Godot Engine 4",
+      "ui":      "UI / UX",
+      "systems": "Sistemas propios"
     }
   },
   "projects": {
@@ -46,6 +58,12 @@
       "desc": "Próximamente"
     }
   },
+  "stats": {
+    "years":   "Años de experiencia",
+    "games":   "Juegos publicados",
+    "visits":  "Visitas totales",
+    "members": "Miembros en el Studio"
+  },
   "games": {
     "title": "Juegos que he creado"
   },
@@ -62,7 +80,10 @@
   },
   "contact": {
     "title": "Contacto y Redes Sociales",
-    "text": "No dudes en contactarme a través de cualquiera de estas plataformas:"
+    "text": "No dudes en contactarme a través de cualquiera de estas plataformas:",
+    "discord": "Únete al servidor",
+    "roblox": "Ver perfil",
+    "mgi": "Grupo en Roblox"
   },
   "mgi": {
     "badge": "Estudio independiente",
