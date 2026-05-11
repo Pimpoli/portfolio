@@ -12,15 +12,27 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Restringe esta key por referrer HTTP en console.cloud.google.com para mayor seguridad.
   const _YK = 'AIzaSyAI0klDbsko8_UrYOe0Rwu6aK6vrIS2iNc';
 
+  // Helper de traducción (igual que en about.js)
+  const getT = (key, fallback) => {
+    if (!window.translations) return fallback;
+    const parts = key.split('.');
+    let val = window.translations;
+    for (const p of parts) {
+      if (val && val[p] !== undefined) val = val[p];
+      else return fallback;
+    }
+    return typeof val === 'string' ? val : fallback;
+  };
+
   const staticProjects = [
-    { id: 'nodes', type: 'img', src: 'img/Nodos.webp', title: 'Nodes System', desc: '' },
-    { id: 'nodesDemo', type: 'img', src: 'img/NodosDemostracion.webp', title: 'Nodes System Demo', desc: 'Conexión visual entre nodos.' },
+    { id: 'nodes',     type: 'img', src: 'img/Nodos.webp',            titleKey: 'projects.nodes.title',     descKey: 'projects.nodes.desc',     title: 'Nodes System',      desc: '' },
+    { id: 'nodesDemo', type: 'img', src: 'img/NodosDemostracion.webp', titleKey: 'projects.nodesDemo.title', descKey: 'projects.nodesDemo.desc', title: 'Nodes System Demo', desc: 'Visual connection between nodes.' },
   ];
 
   const h2 = document.createElement('h2');
   h2.className = 'fade-in';
   h2.setAttribute('data-i18n', 'projects.title');
-  h2.innerText = 'My Work / Examples';
+  h2.innerText = getT('projects.title', 'My Work / Examples');
   projectsContainer.appendChild(h2);
 
   // 1. Fetch YouTube Videos
@@ -58,45 +70,71 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // 2. Función para crear las tarjetas
+  function buildDescHtml(desc) {
+    if (!desc || !desc.trim()) return '';
+    const LIMIT = 80;
+    let truncated = desc.substring(0, LIMIT).trim();
+    if (desc.length > LIMIT) truncated += '... <span style="color:var(--color-accent);font-weight:bold;">Ver más</span>';
+    return `<p class="project-desc" style="font-size:0.9rem;margin-top:5px;">${truncated}</p>`;
+  }
+
   function createCard(p, index) {
     const card = document.createElement('div');
     card.className = `project-card fade-in scroll-delay-${(index % 5) + 1}`;
     card.dataset.projectData = JSON.stringify(p);
-    
+    if (p.titleKey) card.dataset.i18nTitle = p.titleKey;
+    if (p.descKey)  card.dataset.i18nDesc  = p.descKey;
+
+    const displayTitle = p.titleKey ? getT(p.titleKey, p.title) : p.title;
+    const displayDesc  = p.descKey  ? getT(p.descKey,  p.desc)  : p.desc;
+
     let mediaHtml = '';
     if (p.type === 'img') {
-      mediaHtml = `<img src="${p.src}" alt="${p.title}" loading="lazy" style="width:100%; display:block; border-radius: 4px;" />`;
+      mediaHtml = `<img src="${p.src}" alt="${displayTitle}" loading="lazy" style="width:100%; display:block; border-radius: 4px;" />`;
     } else if (p.type === 'youtube') {
       mediaHtml = `
-        <div class="yt-thumb" style="position: relative; width: 100%; height: 100%;">
-          <img src="${p.thumb}" alt="${p.title}" style="width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 4px;" />
-          <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; border-radius: 4px;">
-            <svg width="60" height="60" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.6));">
+        <div class="yt-thumb" style="position:relative;width:100%;height:100%;">
+          <img src="${p.thumb}" alt="${displayTitle}" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:4px;" />
+          <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;border-radius:4px;">
+            <svg width="60" height="60" viewBox="0 0 24 24" fill="white" style="filter:drop-shadow(0px 4px 6px rgba(0,0,0,0.6));">
               <path d="M8 5V19L19 12L8 5Z" />
             </svg>
           </div>
-        </div>
-      `;
-    }
-
-    let descHtml = '';
-    if (p.desc && p.desc.trim() !== '') {
-      const LIMIT = 80; 
-      let truncated = p.desc.substring(0, LIMIT).trim();
-      if (p.desc.length > LIMIT) {
-        truncated += '... <span style="color: var(--color-accent); font-weight: bold;">Ver más</span>';
-      }
-      descHtml = `<p style="font-size: 0.9rem; margin-top: 5px;">${truncated}</p>`;
+        </div>`;
     }
 
     card.style.cursor = 'pointer';
     card.innerHTML = `
       <div class="media-wrapper">${mediaHtml}</div>
-      <h3 style="margin-top: 10px; font-size: 1.1rem;">${p.title}</h3>
-      ${descHtml}
+      <h3 class="project-title" style="margin-top:10px;font-size:1.1rem;">${displayTitle}</h3>
+      ${buildDescHtml(displayDesc)}
     `;
     return card;
   }
+
+  // Actualiza títulos/descripciones de tarjetas estáticas al cambiar idioma
+  function updateCardTranslations() {
+    document.querySelectorAll('.project-card[data-i18n-title]').forEach(card => {
+      const titleKey = card.dataset.i18nTitle;
+      const descKey  = card.dataset.i18nDesc;
+      const h3 = card.querySelector('.project-title');
+      const descEl = card.querySelector('.project-desc');
+      if (h3 && titleKey) h3.textContent = getT(titleKey, h3.textContent);
+      if (descKey) {
+        const translated = getT(descKey, '');
+        if (descEl) {
+          descEl.outerHTML = buildDescHtml(translated);
+        } else if (translated) {
+          card.querySelector('.project-title')?.insertAdjacentHTML('afterend', buildDescHtml(translated));
+        }
+      }
+    });
+    // También actualizar el h2
+    const h2el = projectsContainer.querySelector('h2[data-i18n]');
+    if (h2el) h2el.innerText = getT('projects.title', h2el.innerText);
+  }
+
+  document.addEventListener('languageLoaded', updateCardTranslations);
 
   // 3. Obtener todos los proyectos y unirlos (Estáticos + YouTube)
   const youtubeVideos = await fetchYouTubeVideos();
