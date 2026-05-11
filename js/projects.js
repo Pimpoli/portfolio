@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   ];
 
   const h2 = document.createElement('h2');
-  h2.className = 'fade-in';
+  h2.className = 'fade-in visible';
   h2.setAttribute('data-i18n', 'projects.title');
   h2.innerText = getT('projects.title', 'My Work / Examples');
   projectsContainer.appendChild(h2);
