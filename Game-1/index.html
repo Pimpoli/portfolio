@@ -31,6 +31,57 @@
     #ui-bar span { opacity: 0.8; font-size: 0.85rem; }
     .score-val { color: #fff; font-size: 1.2rem; }
     #controls-hint { margin-top: 10px; font-size: 0.76rem; opacity: 0.4; text-align: center; line-height: 1.6; }
+
+    /* ── Mobile controls ── */
+    #mobile-controls {
+      display: none;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      padding: 10px 16px 14px;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(8px);
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 12px;
+      z-index: 200;
+      pointer-events: none;
+    }
+    .mc-group { display: flex; gap: 8px; align-items: flex-end; pointer-events: auto; }
+    .mc-btn {
+      width: 60px; height: 60px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      font-size: 1.4rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      transition: background 0.1s, transform 0.1s;
+    }
+    .mc-btn:active, .mc-btn.pressed {
+      background: rgba(255,69,0,0.45);
+      transform: scale(0.93);
+    }
+    .mc-jump {
+      width: 70px; height: 70px;
+      border-radius: 50%;
+      background: rgba(255,69,0,0.25);
+      border-color: rgba(255,69,0,0.45);
+      font-size: 1.6rem;
+    }
+    .mc-drop {
+      width: 50px; height: 50px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      opacity: 0.75;
+    }
+    @media (hover: none) and (pointer: coarse) {
+      #mobile-controls { display: flex; }
+      #controls-hint { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -49,6 +100,18 @@
     <canvas id="c"></canvas>
     <div id="controls-hint">
       A / D / ← → mover &nbsp;|&nbsp; W / ↑ / Space saltar &nbsp;|&nbsp; S / ↓ bajar &nbsp;|&nbsp; ESC pausa
+    </div>
+  </div>
+
+  <!-- Mobile D-pad -->
+  <div id="mobile-controls">
+    <div class="mc-group">
+      <button class="mc-btn" id="mc-left" aria-label="Mover izquierda">◀</button>
+      <button class="mc-btn" id="mc-right" aria-label="Mover derecha">▶</button>
+    </div>
+    <div class="mc-group" style="flex-direction:column; align-items:center; gap:6px;">
+      <button class="mc-btn mc-jump" id="mc-jump" aria-label="Saltar">▲</button>
+      <button class="mc-btn mc-drop" id="mc-drop" aria-label="Bajar">▼</button>
     </div>
   </div>
 
@@ -570,6 +633,33 @@
   resize();
   newRound();
   requestAnimationFrame(loop);
+
+  // ─── Mobile touch controls ────────────────────────────────────────────────
+  function bindMobileBtn(id, keyCode, onPress) {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    const press = (e) => {
+      e.preventDefault();
+      keys[keyCode] = true;
+      btn.classList.add('pressed');
+      if (onPress) onPress();
+    };
+    const release = (e) => {
+      e.preventDefault();
+      keys[keyCode] = false;
+      btn.classList.remove('pressed');
+    };
+    btn.addEventListener('touchstart',  press,   { passive: false });
+    btn.addEventListener('touchend',    release, { passive: false });
+    btn.addEventListener('touchcancel', release, { passive: false });
+  }
+
+  bindMobileBtn('mc-left',  'ArrowLeft',  null);
+  bindMobileBtn('mc-right', 'ArrowRight', null);
+  bindMobileBtn('mc-jump',  'Space', () => {
+    if (player.grounded) { player.vy = JUMP_FORCE; player.grounded = false; }
+  });
+  bindMobileBtn('mc-drop',  'ArrowDown', null);
 })();
 </script>
 <script src="../js/destroygame.js" defer></script>

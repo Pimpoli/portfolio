@@ -13,73 +13,319 @@
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/style.css" />
   <style>
-    /* ── Hero ── */
+    /* ═══════════════════════════════
+       HERO
+    ═══════════════════════════════ */
     .mgi-hero {
       text-align: center;
-      padding: 5rem 0 3rem;
+      padding: 5rem 0 5rem;
       background: linear-gradient(135deg, rgba(255,69,0,0.12), rgba(0,0,0,0.35));
+      position: relative;
+      overflow: hidden;
     }
     body.light-mode .mgi-hero {
       background: linear-gradient(135deg, rgba(255,69,0,0.06), rgba(200,220,255,0.35));
     }
+
+    /* Radial glow */
+    .mgi-hero::before {
+      content: '';
+      position: absolute;
+      top: -20%; left: 50%;
+      transform: translateX(-50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(255,69,0,0.12) 0%, transparent 68%);
+      pointer-events: none;
+      z-index: 0;
+      animation: hero-glow 7s ease-in-out infinite alternate;
+    }
+
+    /* Dot pattern overlay */
+    .mgi-hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(255,69,0,0.08) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .mgi-hero .container { position: relative; z-index: 1; }
+
+    /* Floating logo */
     .mgi-logo-big {
       display: block;
-      margin: 0 auto 1.2rem;
-      width: 120px; height: 120px;
-      border-radius: 24px; object-fit: cover;
-      box-shadow: 0 8px 30px rgba(255,69,0,0.3);
+      margin: 0 auto 1.4rem;
+      width: 130px; height: 130px;
+      border-radius: 28px; object-fit: cover;
+      box-shadow: 0 8px 40px rgba(255,69,0,0.35), 0 0 0 4px rgba(255,69,0,0.12);
+      animation: mgi-float 3.4s ease-in-out infinite;
+      transition: box-shadow 0.3s;
     }
+    .mgi-logo-big:hover {
+      box-shadow: 0 12px 50px rgba(255,69,0,0.5), 0 0 0 6px rgba(255,69,0,0.2);
+    }
+    @keyframes mgi-float {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-10px); }
+    }
+
     .mgi-badge {
       display: inline-block;
       background: var(--color-accent);
-      color: #fff; font-size: 0.75rem; font-weight: 700;
+      color: #fff; font-size: 0.72rem; font-weight: 700;
       letter-spacing: 2px; text-transform: uppercase;
       padding: 4px 14px; border-radius: 20px; margin-bottom: 1rem;
     }
+
     .mgi-hero h1 {
-      font-size: clamp(2rem,6vw,3.5rem);
+      font-size: clamp(2.2rem, 6vw, 3.8rem);
       margin-bottom: 0.75rem;
+      background: var(--gradient-hero-text);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
-    .mgi-hero p {
-      opacity: 0.75; font-size: 1.1rem;
-      max-width: 600px; margin: 0 auto;
+    body.light-mode .mgi-hero h1 {
+      background: var(--gradient-hero-text-light);
+      -webkit-background-clip: text;
+      background-clip: text;
     }
 
-    /* ── Stats ── */
+    .mgi-hero .mgi-desc {
+      opacity: 0.75; font-size: 1.1rem;
+      max-width: 600px; margin: 0 auto 2rem;
+      line-height: 1.65;
+    }
+
+    /* Scroll hint arrow */
+    .mgi-scroll-hint {
+      position: absolute;
+      bottom: 1.6rem; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center;
+      gap: 4px; color: inherit;
+      font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;
+      opacity: 0.38;
+      animation: hint-bob 2.4s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .mgi-scroll-hint svg {
+      width: 20px; height: 20px;
+      fill: none; stroke: currentColor; stroke-width: 2;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    @keyframes hint-bob {
+      0%, 100% { opacity: 0.28; transform: translateX(-50%) translateY(0); }
+      50%       { opacity: 0.6;  transform: translateX(-50%) translateY(7px); }
+    }
+
+    /* ═══════════════════════════════
+       STATS GRID
+    ═══════════════════════════════ */
     .mgi-stats-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
+      gap: 1.25rem;
       max-width: 680px;
-      margin: 2rem auto 0;
+      margin: 2.5rem auto 0;
     }
     @media (max-width: 540px) {
       .mgi-stats-grid { grid-template-columns: 1fr; max-width: 260px; }
     }
-    .mgi-card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 12px; padding: 1.4rem;
-      text-align: center; transition: transform 0.2s;
-    }
-    body.light-mode .mgi-card {
-      background: rgba(0,0,0,0.04);
-      border-color: rgba(0,0,0,0.08);
-    }
-    .mgi-card:hover { transform: translateY(-4px); }
-    .mgi-card .mgi-num {
-      font-family: 'Fredoka One', cursive;
-      font-size: 2.4rem; color: var(--color-accent); line-height: 1;
-    }
-    .mgi-card .mgi-label { font-size: 0.88rem; opacity: 0.7; margin-top: 6px; }
+
+    /* ═══════════════════════════════
+       DIVIDER
+    ═══════════════════════════════ */
     .mgi-divider {
       border: none; border-top: 1px solid rgba(255,255,255,0.06);
-      margin: 2.5rem 0;
+      margin: 2rem 0;
     }
     body.light-mode .mgi-divider { border-top-color: rgba(0,0,0,0.1); }
+
+    /* ═══════════════════════════════
+       ABOUT — two-column layout
+    ═══════════════════════════════ */
+    .about-layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 2.5rem;
+      align-items: start;
+      margin-top: 0.5rem;
+    }
+    @media (max-width: 900px) {
+      .about-layout { grid-template-columns: 1fr; }
+      .studio-profile-card { order: -1; }
+    }
+
+    /* Icons in about items */
+    .about-item .item-icon {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      width: 1.6rem;
+      text-align: center;
+      opacity: 0.85;
+    }
+
+    /* Studio profile card (right column) */
+    .studio-profile-card {
+      background: var(--glass-bg);
+      border: var(--glass-border);
+      border-radius: 18px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      box-shadow: var(--glass-shadow);
+      transition: border-color 0.3s, box-shadow 0.3s;
+      position: sticky;
+      top: 80px;
+    }
+    .studio-profile-card:hover {
+      border-color: rgba(255,69,0,0.22);
+      box-shadow: var(--glass-shadow-hover);
+    }
+    body.light-mode .studio-profile-card {
+      background: var(--glass-bg-light);
+      border: var(--glass-border-light);
+      box-shadow: var(--glass-shadow-light);
+    }
+    body.light-mode .studio-profile-card:hover {
+      box-shadow: var(--glass-shadow-light-hover);
+      border-color: rgba(255,69,0,0.25);
+    }
+
+    .studio-profile-card .card-logo {
+      width: 90px; height: 90px;
+      border-radius: 20px; object-fit: cover;
+      margin: 0 auto 1rem;
+      display: block;
+      box-shadow: 0 6px 24px rgba(255,69,0,0.28);
+    }
+    .studio-profile-card h3 {
+      font-size: 1.3rem; margin-bottom: 0.3rem;
+    }
+    .studio-profile-card .card-subtitle {
+      font-size: 0.82rem; opacity: 0.55;
+      text-transform: uppercase; letter-spacing: 1.5px;
+      margin-bottom: 1.4rem;
+    }
+
+    .studio-quick-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .studio-quick-stat {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 0.75rem 0.5rem;
+    }
+    body.light-mode .studio-quick-stat {
+      background: rgba(0,0,0,0.04);
+      border-color: rgba(0,0,0,0.07);
+    }
+    .studio-quick-stat .qs-num {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.5rem;
+      background: var(--gradient-hero-text);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+    }
+    body.light-mode .studio-quick-stat .qs-num {
+      background: var(--gradient-hero-text-light);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+    .studio-quick-stat .qs-label {
+      font-size: 0.72rem;
+      opacity: 0.55;
+      margin-top: 3px;
+      display: block;
+    }
+
+    .studio-profile-card .btn-primary {
+      width: 100%;
+      justify-content: center;
+      margin-bottom: 0.6rem;
+    }
+    .studio-profile-card .btn-secondary {
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* ═══════════════════════════════
+       GAMES — extras
+    ═══════════════════════════════ */
+    .section-subtitle {
+      opacity: 0.6;
+      font-size: 0.95rem;
+      margin-top: -0.5rem;
+      margin-bottom: 1.8rem;
+      max-width: 520px;
+    }
+
+    /* Roblox group banner */
+    .mgi-group-banner {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      margin-top: 2.5rem;
+      padding: 1.2rem 1.5rem;
+      background: var(--glass-bg);
+      border: var(--glass-border);
+      border-radius: 16px;
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      transition: border-color 0.3s, background 0.3s, transform 0.3s;
+      flex-wrap: wrap;
+    }
+    .mgi-group-banner:hover {
+      border-color: rgba(255,69,0,0.28);
+      background: rgba(255,69,0,0.05);
+      transform: translateY(-2px);
+    }
+    body.light-mode .mgi-group-banner {
+      background: var(--glass-bg-light);
+      border: var(--glass-border-light);
+    }
+    body.light-mode .mgi-group-banner:hover {
+      background: rgba(255,69,0,0.04);
+      border-color: rgba(255,69,0,0.25);
+    }
+    .mgi-group-banner img {
+      width: 52px; height: 52px;
+      border-radius: 12px; object-fit: cover;
+      flex-shrink: 0;
+    }
+    .mgi-group-banner-text {
+      flex: 1; min-width: 160px;
+    }
+    .mgi-group-banner-text strong {
+      display: block;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.05rem;
+      margin-bottom: 2px;
+    }
+    .mgi-group-banner-text span {
+      font-size: 0.84rem; opacity: 0.6;
+    }
+    .mgi-group-banner .btn-primary {
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
   </style>
 </head>
 <body>
+
+  <div id="scroll-progress"></div>
+  <div class="nav-overlay" id="nav-overlay"></div>
 
   <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
     <img id="theme-icon-img" src="../img/moon.webp" alt="Theme Icon" class="theme-icon" />
@@ -113,105 +359,221 @@
     </div>
   </header>
 
-  <!-- HERO -->
+  <!-- ═══════ HERO ═══════ -->
   <section class="mgi-hero fade-in">
     <div class="container">
       <img src="../img/MultiGameInc.webp" alt="Multi Game Inc" class="mgi-logo-big" loading="lazy" />
       <div class="mgi-badge" data-i18n="mgi.badge">Estudio independiente</div>
       <h1>Multi Game Inc</h1>
-      <p data-i18n="mgi.desc">
+      <p class="mgi-desc fade-in scroll-delay-1" data-i18n="mgi.desc">
         Estudio de desarrollo de juegos fundado por PimpoliDev. Creamos experiencias en Roblox y más plataformas.
       </p>
 
-      <!-- Stats (3 columns, always side by side) -->
+      <div class="hero-cta fade-in scroll-delay-2">
+        <a href="#games"   class="btn-primary"   data-i18n="mgi.navGames">Juegos</a>
+        <a href="#about"   class="btn-secondary"  data-i18n="mgi.navStudio">Estudio</a>
+      </div>
+
+      <!-- Stats -->
       <div class="mgi-stats-grid">
-        <div class="mgi-card fade-in scroll-delay-1">
-          <div class="mgi-num">2023</div>
-          <div class="mgi-label" data-i18n="mgi.foundedLabel">Año de fundación</div>
+        <div class="stat-card fade-in scroll-delay-1">
+          <span class="stat-number">2023</span>
+          <span class="stat-label" data-i18n="mgi.foundedLabel">Año de fundación</span>
         </div>
-        <div class="mgi-card fade-in scroll-delay-2">
-          <div class="mgi-num" id="mgi-members">—</div>
-          <div class="mgi-label" data-i18n="mgi.membersLabel">Miembros del grupo</div>
+        <div class="stat-card fade-in scroll-delay-2">
+          <span class="stat-number" id="mgi-members">—</span>
+          <span class="stat-label" data-i18n="mgi.membersLabel">Miembros del grupo</span>
         </div>
-        <div class="mgi-card fade-in scroll-delay-3">
-          <div class="mgi-num">4</div>
-          <div class="mgi-label" data-i18n="mgi.gamesPublished">Juegos publicados</div>
+        <div class="stat-card fade-in scroll-delay-3">
+          <span class="stat-number">4</span>
+          <span class="stat-label" data-i18n="mgi.gamesPublished">Juegos publicados</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll hint -->
+    <div class="mgi-scroll-hint" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+  </section>
+
+  <!-- ═══════ ABOUT STUDIO ═══════ -->
+  <section id="about" class="section fade-in">
+    <div class="container">
+      <h2 class="fade-in" data-i18n="mgi.aboutTitle">Sobre el Estudio</h2>
+      <hr class="mgi-divider" />
+
+      <div class="about-layout">
+        <!-- Left: info list -->
+        <ul class="about-list">
+          <li class="about-item fade-in scroll-delay-1">
+            <span class="item-icon" aria-hidden="true">🏷️</span>
+            <strong data-i18n="mgi.nameRow">Nombre:</strong>
+            <span>Multi Game Inc</span>
+          </li>
+          <li class="about-item fade-in scroll-delay-2">
+            <span class="item-icon" aria-hidden="true">👤</span>
+            <strong data-i18n="mgi.founderRow">Fundador:</strong>
+            <a href="https://pimpolidev.com" class="studio-link">
+              <span>PimpoliDev</span>
+              <img src="../img/PimpoliDev.webp" alt="PimpoliDev" class="studio-logo-small" loading="lazy" />
+            </a>
+          </li>
+          <li class="about-item fade-in scroll-delay-3">
+            <span class="item-icon" aria-hidden="true">📅</span>
+            <strong data-i18n="mgi.foundedRow">Fundado en:</strong>
+            <span>2023</span>
+          </li>
+          <li class="about-item fade-in scroll-delay-4">
+            <span class="item-icon" aria-hidden="true">🖥️</span>
+            <strong data-i18n="mgi.platformRow">Plataforma principal:</strong>
+            <span>Roblox Studio</span>
+          </li>
+          <li class="about-item fade-in scroll-delay-5">
+            <span class="item-icon" aria-hidden="true">🎮</span>
+            <strong data-i18n="mgi.specialtyRow">Especialidad:</strong>
+            <span data-i18n="mgi.specialtyVal">Juegos multijugador, sistemas de gameplay y UIs</span>
+          </li>
+          <li class="about-item fade-in scroll-delay-6">
+            <span class="item-icon" aria-hidden="true">💻</span>
+            <strong data-i18n="mgi.langRow">Lenguaje principal:</strong>
+            <span data-i18n="mgi.langVal">Luau — dominio avanzado 4+ años</span>
+          </li>
+        </ul>
+
+        <!-- Right: studio card -->
+        <div class="studio-profile-card fade-in scroll-delay-2">
+          <img src="../img/MultiGameInc.webp" alt="Multi Game Inc" class="card-logo" loading="lazy" />
+          <h3>Multi Game Inc</h3>
+          <p class="card-subtitle" data-i18n="mgi.badge">Estudio independiente</p>
+
+          <div class="studio-quick-stats">
+            <div class="studio-quick-stat">
+              <div class="qs-num">2023</div>
+              <span class="qs-label" data-i18n="mgi.foundedLabel">Fundación</span>
+            </div>
+            <div class="studio-quick-stat">
+              <div class="qs-num" id="mgi-members-card">—</div>
+              <span class="qs-label" data-i18n="mgi.membersLabel">Miembros</span>
+            </div>
+            <div class="studio-quick-stat">
+              <div class="qs-num">4</div>
+              <span class="qs-label" data-i18n="mgi.gamesPublished">Juegos</span>
+            </div>
+            <div class="studio-quick-stat">
+              <div class="qs-num">4+</div>
+              <span class="qs-label" data-i18n="stats.years">Años exp.</span>
+            </div>
+          </div>
+
+          <a href="https://www.roblox.com/es/communities/17387910/Multi-Game-Inc#!/about"
+             target="_blank" rel="noopener" class="btn-primary">
+            Ver grupo en Roblox
+          </a>
+          <a href="#games" class="btn-secondary" style="margin-top:0.5rem;" data-i18n="mgi.navGames">
+            Ver juegos
+          </a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ABOUT STUDIO -->
-  <section id="about" class="section fade-in">
-    <div class="container">
-      <h2 class="fade-in" data-i18n="mgi.aboutTitle">Sobre el Estudio</h2>
-      <hr class="mgi-divider" />
-      <ul class="about-list">
-        <li class="about-item fade-in scroll-delay-1">
-          <strong data-i18n="mgi.nameRow">Nombre:</strong>
-          <span>Multi Game Inc</span>
-        </li>
-        <li class="about-item fade-in scroll-delay-2">
-          <strong data-i18n="mgi.founderRow">Fundador:</strong>
-          <a href="https://pimpolidev.com" class="studio-link">
-            <span>PimpoliDev</span>
-            <img src="../img/PimpoliDev.webp" alt="PimpoliDev" class="studio-logo-small" loading="lazy" />
-          </a>
-        </li>
-        <li class="about-item fade-in scroll-delay-3">
-          <strong data-i18n="mgi.foundedRow">Fundado en:</strong>
-          <span>2023</span>
-        </li>
-        <li class="about-item fade-in scroll-delay-4">
-          <strong data-i18n="mgi.platformRow">Plataforma principal:</strong>
-          <span>Roblox Studio</span>
-        </li>
-        <li class="about-item fade-in scroll-delay-5">
-          <strong data-i18n="mgi.specialtyRow">Especialidad:</strong>
-          <span data-i18n="mgi.specialtyVal">Juegos multijugador, sistemas de gameplay y UIs</span>
-        </li>
-        <li class="about-item fade-in scroll-delay-6">
-          <strong data-i18n="mgi.langRow">Lenguaje principal:</strong>
-          <span data-i18n="mgi.langVal">Luau — dominio avanzado 4+ años</span>
-        </li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- GAMES -->
+  <!-- ═══════ GAMES ═══════ -->
   <section id="games" class="section games-section fade-in">
     <div class="container">
       <h2 class="fade-in" data-i18n="mgi.gamesTitle">Juegos del Estudio</h2>
-      <div id="games-container" class="fade-in scroll-delay-1"></div>
-      <button id="load-more-games" class="expand-btn fade-in scroll-delay-2" data-target="more-games">+</button>
+      <p class="section-subtitle fade-in scroll-delay-1" data-i18n="mgi.gamesSubtitle">
+        Todos los juegos publicados bajo Multi Game Inc en Roblox.
+      </p>
+
+      <div id="games-container" class="fade-in scroll-delay-2"></div>
+      <button id="load-more-games" class="expand-btn fade-in scroll-delay-3" data-target="more-games">+</button>
       <div id="more-games" class="more-content"></div>
+
+      <!-- Roblox group banner -->
+      <div class="mgi-group-banner fade-in scroll-delay-3">
+        <img src="../img/MultiGameInc.webp" alt="Multi Game Inc" loading="lazy" />
+        <div class="mgi-group-banner-text">
+          <strong data-i18n="mgi.bannerTitle">¿Quieres estar al tanto de lo nuevo?</strong>
+          <span data-i18n="mgi.bannerText">Síguenos en el grupo oficial de Roblox.</span>
+        </div>
+        <a href="https://www.roblox.com/es/communities/17387910/Multi-Game-Inc#!/about"
+           target="_blank" rel="noopener" class="btn-primary">
+          Unirse al grupo
+        </a>
+      </div>
     </div>
   </section>
 
-  <!-- CONTACT -->
+  <!-- ═══════ CONTACT ═══════ -->
   <section id="contact" class="section contact-section fade-in">
     <div class="container">
       <h2 class="fade-in" data-i18n="mgi.contactTitle">Contacto</h2>
       <p class="fade-in scroll-delay-1" data-i18n="mgi.contactText">
         Puedes contactarnos a través de las mismas redes sociales de PimpoliDev:
       </p>
-      <div class="social-icons fade-in scroll-delay-2">
-        <a href="https://discord.gg/SgjguUvTwE"   target="_blank" rel="noopener" title="Discord">
-          <img src="../img/discord.webp"       alt="Discord"  class="social-icon" loading="lazy" /></a>
-        <a href="https://twitter.com/PimpoliDev"  target="_blank" rel="noopener" title="Twitter/X">
-          <img src="../img/twitter.webp"        alt="Twitter"  class="social-icon" loading="lazy" /></a>
+      <div class="social-cards fade-in scroll-delay-2">
+        <a href="https://discord.gg/SgjguUvTwE" class="social-card" target="_blank" rel="noopener">
+          <img src="../img/discord.webp" alt="Discord" class="social-card-icon" loading="lazy" />
+          <div class="social-card-info">
+            <span class="social-card-name">Discord</span>
+            <span class="social-card-handle" data-i18n="contact.discord">Únete al servidor</span>
+          </div>
+          <span class="social-card-arrow">→</span>
+        </a>
+        <a href="https://twitter.com/PimpoliDev" class="social-card" target="_blank" rel="noopener">
+          <img src="../img/twitter.webp" alt="Twitter/X" class="social-card-icon" loading="lazy" />
+          <div class="social-card-info">
+            <span class="social-card-name">Twitter / X</span>
+            <span class="social-card-handle">@PimpoliDev</span>
+          </div>
+          <span class="social-card-arrow">→</span>
+        </a>
         <a href="https://www.roblox.com/es/communities/17387910/Multi-Game-Inc#!/about"
-           target="_blank" rel="noopener" title="Roblox Group">
-          <img src="../img/roblox.webp"         alt="Roblox"   class="social-icon" loading="lazy" /></a>
-        <a href="https://www.youtube.com/@PimpoliDev" target="_blank" rel="noopener" title="YouTube">
-          <img src="../img/youtube.webp"        alt="YouTube"  class="social-icon" loading="lazy" /></a>
+           class="social-card" target="_blank" rel="noopener">
+          <img src="../img/MultiGameInc.webp" alt="Multi Game Inc" class="social-card-icon" loading="lazy" />
+          <div class="social-card-info">
+            <span class="social-card-name">Multi Game Inc</span>
+            <span class="social-card-handle" data-i18n="contact.mgi">Grupo en Roblox</span>
+          </div>
+          <span class="social-card-arrow">→</span>
+        </a>
+        <a href="https://www.youtube.com/@PimpoliDev" class="social-card" target="_blank" rel="noopener">
+          <img src="../img/youtube.webp" alt="YouTube" class="social-card-icon" loading="lazy" />
+          <div class="social-card-info">
+            <span class="social-card-name">YouTube</span>
+            <span class="social-card-handle">@PimpoliDev</span>
+          </div>
+          <span class="social-card-arrow">→</span>
+        </a>
       </div>
     </div>
   </section>
 
   <footer class="footer">
-    <div class="container"><p>© <span id="year"></span> Multi Game Inc — PimpoliDev. All rights reserved.</p></div>
+    <div class="container">
+      <div class="footer-inner">
+        <p class="footer-copy">© <span id="year"></span> Multi Game Inc — PimpoliDev</p>
+        <div class="footer-links">
+          <a href="https://discord.gg/SgjguUvTwE" target="_blank" rel="noopener" title="Discord">
+            <img src="../img/discord.webp" alt="Discord" loading="lazy" />
+          </a>
+          <a href="https://twitter.com/PimpoliDev" target="_blank" rel="noopener" title="Twitter/X">
+            <img src="../img/twitter.webp" alt="Twitter" loading="lazy" />
+          </a>
+          <a href="https://www.roblox.com/es/communities/17387910/Multi-Game-Inc#!/about"
+             target="_blank" rel="noopener" title="Roblox Group">
+            <img src="../img/MultiGameInc.webp" alt="Roblox" loading="lazy" />
+          </a>
+          <a href="https://www.youtube.com/@PimpoliDev" target="_blank" rel="noopener" title="YouTube">
+            <img src="../img/youtube.webp" alt="YouTube" loading="lazy" />
+          </a>
+        </div>
+      </div>
+    </div>
   </footer>
+
+  <button id="back-to-top" aria-label="Volver arriba" title="Volver arriba">↑</button>
 
   <script>
     if (typeof window.PROXY_BASE === 'undefined') {
@@ -220,12 +582,14 @@
     }
   </script>
 
-  <!-- Fetch Roblox group members -->
+  <!-- Roblox group members (hero stat + card stat) -->
   <script>
     (async function fetchGroupMembers() {
-      const el = document.getElementById('mgi-members');
-      if (!el) return;
       const GROUP_ID = 17387910;
+      const targets = [
+        document.getElementById('mgi-members'),
+        document.getElementById('mgi-members-card'),
+      ];
       const endpoints = [
         `https://groups.roproxy.com/v1/groups/${GROUP_ID}`,
         `https://groups.roblox.com/v1/groups/${GROUP_ID}`,
@@ -236,12 +600,12 @@
           if (!r.ok) continue;
           const d = await r.json();
           if (d.memberCount != null) {
-            el.textContent = d.memberCount.toLocaleString();
+            const val = d.memberCount.toLocaleString();
+            targets.forEach(el => { if (el) el.textContent = val; });
             return;
           }
         } catch (_) { /* try next */ }
       }
-      // Fallback: leave as '—'
     })();
   </script>
 

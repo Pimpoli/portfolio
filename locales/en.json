@@ -65,7 +65,11 @@
     "members": "Studio Members"
   },
   "games": {
-    "title": "Games I've Created"
+    "title": "Games I've Created",
+    "webLabel": "Play in browser",
+    "solo": "1 player",
+    "duo": "2 players",
+    "robloxLabel": "On Roblox"
   },
   "store": {
     "title": "Products / Store",
@@ -105,6 +109,9 @@
     "contactText": "You can reach us through PimpoliDev's social media:",
     "navStudio": "Studio",
     "navGames": "Games",
-    "navContact": "Contact"
+    "navContact": "Contact",
+    "gamesSubtitle": "All games published under Multi Game Inc on Roblox.",
+    "bannerTitle": "Want to stay up to date?",
+    "bannerText": "Follow us on the official Roblox group."
   }
 }

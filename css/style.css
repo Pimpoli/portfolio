@@ -1612,6 +1612,99 @@ body.light-mode .skill-badge {
   .social-card-arrow { display: none; }
 }
 
+/* ===============================
+   Mini-game floating launchers
+   =============================== */
+.minigames-sublabel,
+.roblox-sublabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0.45;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.minigame-floats {
+  display: flex;
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.minigame-float {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 1.4rem 1.6rem;
+  background: var(--glass-bg);
+  border: var(--glass-border);
+  border-radius: 18px;
+  text-decoration: none;
+  color: inherit;
+  min-width: 150px;
+  text-align: center;
+  animation: minigame-bob 3.2s ease-in-out infinite;
+  transition: border-color var(--transition-smooth), box-shadow var(--transition-smooth);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  box-shadow: var(--glass-shadow);
+}
+.minigame-float:nth-child(2) { animation-delay: 1.6s; }
+.minigame-float:hover {
+  border-color: rgba(255,69,0,0.38);
+  box-shadow: 0 10px 40px rgba(255,69,0,0.22);
+  animation-play-state: paused;
+}
+body.light-mode .minigame-float {
+  background: var(--glass-bg-light);
+  border: var(--glass-border-light);
+  box-shadow: var(--glass-shadow-light);
+}
+body.light-mode .minigame-float:hover {
+  box-shadow: var(--glass-shadow-light-hover);
+  border-color: rgba(255,69,0,0.3);
+}
+
+@keyframes minigame-bob {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+
+.minigame-float .mf-icon { font-size: 2.4rem; line-height: 1; }
+.minigame-float .mf-name {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.05rem;
+  color: var(--color-accent);
+  line-height: 1.1;
+}
+.minigame-float .mf-players {
+  font-size: 0.72rem;
+  opacity: 0.5;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.minigame-float .mf-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--gradient-accent);
+  color: #fff;
+  border-radius: 999px;
+  padding: 5px 18px;
+  font-size: 0.82rem;
+  font-family: 'Fredoka One', cursive;
+  margin-top: 4px;
+  box-shadow: 0 3px 14px rgba(255,69,0,0.3);
+}
+
+@media (max-width: 600px) {
+  .minigame-floats { gap: 1rem; }
+  .minigame-float { min-width: calc(50% - 0.5rem); padding: 1rem 1rem; flex: 1; }
+}
+
 /* Dispositivos táctiles: desactivar hovers que no aplican */
 @media (hover: none) {
   .social-card:hover        { transform: none; box-shadow: none; border-color: var(--glass-border); background: var(--glass-bg); }

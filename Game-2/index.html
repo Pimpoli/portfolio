@@ -29,6 +29,48 @@
     canvas { border-radius: 12px; box-shadow: 0 0 40px rgba(78,205,196,0.15); display: block; }
     #controls-wrap { display: flex; gap: 32px; font-size: 0.75rem; opacity: 0.42; text-align: center; }
     .ctrl-p1 { color: #ff6b6b; } .ctrl-p2 { color: #4ecdc4; }
+
+    /* ── Mobile controls ── */
+    #mobile-controls {
+      display: none;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      padding: 8px 10px 12px;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+      justify-content: space-between;
+      align-items: flex-end;
+      z-index: 200;
+      pointer-events: none;
+    }
+    .mc-side { display: flex; gap: 6px; align-items: flex-end; pointer-events: auto; }
+    .mc-col  { display: flex; flex-direction: column; gap: 5px; align-items: center; }
+    .mc-btn {
+      width: 54px; height: 54px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.08);
+      color: #fff; font-size: 1.3rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; user-select: none; -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+    .mc-btn.pressed { transform: scale(0.91); }
+    .mc-btn.p1-color { border-color: rgba(255,107,107,0.45); background: rgba(255,107,107,0.15); }
+    .mc-btn.p1-color.pressed { background: rgba(255,107,107,0.4); }
+    .mc-btn.p2-color { border-color: rgba(78,205,196,0.45); background: rgba(78,205,196,0.15); }
+    .mc-btn.p2-color.pressed { background: rgba(78,205,196,0.4); }
+    .mc-jump { border-radius: 50%; width: 60px; height: 60px; font-size: 1.4rem; }
+    .mc-label {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 1px;
+      opacity: 0.5; text-align: center;
+    }
+    .mc-label.p1 { color: #ff6b6b; }
+    .mc-label.p2 { color: #4ecdc4; }
+    @media (hover: none) and (pointer: coarse) {
+      #mobile-controls { display: flex; }
+      #controls-wrap { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -44,6 +86,30 @@
   <div id="controls-wrap">
     <div class="ctrl-p1">P1: A ← / D → / W ↑  (también ← → ↑)</div>
     <div class="ctrl-p2">P2: J ← / L → / I ↑</div>
+  </div>
+</div>
+
+<!-- Mobile controls: P1 left, P2 right -->
+<div id="mobile-controls">
+  <div class="mc-side">
+    <div class="mc-col">
+      <span class="mc-label p1">P1</span>
+      <div style="display:flex;gap:6px;">
+        <button class="mc-btn p1-color" id="mc-p1-left"  aria-label="P1 izquierda">◀</button>
+        <button class="mc-btn p1-color" id="mc-p1-right" aria-label="P1 derecha">▶</button>
+      </div>
+    </div>
+    <button class="mc-btn p1-color mc-jump" id="mc-p1-jump" aria-label="P1 saltar">▲</button>
+  </div>
+  <div class="mc-side">
+    <button class="mc-btn p2-color mc-jump" id="mc-p2-jump" aria-label="P2 saltar">▲</button>
+    <div class="mc-col">
+      <span class="mc-label p2">P2</span>
+      <div style="display:flex;gap:6px;">
+        <button class="mc-btn p2-color" id="mc-p2-left"  aria-label="P2 izquierda">◀</button>
+        <button class="mc-btn p2-color" id="mc-p2-right" aria-label="P2 derecha">▶</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -112,7 +178,13 @@
           [0.61,0.58,0.17,0.05],[0.80,0.78,0.20,0.05]], spikes:[], time:22 },
   ];
 
-  // ─── Procedural level generator ───────────────────────────────────────────
+  // ─── Procedural level generator (improved) ───────────────────────────────
+  // Physics constraints: JUMP_FORCE=-13.5, GRAVITY=0.58, SPD=4.2
+  // Max jump height ≈ 13.5²/(2×0.58) ≈ 157px → at H=450 → ~0.35H
+  // Max air time ≈ 2×13.5/0.58 ≈ 46 frames → horizontal reach ≈ 4.2×46 ≈ 193px → ~0.24W
+  const MAX_V_STEP = 0.28;  // max vertical gap between consecutive platforms (fraction of H)
+  const MAX_H_GAP  = 0.22;  // max horizontal gap between platform edges (fraction of W)
+
   let sessionSeed = Math.trunc(Date.now() * (Math.random() + 0.1));
 
   function makeLevels() {
@@ -124,52 +196,87 @@
       return ((s >>> 0) / 0x100000000);
     };
 
+    // Layout templates (indices 0-3 cycle across procedural levels)
+    const LAYOUTS = ['zigzag', 'ramp-up', 'ramp-down', 'bridge'];
+
     for (let i = 5; i < TOTAL_LVLS; i++) {
-      const t     = (i - 5) / Math.max(1, TOTAL_LVLS - 6); // 0→1 difficulty
-      const lerp  = (a,b,v) => a + (b-a)*v;
-      const lw    = lerp(0.18, 0.10, t);                   // spawn platform width
-      const pfW   = lerp(0.18, 0.09, t);                   // mid platform width
-      const numMid= Math.round(lerp(6, 3, t));              // mid platforms count
-      const timer = Math.round(lerp(22, 10, t));
+      const t      = (i - 5) / Math.max(1, TOTAL_LVLS - 6); // 0 → 1
+      const lerp   = (a,b,v) => a + (b-a)*v;
+      const layout = LAYOUTS[(i - 5) % LAYOUTS.length];
 
-      // Spawn platforms
+      const lw     = lerp(0.22, 0.14, t);   // spawn platform width
+      const pfW    = lerp(0.18, 0.10, t);   // mid platform width (never too thin)
+      const numMid = Math.round(lerp(6, 4, t));
+      const timer  = Math.round(lerp(28, 13, t));
+
+      // P1 always starts low-left, P2 starts upper-right (height scales modestly)
+      const p1BaseY = 0.78;
+      const p2BaseY = lerp(0.70, 0.28, t);
+
       const pf = [
-        [0,          lerp(0.82,0.82,t), lw, 0.04],           // P1 base (left)
-        [1-lw,       lerp(0.82,0.15,t), lw, 0.04],           // P2 base (right, climbs higher with difficulty)
+        [0,       p1BaseY, lw,  0.045],   // P1 spawn platform
+        [1 - lw,  p2BaseY, lw,  0.045],   // P2 spawn platform
       ];
-      const p1Y = pf[0][1];
-      const p2Y = pf[1][1];
 
-      // Column-based middle platforms
-      const midStart = lw + 0.02;
-      const midEnd   = 1 - lw - 0.02;
+      // Generate middle platforms ensuring reachability
+      const midStart = lw + 0.01;
+      const midEnd   = 1 - lw - 0.01;
       const colW     = (midEnd - midStart) / numMid;
-      let prevY = p1Y;
+
+      let prevY = p1BaseY;
+      let prevX = midStart;
 
       for (let col = 0; col < numMid; col++) {
         const progress = (col + 1) / (numMid + 1);
-        const baseY    = lerp(p1Y, p2Y, progress);
-        const dy       = (rng() - 0.5) * lerp(0.24, 0.40, t);
-        const y        = Math.max(0.12, Math.min(0.84, baseY + dy));
-        const xOff     = rng() * Math.max(0, colW - pfW);
-        const x        = midStart + col * colW + xOff;
-        pf.push([Math.max(midStart, Math.min(midEnd - pfW, x)), y, pfW, 0.04]);
+
+        // Y target depends on layout
+        let baseY;
+        if (layout === 'zigzag') {
+          baseY = col % 2 === 0
+            ? lerp(p1BaseY, p1BaseY - 0.30, progress)
+            : lerp(p1BaseY - 0.30, p2BaseY, progress);
+        } else if (layout === 'ramp-up') {
+          baseY = lerp(p1BaseY, p2BaseY, progress);
+        } else if (layout === 'ramp-down') {
+          baseY = lerp(p2BaseY, p1BaseY, progress);
+        } else { // bridge
+          baseY = lerp(p1BaseY, p2BaseY, 0.5) + (col % 2 === 0 ? 0 : -0.10);
+        }
+
+        // Clamp to be reachable from previous platform
+        const dy = (rng() - 0.5) * 0.16;
+        let y = Math.max(0.10, Math.min(0.84, baseY + dy));
+        y = Math.max(prevY - MAX_V_STEP, Math.min(prevY + MAX_V_STEP, y));
+
+        // X: place within column, ensure gap to previous is jumpable
+        const xBase = midStart + col * colW;
+        const xOff  = rng() * Math.max(0, colW - pfW);
+        let x = xBase + xOff;
+        x = Math.max(prevX, Math.min(midEnd - pfW, x));          // no overlap
+        x = Math.min(prevX + MAX_H_GAP + pfW, x + pfW) - pfW;   // max gap
+
+        pf.push([x, y, pfW, 0.04]);
         prevY = y;
+        prevX = x + pfW;
       }
 
-      // Spawn positions (above their base platforms)
-      const p1s = [pf[0][0] + 0.02,               pf[0][1] - 0.11];
-      const p2s = [pf[1][0] + pf[1][2] - 0.08,    pf[1][1] - 0.11];
+      // Spawn positions slightly above their base platforms
+      const p1s = [pf[0][0] + 0.02,            pf[0][1] - 0.10];
+      const p2s = [pf[1][0] + pf[1][2] - 0.10, pf[1][1] - 0.10];
 
-      // Spikes on middle platforms (levels get more dangerous)
-      const spikeCount = Math.round(lerp(0, 5, t));
+      // Spikes: max 1 per platform, wider trigger margin so player can dodge
+      const spikeCount = Math.round(lerp(0, 3, t));
       const spikes = [];
-      const midPfs = pf.slice(2);
+      const midPfs = pf.slice(2).filter(p => p[2] > 0.12); // only on wide-enough platforms
+      const usedPfs = new Set();
       for (let si = 0; si < spikeCount && midPfs.length > 0; si++) {
-        const tgt = midPfs[Math.floor(rng() * midPfs.length)];
-        const margin = 0.04;
-        const xOnPf  = tgt[0] + margin + rng() * Math.max(0, tgt[2] - margin*2);
-        spikes.push({ xPct: xOnPf, yPct: tgt[1], triggerDist: lerp(130, 90, t) });
+        let idx;
+        do { idx = Math.floor(rng() * midPfs.length); } while (usedPfs.has(idx));
+        usedPfs.add(idx);
+        const tgt    = midPfs[idx];
+        const margin = 0.06;
+        const xOnPf  = tgt[0] + margin + rng() * Math.max(0, tgt[2] - margin * 2);
+        spikes.push({ xPct: xOnPf, yPct: tgt[1], triggerDist: lerp(115, 80, t) });
       }
 
       levels.push({ p1: p1s, p2: p2s, pf, spikes, time: timer });
@@ -629,6 +736,56 @@
   resize();
   buildLevel(0);
   requestAnimationFrame(loop);
+
+  // ─── Mobile touch controls ────────────────────────────────────────────────
+  function bindTouch(id, keyCode, extraPress) {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    const press = (e) => {
+      e.preventDefault();
+      keys[keyCode] = true;
+      btn.classList.add('pressed');
+      if (extraPress) extraPress();
+    };
+    const release = (e) => {
+      e.preventDefault();
+      keys[keyCode] = false;
+      btn.classList.remove('pressed');
+    };
+    btn.addEventListener('touchstart',  press,   { passive: false });
+    btn.addEventListener('touchend',    release, { passive: false });
+    btn.addEventListener('touchcancel', release, { passive: false });
+  }
+
+  // P1 (keyboard: A/D/W)
+  bindTouch('mc-p1-left',  'KeyA', null);
+  bindTouch('mc-p1-right', 'KeyD', null);
+  bindTouch('mc-p1-jump',  'KeyW', () => {
+    if (p1.grounded) { p1.vy = JUMP_FORCE; p1.grounded = false; }
+  });
+
+  // P2 (keyboard: J/L/I)
+  bindTouch('mc-p2-left',  'KeyJ', null);
+  bindTouch('mc-p2-right', 'KeyL', null);
+  bindTouch('mc-p2-jump',  'KeyI', () => {
+    if (p2.grounded) { p2.vy = JUMP_FORCE; p2.grounded = false; }
+  });
+
+  // Tap canvas to advance state screens on mobile
+  canvas.addEventListener('click', () => {
+    if (gameState === 'win' && currentLevel < TOTAL_LVLS - 1) {
+      currentLevel++; buildLevel(currentLevel);
+    } else if (gameState === 'win') {
+      gameState = 'complete';
+    } else if (gameState === 'lost') {
+      buildLevel(currentLevel);
+    } else if (gameState === 'complete') {
+      sessionSeed = Math.trunc(Date.now() * (Math.random() + 0.1));
+      LEVELS = makeLevels();
+      currentLevel = 5;
+      buildLevel(currentLevel);
+    }
+  });
 })();
 </script>
 <script src="../js/destroygame.js" defer></script>

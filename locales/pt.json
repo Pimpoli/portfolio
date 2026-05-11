@@ -65,7 +65,11 @@
     "members": "Membros no Studio"
   },
   "games": {
-    "title": "Jogos que eu criei"
+    "title": "Jogos que eu criei",
+    "webLabel": "Jogar no navegador",
+    "solo": "1 jogador",
+    "duo": "2 jogadores",
+    "robloxLabel": "No Roblox"
   },
   "store": {
     "title": "Produtos / Loja",
@@ -105,6 +109,9 @@
     "contactText": "Você pode nos contatar pelas redes sociais do PimpoliDev:",
     "navStudio": "Estúdio",
     "navGames": "Jogos",
-    "navContact": "Contato"
+    "navContact": "Contato",
+    "gamesSubtitle": "Todos os jogos publicados sob o Multi Game Inc no Roblox.",
+    "bannerTitle": "Quer ficar por dentro das novidades?",
+    "bannerText": "Siga-nos no grupo oficial do Roblox."
   }
 }
