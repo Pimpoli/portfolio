@@ -95,6 +95,48 @@ document.addEventListener('DOMContentLoaded', () => {
     ul.appendChild(createItem('about.list.studioLabel',  'about.list.studioName',   'Fundador de',         'Multi Game Inc',                                       true,  6));
 
     aboutContainer.appendChild(ul);
+
+    // ── Skill badges ────────────────────────────────────────────────────────
+    const skillsDefs = [
+      { key: 'about.skills.luau',    fallback: 'Luau',           color: '#00b2ff' },
+      { key: 'about.skills.studio',  fallback: 'Roblox Studio',  color: '#ff4500' },
+      { key: 'about.skills.godot',   fallback: 'Godot Engine 4', color: '#478cbf' },
+      { key: 'about.skills.ui',      fallback: 'UI / UX',        color: '#24b24b' },
+      { key: 'about.skills.systems', fallback: 'Sistemas propios', color: '#ff9100' },
+    ];
+
+    const skillsSection = document.createElement('div');
+    skillsSection.className = 'skills-section';
+
+    const skillsTitle = document.createElement('p');
+    skillsTitle.className = 'skills-title';
+    skillsTitle.setAttribute('data-i18n', 'about.skillsTitle');
+    skillsTitle.textContent = getT('about.skillsTitle', 'Tech Stack');
+    skillsSection.appendChild(skillsTitle);
+
+    const skillsGrid = document.createElement('div');
+    skillsGrid.className = 'skills-grid';
+
+    skillsDefs.forEach((s, i) => {
+      const badge = document.createElement('div');
+      badge.className = `skill-badge fade-in visible scroll-delay-${i + 1}`;
+
+      const dot = document.createElement('span');
+      dot.className = 'skill-dot';
+      dot.style.background = s.color;
+      dot.style.boxShadow  = `0 0 6px ${s.color}99`;
+
+      const label = document.createElement('span');
+      label.setAttribute('data-i18n', s.key);
+      label.textContent = getT(s.key, s.fallback);
+
+      badge.appendChild(dot);
+      badge.appendChild(label);
+      skillsGrid.appendChild(badge);
+    });
+
+    skillsSection.appendChild(skillsGrid);
+    aboutContainer.appendChild(skillsSection);
   }
 
   // Ejecutamos la función de inmediato al abrir la página
