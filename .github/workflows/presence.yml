@@ -2,11 +2,8 @@ name: Update Roblox Presence
 
 on:
   schedule:
-    - cron: '*/5 * * * *'   # every 5 minutes
-  workflow_dispatch:         # manual trigger
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -17,27 +14,81 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check secret exists
-        run: |
-          if [ -z "$ROBLOX_COOKIE" ]; then
-            echo "ERROR: ROBLOX_COOKIE secret is not set in GitHub repository secrets."
-            echo "Go to: Settings → Secrets and variables → Actions → New repository secret"
-            exit 1
-          fi
-          echo "Cookie secret is present (length: ${#ROBLOX_COOKIE})"
+      - name: Fetch & write presence
         env:
           ROBLOX_COOKIE: ${{ secrets.ROBLOX_COOKIE }}
+        run: |
+          set -e
 
-      - name: Fetch presence
-        env:
-          ROBLOX_COOKIE:  ${{ secrets.ROBLOX_COOKIE }}
-          ROBLOX_USER_ID: '3404416545'
-        run: node scripts/fetch-presence.js
+          if [ -z "$ROBLOX_COOKIE" ]; then
+            echo "::error::ROBLOX_COOKIE secret is not set."
+            echo "Go to: Settings -> Secrets and variables -> Actions -> New repository secret"
+            echo "Name: ROBLOX_COOKIE  |  Value: your .ROBLOSECURITY cookie"
+            exit 1
+          fi
+          echo "Cookie present (length: ${#ROBLOX_COOKIE})"
+
+          # Roblox requires an x-csrf-token for POST requests even with a valid cookie.
+          # Obtain it by making a dummy POST — Roblox will reject it with 403 and return the token.
+          echo "--- Obtaining CSRF token ---"
+          CSRF=$(curl -si -X POST "https://auth.roblox.com/v2/logout" \
+            -H "Content-Type: application/json" \
+            -H "Cookie: .ROBLOSECURITY=${ROBLOX_COOKIE}" \
+            | grep -i "x-csrf-token:" | awk '{print $2}' | tr -d '\r\n')
+
+          if [ -z "$CSRF" ]; then
+            echo "Warning: no CSRF token received. Cookie may be invalid."
+          else
+            echo "CSRF token obtained (length: ${#CSRF})"
+          fi
+
+          # Call the Roblox Presence API
+          echo "--- Calling presence API ---"
+          HTTP_CODE=$(curl -s -o /tmp/rbx_response.json -w "%{http_code}" \
+            -X POST "https://presence.roblox.com/v1/presence/users" \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/json" \
+            -H "Cookie: .ROBLOSECURITY=${ROBLOX_COOKIE}" \
+            -H "x-csrf-token: ${CSRF}" \
+            -d '{"userIds":[3404416545]}')
+
+          echo "HTTP status: $HTTP_CODE"
+          echo "Response body:"
+          cat /tmp/rbx_response.json
+          echo ""
+
+          if [ "$HTTP_CODE" = "401" ]; then
+            echo "::error::401 Unauthorized — the cookie is expired or invalid."
+            echo "Open roblox.com -> F12 -> Application -> Cookies -> .ROBLOSECURITY -> copy the full value -> update the GitHub secret."
+            exit 1
+          fi
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "::error::Roblox API returned HTTP $HTTP_CODE (see response above)."
+            exit 1
+          fi
+
+          if ! jq -e '.userPresences[0]' /tmp/rbx_response.json > /dev/null 2>&1; then
+            echo "::error::Response does not contain userPresences. See body above."
+            exit 1
+          fi
+
+          # Write presence.json
+          jq --arg ts "$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")" \
+            '.userPresences[0] | {
+               userPresenceType: (.userPresenceType // 0),
+               lastLocation:     .lastLocation,
+               gameId:           .gameId,
+               placeId:          .placeId,
+               updatedAt:        $ts
+             }' /tmp/rbx_response.json > data/presence.json
+
+          echo "--- presence.json written ---"
+          cat data/presence.json
 
       - name: Commit if changed
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/presence.json
-          git diff --staged --quiet || git commit -m "chore: update presence [skip ci]"
-          git push
+          git diff --staged --quiet || (git commit -m "chore: update presence [skip ci]" && git push)
