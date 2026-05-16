@@ -1,8 +1,4 @@
 #!/usr/bin/env node
-// Calls Roblox Presence API with an authenticated cookie and writes data/presence.json
-// Requires env var: ROBLOX_COOKIE  (the .ROBLOSECURITY cookie value)
-// Requires env var: ROBLOX_USER_ID (numeric user id)
-
 'use strict';
 
 const https = require('https');
@@ -14,47 +10,86 @@ const USER_ID = Number(process.env.ROBLOX_USER_ID || '3404416545');
 const OUT     = path.join(__dirname, '..', 'data', 'presence.json');
 
 if (!COOKIE) {
-  console.error('Missing ROBLOX_COOKIE env var');
+  console.error('ERROR: ROBLOX_COOKIE env var is not set.');
   process.exit(1);
 }
 
-function post(hostname, pathname, body, headers) {
+function request(method, hostname, pathname, body, extraHeaders) {
   return new Promise((resolve, reject) => {
-    const payload = JSON.stringify(body);
-    const req = https.request(
-      { hostname, path: pathname, method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Content-Length': Buffer.byteLength(payload), ...headers } },
-      res => {
-        let raw = '';
-        res.on('data', c => raw += c);
-        res.on('end', () => {
-          try { resolve({ status: res.statusCode, body: JSON.parse(raw) }); }
-          catch { resolve({ status: res.statusCode, body: raw }); }
-        });
-      }
-    );
+    const payload = body ? JSON.stringify(body) : null;
+    const headers = {
+      'Content-Type':  'application/json',
+      'Accept':        'application/json',
+      'User-Agent':    'Mozilla/5.0 (compatible; PortfolioBot/1.0)',
+      'Cookie':        `.ROBLOSECURITY=${COOKIE}`,
+      ...extraHeaders,
+    };
+    if (payload) headers['Content-Length'] = Buffer.byteLength(payload);
+
+    const req = https.request({ hostname, path: pathname, method, headers }, res => {
+      let raw = '';
+      res.on('data', c => raw += c);
+      res.on('end', () => {
+        let parsed;
+        try { parsed = JSON.parse(raw); } catch { parsed = raw; }
+        resolve({ status: res.statusCode, headers: res.headers, body: parsed });
+      });
+    });
     req.on('error', reject);
-    req.write(payload);
+    if (payload) req.write(payload);
     req.end();
   });
 }
 
+async function getCsrfToken() {
+  // Roblox rejects POST requests without a CSRF token even with a valid cookie.
+  // The standard flow: send any POST → get 403 with x-csrf-token in response headers → retry with that token.
+  const probe = await request('POST', 'auth.roblox.com', '/v2/logout', null, {});
+  const token = probe.headers['x-csrf-token'];
+  if (!token) {
+    console.warn('Could not obtain CSRF token (probe status:', probe.status, ')');
+    console.warn('Probe body:', JSON.stringify(probe.body));
+  } else {
+    console.log('CSRF token obtained.');
+  }
+  return token || null;
+}
+
 (async () => {
   try {
-    const { status, body } = await post(
+    const csrf = await getCsrfToken();
+
+    const extraHeaders = csrf ? { 'x-csrf-token': csrf } : {};
+    const { status, body } = await request(
+      'POST',
       'presence.roblox.com',
       '/v1/presence/users',
       { userIds: [USER_ID] },
-      { Cookie: `.ROBLOSECURITY=${COOKIE}`, 'User-Agent': 'Mozilla/5.0 (compatible; PortfolioPresenceBot/1.0)' }
+      extraHeaders
     );
 
+    console.log(`Presence API responded with status ${status}`);
+
+    if (status === 401) {
+      console.error('ERROR: 401 Unauthorized — the ROBLOX_COOKIE secret is invalid or expired.');
+      console.error('Renew it: open roblox.com in your browser → F12 → Application → Cookies → .ROBLOSECURITY → copy the value → update the GitHub secret.');
+      process.exit(1);
+    }
+
+    if (status === 403) {
+      console.error('ERROR: 403 Forbidden — CSRF token issue or cookie is invalid.');
+      console.error('Response:', JSON.stringify(body));
+      process.exit(1);
+    }
+
     if (status !== 200) {
-      console.error(`Roblox API returned ${status}:`, JSON.stringify(body));
+      console.error(`ERROR: Roblox API returned ${status}:`, JSON.stringify(body));
       process.exit(1);
     }
 
     const arr = body?.userPresences ?? body?.data ?? (Array.isArray(body) ? body : null);
     if (!Array.isArray(arr) || !arr.length) {
-      console.error('Unexpected response shape:', JSON.stringify(body));
+      console.error('ERROR: Unexpected response shape:', JSON.stringify(body));
       process.exit(1);
     }
 

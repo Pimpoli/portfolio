@@ -5,6 +5,9 @@ on:
     - cron: '*/5 * * * *'   # every 5 minutes
   workflow_dispatch:         # manual trigger
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: write
 
@@ -14,9 +17,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+      - name: Check secret exists
+        run: |
+          if [ -z "$ROBLOX_COOKIE" ]; then
+            echo "ERROR: ROBLOX_COOKIE secret is not set in GitHub repository secrets."
+            echo "Go to: Settings → Secrets and variables → Actions → New repository secret"
+            exit 1
+          fi
+          echo "Cookie secret is present (length: ${#ROBLOX_COOKIE})"
+        env:
+          ROBLOX_COOKIE: ${{ secrets.ROBLOX_COOKIE }}
 
       - name: Fetch presence
         env:
