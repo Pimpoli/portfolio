@@ -27,11 +27,13 @@
     if (typeof window.PROXY_BASE === 'undefined') {
       (function(){
         const host = location.hostname;
-        // Solo usar proxy cuando estamos en local con el servidor corriendo
+        // ⬇️  Después de desplegar cloudflare-worker.js, reemplaza null con tu URL:
+        // window.PROXY_BASE = 'https://roblox-presence.TU-USUARIO.workers.dev';
+        const WORKER_URL = null;
         if (host === 'localhost' || host === '127.0.0.1' || location.protocol === 'file:') {
           window.PROXY_BASE = 'http://localhost:3000';
         } else {
-          window.PROXY_BASE = null; // En producción (GitHub Pages) no hay servidor Node
+          window.PROXY_BASE = WORKER_URL;
         }
       })();
     }
@@ -154,13 +156,13 @@
           <span class="mf-icon">🎨</span>
           <span class="mf-name">Color Block</span>
           <span class="mf-players" data-i18n="games.solo">1 jugador</span>
-          <span class="mf-play">▶ Jugar</span>
+          <span class="mf-play" data-i18n="games.play">▶ Jugar</span>
         </a>
         <a href="/Game-2" class="minigame-float">
           <span class="mf-icon">🤝</span>
           <span class="mf-name">Ambidextro</span>
           <span class="mf-players" data-i18n="games.duo">2 jugadores</span>
-          <span class="mf-play">▶ Jugar</span>
+          <span class="mf-play" data-i18n="games.play">▶ Jugar</span>
         </a>
       </div>
 

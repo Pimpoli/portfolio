@@ -2,6 +2,24 @@
 
 const ROBLOX_USER_ID = 3404416545;
 
+// ─── Cache sessionStorage (TTL-based, compartido con stats/games por clave) ────
+const _C = {
+  get: (k, ttl) => {
+    try {
+      const r = sessionStorage.getItem(k);
+      if (!r) return null;
+      const { v, t } = JSON.parse(r);
+      return Date.now() - t < ttl ? v : null;
+    } catch { return null; }
+  },
+  set: (k, v) => {
+    try { sessionStorage.setItem(k, JSON.stringify({ v, t: Date.now() })); } catch {}
+  }
+};
+// Rate-limit compartido: si roproxy devuelve 429, pausamos todas las llamadas
+function _isRL()          { try { return Date.now() < Number(sessionStorage.getItem('rbx_rl') || 0); } catch { return false; } }
+function _setRL(ms=90_000){ try { sessionStorage.setItem('rbx_rl', String(Date.now() + ms)); } catch {} }
+
 // ─── Fetch con timeout ─────────────────────────────────────────────────────────
 async function fetchWithTimeout(url, opts = {}, ms = 7000) {
   const controller = new AbortController();
@@ -21,41 +39,68 @@ async function fetchWithTimeout(url, opts = {}, ms = 7000) {
    ══════════════════════════════════════════════════════ */
 async function loadAvatar(userId, imgEl) {
   if (!imgEl || imgEl.dataset._loading) return;
+
+  // Caché 10 min: evita re-fetchear el avatar en cada recarga
+  const AVT_KEY = `rbx_avt_${userId}`;
+  const cached  = _C.get(AVT_KEY, 600_000);
+  if (cached) { imgEl.src = cached; return; }
+
   imgEl.dataset._loading = '1';
-  imgEl.onload = () => { delete imgEl.dataset._loading; };
+  imgEl.onload  = () => { delete imgEl.dataset._loading; };
   imgEl.onerror = () => { delete imgEl.dataset._loading; };
 
-  // Intentar a través del proxy local primero
+  // 1. Proxy local (desarrollo con server.js)
   if (window.PROXY_BASE) {
     try {
       const res = await fetchWithTimeout(`${window.PROXY_BASE}/avatar/${userId}`, {}, 8000);
-      if (res && res.ok) {
+      if (res?.ok) {
         const data = await res.json();
-        if (data?.data?.[0]?.imageUrl) { imgEl.src = data.data[0].imageUrl; return; }
+        const url  = data?.data?.[0]?.imageUrl;
+        if (url) { imgEl.src = url; _C.set(AVT_KEY, url); return; }
       }
-    } catch (e) { /* continúa al siguiente */ }
+    } catch { /* continúa */ }
   }
 
-  // Fallback: RoProxy directo
-  try {
-    const res = await fetchWithTimeout(
-      `https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userId}&size=420x420&format=Png&isCircular=true`,
-      {}, 8000
-    );
-    if (res && res.ok) {
-      const data = await res.json();
-      if (data?.data?.[0]?.imageUrl) { imgEl.src = data.data[0].imageUrl; return; }
-    }
-  } catch (e) { /* continúa */ }
+  // 2. RoProxy directo (respeta rate-limit)
+  if (!_isRL()) {
+    try {
+      const res = await fetchWithTimeout(
+        `https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userId}&size=420x420&format=Png&isCircular=true`,
+        {}, 8000
+      );
+      if (res?.status === 429) { _setRL(); }
+      else if (res?.ok) {
+        const data = await res.json();
+        const url  = data?.data?.[0]?.imageUrl;
+        if (url) { imgEl.src = url; _C.set(AVT_KEY, url); return; }
+      }
+    } catch { /* continúa */ }
+  }
 
-  // Último recurso: URL directa de Roblox
-  imgEl.src = `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=420&height=420&format=png&isCircular=true&_t=${Date.now()}`;
+  // 3. URL directa de Roblox (imagen pública, sin CORS en img src)
+  const fallback = `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=420&height=420&format=png&isCircular=true`;
+  imgEl.src = fallback;
+  _C.set(AVT_KEY, fallback);
 }
 
 /* ══════════════════════════════════════════════════════
    2. PRESENCIA  (Online / InGame / Studio / Offline)
    ══════════════════════════════════════════════════════ */
-function applyPresence(type, gameName) {
+
+// Helper de traducción (lee window.translations que carga i18n.js)
+function _t(key, fallback) {
+  try {
+    const parts = key.split('.');
+    let v = window.translations;
+    for (const p of parts) {
+      if (v && Object.prototype.hasOwnProperty.call(v, p)) v = v[p];
+      else return fallback;
+    }
+    return typeof v === 'string' ? v : fallback;
+  } catch { return fallback; }
+}
+
+function applyPresence(type, gameName, followers) {
   const container = document.getElementById('roblox-profile-container');
   if (!container) return;
   container.classList.remove('status-online', 'status-ingame', 'status-studio', 'status-offline');
@@ -64,16 +109,16 @@ function applyPresence(type, gameName) {
   switch (type) {
     case 1:
       container.classList.add('status-online');
-      stateLabel = 'Online'; stateColor = '#00b0ff'; break;
+      stateLabel = _t('presence.online',   'Online');    stateColor = '#00b0ff'; break;
     case 2:
       container.classList.add('status-ingame');
-      stateLabel = 'In Game'; stateColor = '#00e676'; break;
+      stateLabel = _t('presence.ingame',   'In Game');   stateColor = '#00e676'; break;
     case 3:
       container.classList.add('status-studio');
-      stateLabel = 'In Studio'; stateColor = '#ff9100'; break;
+      stateLabel = _t('presence.instudio', 'In Studio'); stateColor = '#ff9100'; break;
     default:
       container.classList.add('status-offline');
-      stateLabel = 'Offline'; stateColor = '#9e9e9e'; break;
+      stateLabel = _t('presence.offline',  'Offline');   stateColor = '#9e9e9e'; break;
   }
 
   // Status dot badge
@@ -84,19 +129,26 @@ function applyPresence(type, gameName) {
     container.appendChild(dot);
   }
 
-  // Rich HTML tooltip
+  // Rich HTML tooltip (traducido)
   let tooltip = container.querySelector('.roblox-tooltip');
   if (!tooltip) {
     tooltip = document.createElement('div');
     tooltip.className = 'roblox-tooltip';
     container.appendChild(tooltip);
   }
-  let html = `<div><span style="opacity:0.55">Name:</span> <strong>PimpoliDev</strong></div>`;
-  html += `<div><span style="opacity:0.55">State:</span> <strong style="color:${stateColor}">${stateLabel}</strong></div>`;
+
+  let html = `<div><span style="opacity:0.55">${_t('presence.name','Name:')}</span> <strong>PimpoliDev</strong></div>`;
+  html += `<div><span style="opacity:0.55">${_t('presence.state','State:')}</span> <strong style="color:${stateColor}">${stateLabel}</strong></div>`;
+
+  if (followers !== null && followers !== undefined) {
+    const fmt = typeof followers === 'number' ? followers.toLocaleString() : followers;
+    html += `<div><span style="opacity:0.55">${_t('presence.followers','Followers:')}</span> <strong>${fmt}</strong></div>`;
+  }
+
   if (type === 2 && gameName) {
-    html += `<div><span style="opacity:0.55">Game:</span> <strong>${gameName}</strong></div>`;
+    html += `<div><span style="opacity:0.55">${_t('presence.game','Game:')}</span> <strong>${gameName}</strong></div>`;
   } else if (type === 3 && gameName) {
-    html += `<div><span style="opacity:0.55">Location:</span> <strong>${gameName}</strong></div>`;
+    html += `<div><span style="opacity:0.55">${_t('presence.location','Location:')}</span> <strong>${gameName}</strong></div>`;
   }
   tooltip.innerHTML = html;
 }
@@ -134,9 +186,39 @@ function resolvePresenceType(pres) {
 }
 
 async function fetchPresenceData(userId) {
-  const uid = Number(userId);
+  const uid     = Number(userId);
+  const PRES_KEY = `rbx_pres_${uid}`;
 
-  // Estrategia 1: proxy local con auth (localhost con servidor Node)
+  // Caché 45 s: si recargamos la página en menos de 45 s, usamos el estado guardado
+  const cached = _C.get(PRES_KEY, 45_000);
+  if (cached !== null) return cached;
+
+  // Si roproxy nos puso en rate-limit, no intentamos hasta que expire
+  if (_isRL()) return null;
+
+  function saveAndReturn(data) {
+    _C.set(PRES_KEY, data);
+    return data;
+  }
+
+  // ── Estrategia 0: presence.json generado por GitHub Action (hasta 10 min stale) ─
+  try {
+    const res = await fetchWithTimeout('/data/presence.json', {}, 3000);
+    if (res?.ok) {
+      const j = await res.json();
+      console.log('[Presence] presence.json →', j);
+      if (typeof j?.userPresenceType === 'number') {
+        const age = Date.now() - new Date(j.updatedAt || 0).getTime();
+        if (age < 15 * 60_000) {
+          return saveAndReturn(j);
+        } else {
+          console.warn('[Presence] presence.json muy viejo:', Math.round(age / 60000), 'min');
+        }
+      }
+    }
+  } catch (e) { console.warn('[Presence] presence.json falló:', e.message); }
+
+  // ── Estrategia 1: proxy local / Cloudflare Worker (con cookie auth) ────────────
   if (window.PROXY_BASE) {
     try {
       const res = await fetchWithTimeout(
@@ -145,79 +227,118 @@ async function fetchPresenceData(userId) {
         9000
       );
       if (res?.ok) {
-        const j = await res.json();
+        const j   = await res.json();
         const arr = j?.userPresences ?? j?.data ?? j?.presences ?? (Array.isArray(j) ? j : null);
-        if (Array.isArray(arr) && arr.length) return arr[0];
+        if (Array.isArray(arr) && arr.length) {
+          console.log('[Presence] Worker/proxy OK →', arr[0]);
+          return saveAndReturn(arr[0]);
+        }
       }
-    } catch (e) { /* siguiente */ }
+    } catch (e) { console.warn('[Presence] Worker/proxy falló:', e.message); }
   }
 
-  // Estrategia 2: API antigua — endpoint /onlinestatus (público, sin auth)
-  // Devuelve: { IsOnline, LastLocation, LocationType }
-  // LocationType: 0=offline, 1=web, 2=ingame, 3=studio
+  // ── Estrategia 2: API antigua /onlinestatus — funciona sin auth en perfiles públicos ─
   try {
     const res = await fetchWithTimeout(`https://api.roproxy.com/users/${uid}/onlinestatus`, {}, 7000);
+    if (res?.status === 429) { _setRL(); return null; }
     if (res?.ok) {
       const j = await res.json();
-      if (typeof j?.IsOnline === 'boolean' || typeof j?.LocationType === 'number') return j;
-    }
-  } catch (e) { /* siguiente */ }
+      console.log('[Presence] /onlinestatus →', j);
+      if (typeof j?.IsOnline === 'boolean' || typeof j?.LocationType === 'number') return saveAndReturn(j);
+    } else { console.warn('[Presence] /onlinestatus status:', res?.status); }
+  } catch (e) { console.warn('[Presence] /onlinestatus error:', e.message); }
 
-  // Estrategia 3: API antigua — /users/{id} básico
-  try {
-    const res = await fetchWithTimeout(`https://api.roproxy.com/users/${uid}`, {}, 7000);
-    if (res?.ok) {
-      const j = await res.json();
-      if (typeof j?.IsOnline === 'boolean') return j;
-    }
-  } catch (e) { /* siguiente */ }
-
-  // Estrategia 3: API nueva de presencia (requiere auth, pero algunos proxies la tienen configurada)
+  // ── Estrategia 3: presence.roproxy.com — nueva API, requiere auth para datos reales ─
+  // Si devuelve type=0 sin auth es ambiguo: NO lo tomamos como definitivo
   try {
     const res = await fetchWithTimeout(
       'https://presence.roproxy.com/v1/presence/users',
-      { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ userIds: [uid] }) },
+      { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ userIds: [uid] }) },
       8000
     );
+    if (res?.status === 429) { _setRL(); return null; }
+    if (res?.ok) {
+      const j   = await res.json();
+      const arr = j?.userPresences ?? j?.data ?? j?.presences ?? (Array.isArray(j) ? j : null);
+      console.log('[Presence] presence/users →', arr?.[0]);
+      // Solo aceptar si tipo > 0 — tipo 0 sin auth es un falso negativo
+      if (Array.isArray(arr) && arr.length && arr[0]?.userPresenceType > 0) return saveAndReturn(arr[0]);
+    } else { console.warn('[Presence] presence/users status:', res?.status); }
+  } catch (e) { console.warn('[Presence] presence/users error:', e.message); }
+
+  // ── Estrategia 4: /users/{id} básico — IsOnline boolean ──────────────────────
+  try {
+    const res = await fetchWithTimeout(`https://api.roproxy.com/users/${uid}`, {}, 7000);
+    if (res?.status === 429) { _setRL(); return null; }
     if (res?.ok) {
       const j = await res.json();
-      const arr = j?.userPresences ?? j?.data ?? j?.presences ?? (Array.isArray(j) ? j : null);
-      if (Array.isArray(arr) && arr.length) return arr[0];
+      console.log('[Presence] /users →', { IsOnline: j?.IsOnline });
+      if (typeof j?.IsOnline === 'boolean') return saveAndReturn(j);
     }
-  } catch (e) { /* siguiente */ }
+  } catch (e) { console.warn('[Presence] /users error:', e.message); }
 
-  // Estrategia 4: last-online — estima si estuvo activo en los últimos 5 minutos
+  // ── Estrategia 5 (último recurso): last-online — estima Online/Offline por timestamp ─
   try {
     const res = await fetchWithTimeout(
       'https://presence.roproxy.com/v1/presence/last-online',
-      { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ userIds: [uid] }) },
+      { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ userIds: [uid] }) },
       6000
     );
     if (res?.ok) {
-      const j = await res.json();
+      const j   = await res.json();
       const arr = j?.lastOnlineTimestamps ?? j?.data ?? (Array.isArray(j) ? j : null);
       if (Array.isArray(arr) && arr.length) {
         const entry = arr[0];
         if (entry?.lastOnline) {
-          const diff = Date.now() - new Date(entry.lastOnline).getTime();
-          return { userPresenceType: diff < 5 * 60 * 1000 ? 1 : 0 };
+          const diff   = Date.now() - new Date(entry.lastOnline).getTime();
+          const type   = diff < 5 * 60_000 ? 1 : 0;
+          console.log('[Presence] last-online → type', type, '| hace', Math.round(diff / 60000), 'min');
+          return saveAndReturn({ userPresenceType: type });
         }
       }
     }
-  } catch (e) { /* sin datos */ }
+  } catch (e) { console.warn('[Presence] last-online error:', e.message); }
 
+  console.warn('[Presence] Todas las estrategias fallaron → Offline por defecto');
+  return null;
+}
+
+// ── Seguidores (endpoint público, no requiere auth) ──────────────────────────
+async function fetchFollowers(userId) {
+  const FOL_KEY = `rbx_fol_${userId}`;
+  const cached  = _C.get(FOL_KEY, 600_000); // 10 min
+  if (cached !== null) return cached;
+  if (_isRL()) return null;
+  try {
+    const res = await fetchWithTimeout(
+      `https://friends.roproxy.com/v1/users/${userId}/followers/count`,
+      {}, 7000
+    );
+    if (res?.status === 429) { _setRL(); return null; }
+    if (res?.ok) {
+      const j = await res.json();
+      const count = j?.count ?? null;
+      if (count !== null) _C.set(FOL_KEY, count);
+      return count;
+    }
+  } catch {}
   return null;
 }
 
 async function updateAvatarStatus(userId) {
   try {
-    const pres = await fetchPresenceData(userId);
-    const resolved = resolvePresenceType(pres);
-    // Soporta tanto API nueva (lastLocation) como API antigua (LastLocation)
-    const gameName = pres?.LastLocation ?? pres?.lastLocation ?? null;
-    applyPresence(typeof resolved === 'number' && !Number.isNaN(resolved) ? resolved : 0, gameName);
-  } catch (e) {
-    applyPresence(0);
+    // Presencia y seguidores en paralelo
+    const [presResult, folResult] = await Promise.allSettled([
+      fetchPresenceData(userId),
+      fetchFollowers(userId)
+    ]);
+    const pres      = presResult.status  === 'fulfilled' ? presResult.value  : null;
+    const followers = folResult.status === 'fulfilled' ? folResult.value : null;
+    const resolved  = resolvePresenceType(pres);
+    const gameName  = pres?.LastLocation ?? pres?.lastLocation ?? null;
+    applyPresence(typeof resolved === 'number' && !Number.isNaN(resolved) ? resolved : 0, gameName, followers);
+  } catch {
+    applyPresence(0, null, null);
   }
 }
 
@@ -362,6 +483,17 @@ document.addEventListener('DOMContentLoaded', () => {
   initSmoothScroll();
   initFadeInObserver();
   initTypingEffect();
+
+  // Re-renderizar tooltip cuando cambia el idioma (usa datos cacheados)
+  document.addEventListener('languageLoaded', () => {
+    const presCache = _C.get(`rbx_pres_${ROBLOX_USER_ID}`, 45_000);
+    if (presCache !== null) {
+      const resolved  = resolvePresenceType(presCache);
+      const gameName  = presCache?.LastLocation ?? presCache?.lastLocation ?? null;
+      const folCache  = _C.get(`rbx_fol_${ROBLOX_USER_ID}`, 600_000);
+      applyPresence(typeof resolved === 'number' ? resolved : 0, gameName, folCache);
+    }
+  });
 
   const avatarImg = document.getElementById('roblox-profile-img');
   if (avatarImg) loadAvatar(ROBLOX_USER_ID, avatarImg);
