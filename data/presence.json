@@ -1,7 +1,7 @@
 {
-  "userPresenceType": 0,
-  "lastLocation": null,
+  "userPresenceType": 3,
+  "lastLocation": "Studio",
   "gameId": null,
   "placeId": null,
-  "updatedAt": "2020-01-01T00:00:00.000Z"
+  "updatedAt": "2026-05-17T00:10:57.000Z"
 }
