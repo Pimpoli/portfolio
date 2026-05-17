@@ -22,69 +22,102 @@ jobs:
           USER_ID=3404416545
           SUCCESS=false
 
-          fetch_presence() {
-            local label="$1"
-            shift
+          # ── Helper: write presence.json directly ───────────────────────────
+          write_presence() {
+            local type="$1" location="$2" gameid="$3" placeid="$4"
+            local loc_json="null" gid_json="null" pid_json="null"
+            [ -n "$location" ] && loc_json="\"$location\""
+            [ -n "$gameid"   ] && gid_json="\"$gameid\""
+            [ -n "$placeid"  ] && pid_json="$placeid"
+            cat > data/presence.json << JSONEOF
+          {
+            "userPresenceType": $type,
+            "lastLocation": $loc_json,
+            "gameId": $gid_json,
+            "placeId": $pid_json,
+            "updatedAt": "$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")"
+          }
+          JSONEOF
+            echo "Presence written: type=$type location=$location"
+          }
+
+          # ── Helper: call presence.roblox.com with given headers ────────────
+          call_presence_api() {
+            local label="$1"; shift
             echo "--- Trying: $label ---"
             HTTP_CODE=$(curl -s -o /tmp/rbx_response.json -w "%{http_code}" \
               -X POST "https://presence.roblox.com/v1/presence/users" \
-              -H "Content-Type: application/json" \
-              -H "Accept: application/json" \
-              "$@" \
-              -d "{\"userIds\":[$USER_ID]}")
-            echo "HTTP $HTTP_CODE — response: $(cat /tmp/rbx_response.json)"
+              -H "Content-Type: application/json" -H "Accept: application/json" \
+              "$@" -d "{\"userIds\":[$USER_ID]}")
+            echo "HTTP $HTTP_CODE"
             if [ "$HTTP_CODE" = "200" ] && jq -e '.userPresences[0]' /tmp/rbx_response.json > /dev/null 2>&1; then
+              jq --arg ts "$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")" \
+                '.userPresences[0] | {
+                   userPresenceType: (.userPresenceType // 0),
+                   lastLocation: .lastLocation, gameId: .gameId,
+                   placeId: .placeId, updatedAt: $ts
+                 }' /tmp/rbx_response.json > data/presence.json
               echo "✓ $label succeeded"
               return 0
             fi
-            echo "✗ $label failed (HTTP $HTTP_CODE)"
+            echo "✗ $label failed — response: $(cat /tmp/rbx_response.json)"
             return 1
           }
 
-          # ── Attempt 1: Open Cloud API key (no expiry) ──────────────────────
+          # ── Method 1: Open Cloud API key (no expiry) ───────────────────────
           if [ -n "$ROBLOX_API_KEY" ]; then
-            if fetch_presence "Open Cloud API key" \
-                -H "x-api-key: ${ROBLOX_API_KEY}"; then
-              SUCCESS=true
-            fi
-          else
-            echo "ROBLOX_API_KEY secret not set, skipping."
+            call_presence_api "Open Cloud API key" -H "x-api-key: ${ROBLOX_API_KEY}" \
+              && SUCCESS=true
           fi
 
-          # ── Attempt 2: Cookie + CSRF (fallback) ────────────────────────────
+          # ── Method 2: Cookie + CSRF token ──────────────────────────────────
           if [ "$SUCCESS" = "false" ] && [ -n "$ROBLOX_COOKIE" ]; then
-            echo "--- Getting CSRF token ---"
             CSRF=$(curl -si -X POST "https://auth.roblox.com/v2/logout" \
               -H "Content-Type: application/json" \
               -H "Cookie: .ROBLOSECURITY=${ROBLOX_COOKIE}" \
               | grep -i "x-csrf-token:" | awk '{print $2}' | tr -d '\r\n')
-            echo "CSRF token length: ${#CSRF}"
-            if fetch_presence "Cookie + CSRF" \
-                -H "Cookie: .ROBLOSECURITY=${ROBLOX_COOKIE}" \
-                -H "x-csrf-token: ${CSRF}"; then
-              SUCCESS=true
-            fi
-          elif [ "$SUCCESS" = "false" ]; then
-            echo "ROBLOX_COOKIE secret not set either."
+            call_presence_api "Cookie + CSRF" \
+              -H "Cookie: .ROBLOSECURITY=${ROBLOX_COOKIE}" \
+              -H "x-csrf-token: ${CSRF}" \
+              && SUCCESS=true
           fi
 
-          # ── Result ─────────────────────────────────────────────────────────
+          # ── Method 3: Scrape public profile page (zero auth, zero maintenance)
           if [ "$SUCCESS" = "false" ]; then
-            echo "::warning::All presence methods failed. Set ROBLOX_API_KEY or ROBLOX_COOKIE in repository secrets."
-            exit 0   # Exit 0 so the workflow doesn't spam red X on every run
+            echo "--- Scraping public Roblox profile page ---"
+            PAGE=$(curl -s -L --max-time 15 \
+              -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" \
+              "https://www.roblox.com/users/${USER_ID}/profile")
+
+            if [ -n "$PAGE" ]; then
+              echo "Page fetched (${#PAGE} bytes). Searching for presence..."
+
+              if echo "$PAGE" | grep -qi 'icon-studio\|in.studio\|presenceType.*3\|"presenceType":3\|UserPresenceType.*3'; then
+                write_presence 3 "Studio" "" ""
+                SUCCESS=true
+              elif echo "$PAGE" | grep -qi 'icon-game\|in.game\|presenceType.*2\|"presenceType":2\|UserPresenceType.*2'; then
+                write_presence 2 "In Game" "" ""
+                SUCCESS=true
+              elif echo "$PAGE" | grep -qi 'icon-online\|isOnline.*true\|"isOnline":true\|presenceType.*1\|"presenceType":1\|UserPresenceType.*1'; then
+                write_presence 1 "" "" ""
+                SUCCESS=true
+              else
+                echo "No presence indicator found in HTML — assuming offline"
+                write_presence 0 "" "" ""
+                SUCCESS=true
+              fi
+            else
+              echo "Profile page fetch returned empty response"
+            fi
           fi
 
-          jq --arg ts "$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")" \
-            '.userPresences[0] | {
-               userPresenceType: (.userPresenceType // 0),
-               lastLocation:     .lastLocation,
-               gameId:           .gameId,
-               placeId:          .placeId,
-               updatedAt:        $ts
-             }' /tmp/rbx_response.json > data/presence.json
-
-          echo "--- presence.json ---"
-          cat data/presence.json
+          # ── Final result ───────────────────────────────────────────────────
+          if [ "$SUCCESS" = "false" ]; then
+            echo "::warning::All presence methods failed."
+          else
+            echo "--- Final presence.json ---"
+            cat data/presence.json
+          fi
 
       - name: Commit if changed
         run: |
