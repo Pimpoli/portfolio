@@ -45,6 +45,8 @@
   },
   "projects": {
     "title": "Mi Trabajo / Ejemplos",
+    "descLabel": "Descripción:",
+    "readMore": "Ver más",
     "nodes": {
       "title": "Sistema de Nodos",
       "desc": ""
@@ -64,12 +66,32 @@
     "visits":  "Visitas totales",
     "members": "Miembros en el Studio"
   },
+  "presence": {
+    "name": "Nombre:",
+    "state": "Estado:",
+    "online": "Online",
+    "ingame": "En Juego",
+    "instudio": "En Studio",
+    "offline": "Offline",
+    "game": "Juego:",
+    "location": "Ubicación:",
+    "followers": "Seguidores:"
+  },
   "games": {
     "title": "Juegos que he creado",
     "webLabel": "Jugar en el navegador",
     "solo": "1 jugador",
     "duo": "2 jugadores",
-    "robloxLabel": "En Roblox"
+    "robloxLabel": "En Roblox",
+    "play": "▶ Jugar",
+    "modal": {
+      "play": "Jugar",
+      "page": "Ir a la página",
+      "confirmTitle": "Iniciar juego",
+      "confirmText": "¿Deseas iniciar el juego ahora?",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar"
+    }
   },
   "store": {
     "title": "Productos / Tienda",

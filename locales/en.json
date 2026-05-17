@@ -45,6 +45,8 @@
   },
   "projects": {
     "title": "My Work / Examples",
+    "descLabel": "Description:",
+    "readMore": "Read more",
     "nodes": {
       "title": "Nodes System",
       "desc": ""
@@ -64,12 +66,32 @@
     "visits":  "Total visits",
     "members": "Studio Members"
   },
+  "presence": {
+    "name": "Name:",
+    "state": "State:",
+    "online": "Online",
+    "ingame": "In Game",
+    "instudio": "In Studio",
+    "offline": "Offline",
+    "game": "Game:",
+    "location": "Location:",
+    "followers": "Followers:"
+  },
   "games": {
     "title": "Games I've Created",
     "webLabel": "Play in browser",
     "solo": "1 player",
     "duo": "2 players",
-    "robloxLabel": "On Roblox"
+    "robloxLabel": "On Roblox",
+    "play": "▶ Play",
+    "modal": {
+      "play": "Play",
+      "page": "Go to page",
+      "confirmTitle": "Start game",
+      "confirmText": "Do you want to start the game now?",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    }
   },
   "store": {
     "title": "Products / Store",

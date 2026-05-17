@@ -45,6 +45,8 @@
   },
   "projects": {
     "title": "Meu Trabalho / Exemplos",
+    "descLabel": "Descrição:",
+    "readMore": "Ver mais",
     "nodes": {
       "title": "Sistema de Nós",
       "desc": ""
@@ -64,12 +66,32 @@
     "visits":  "Visitas totais",
     "members": "Membros no Studio"
   },
+  "presence": {
+    "name": "Nome:",
+    "state": "Status:",
+    "online": "Online",
+    "ingame": "No Jogo",
+    "instudio": "No Studio",
+    "offline": "Offline",
+    "game": "Jogo:",
+    "location": "Localização:",
+    "followers": "Seguidores:"
+  },
   "games": {
     "title": "Jogos que eu criei",
     "webLabel": "Jogar no navegador",
     "solo": "1 jogador",
     "duo": "2 jogadores",
-    "robloxLabel": "No Roblox"
+    "robloxLabel": "No Roblox",
+    "play": "▶ Jogar",
+    "modal": {
+      "play": "Jogar",
+      "page": "Ir para a página",
+      "confirmTitle": "Iniciar jogo",
+      "confirmText": "Quer iniciar o jogo agora?",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar"
+    }
   },
   "store": {
     "title": "Produtos / Loja",

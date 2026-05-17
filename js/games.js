@@ -7,6 +7,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (!gamesContainer) return;
 
+  const getT = (key, fallback) => {
+    if (!window.translations) return fallback;
+    const parts = key.split('.');
+    let v = window.translations;
+    for (const p of parts) {
+      if (v && v[p] !== undefined) v = v[p];
+      else return fallback;
+    }
+    return typeof v === 'string' ? v : fallback;
+  };
+
   // ──────────────────────────────────────────────────────────────────────────
   // CONFIGURACIÓN: IDs de tus juegos
   // ──────────────────────────────────────────────────────────────────────────
@@ -29,6 +40,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const gameDatabase = {};
   let memoryCleanupTimeout = null;
+
+  // ─── Cache sessionStorage (comparte claves de universeId con stats.js) ───────
+  const _GAME_TTL = 10 * 60_000; // 10 min
+
+  function _gcGet(k, ttl) {
+    try { const r = sessionStorage.getItem(k); if (!r) return null; const { v, t } = JSON.parse(r); return Date.now() - t < ttl ? v : null; } catch { return null; }
+  }
+  function _gcSet(k, v) {
+    try { sessionStorage.setItem(k, JSON.stringify({ v, t: Date.now() })); } catch {}
+  }
+  function _gcIsRL()          { try { return Date.now() < Number(sessionStorage.getItem('rbx_rl') || 0); } catch { return false; } }
+  function _gcSetRL(ms=90_000){ try { sessionStorage.setItem('rbx_rl', String(Date.now() + ms)); } catch {} }
 
   // ──────────────────────────────────────────────────────────────────────────
   // Fetch con timeout individual por intento
@@ -56,10 +79,12 @@ document.addEventListener('DOMContentLoaded', () => {
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       try {
         const res = await fetchWithTimeout(url, options, timeoutMs);
+        if (res.status === 429) { _gcSetRL(); throw new Error('RateLimit'); }
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res;
       } catch (e) {
         lastError = e;
+        if (e.message === 'RateLimit') break; // No reintentar si es rate-limit
         if (attempt < maxAttempts - 1) {
           await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
         }
@@ -72,12 +97,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Paso 1: obtener universeId con reintentos
   // ──────────────────────────────────────────────────────────────────────────
   async function fetchUniverseId(placeId) {
-    const res = await retryFetch(
-      `https://apis.roproxy.com/universes/v1/places/${placeId}/universe`,
-      {}, 3, 8000
-    );
+    // Cache compartida con stats.js — clave rbx_uid_{placeId}
+    const cached = _gcGet(`rbx_uid_${placeId}`, _GAME_TTL);
+    if (cached !== null) return cached;
+
+    const res  = await retryFetch(`https://apis.roproxy.com/universes/v1/places/${placeId}/universe`, {}, 3, 8000);
     const data = await res.json();
     if (!data.universeId) throw new Error('No universeId in response');
+    _gcSet(`rbx_uid_${placeId}`, data.universeId);
     return data.universeId;
   }
 
@@ -127,14 +154,31 @@ document.addEventListener('DOMContentLoaded', () => {
   // Siempre devuelve algo (fallback en el peor caso)
   // ──────────────────────────────────────────────────────────────────────────
   async function fetchBasicGameData(placeId) {
+    // 1. Caché en memoria (misma sesión de página)
     if (gameDatabase[placeId]) return gameDatabase[placeId];
 
-    const fb = FALLBACK_GAMES[placeId] || {};
-    let universeId = null;
+    // 2. Caché sessionStorage 10 min (sobrevive recargas)
+    const GAME_KEY = `rbx_game_${placeId}`;
+    const cachedGame = _gcGet(GAME_KEY, _GAME_TTL);
+    if (cachedGame) { gameDatabase[placeId] = cachedGame; return cachedGame; }
 
+    const fb = FALLBACK_GAMES[placeId] || {};
+
+    // Si estamos en rate-limit, devolvemos fallback sin llamar a la API
+    if (_gcIsRL()) {
+      gameDatabase[placeId] = {
+        id: placeId, universeId: null,
+        name: fb.name || `Juego ${placeId}`, desc: fb.desc || '',
+        iconUrl: 'img/MultiGameInc.webp', coverUrl: 'img/MultiGameInc.webp',
+        images: ['img/MultiGameInc.webp'], isFallback: true
+      };
+      return gameDatabase[placeId];
+    }
+
+    let universeId = null;
     try {
       universeId = await fetchUniverseId(placeId);
-    } catch (e) {
+    } catch {
       console.warn(`No se pudo obtener universeId para ${placeId}. Usando datos de respaldo.`);
       gameDatabase[placeId] = {
         id: placeId, universeId: null,
@@ -155,6 +199,9 @@ document.addEventListener('DOMContentLoaded', () => {
       isFallback: false
     };
 
+    // Guardar en sessionStorage solo si tenemos datos reales (no fallback)
+    _gcSet(GAME_KEY, gameDatabase[placeId]);
+
     return gameDatabase[placeId];
   }
 
@@ -163,9 +210,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Actualiza la UI cuando lleguen los datos reales
   // ──────────────────────────────────────────────────────────────────────────
   async function backgroundRetryGame(placeId, cardEl) {
-    // Espera 6 segundos antes de reintentar para no saturar la API
     await new Promise(r => setTimeout(r, 6000));
-    delete gameDatabase[placeId]; // Limpia caché de fallback
+    delete gameDatabase[placeId];
+    try { sessionStorage.removeItem(`rbx_game_${placeId}`); } catch {}
     try {
       const game = await fetchBasicGameData(placeId);
       if (!game.isFallback && cardEl && cardEl.isConnected) {
@@ -335,8 +382,8 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <div id="game-modal-desc-container"></div>
           <div class="modal-actions">
-            <button id="game-modal-play" class="button-primary">Play</button>
-            <button id="game-modal-page" class="button-secondary">Ir a la página</button>
+            <button id="game-modal-play" class="button-primary" data-i18n="games.modal.play">Play</button>
+            <button id="game-modal-page" class="button-secondary" data-i18n="games.modal.page">Go to page</button>
           </div>
         </div>
       </div>
@@ -348,11 +395,11 @@ document.addEventListener('DOMContentLoaded', () => {
     confirm.style.display = 'none';
     confirm.innerHTML = `
       <div id="game-confirm" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
-        <h3 id="confirm-title">Iniciar juego</h3>
-        <p id="confirm-text">¿Deseas iniciar el juego ahora?</p>
+        <h3 id="confirm-title" data-i18n="games.modal.confirmTitle">Start game</h3>
+        <p id="confirm-text" data-i18n="games.modal.confirmText">Do you want to start the game now?</p>
         <div class="confirm-actions">
-          <button id="confirm-cancel" class="button-secondary">Cancelar</button>
-          <button id="confirm-ok" class="button-primary">Confirmar</button>
+          <button id="confirm-cancel" class="button-secondary" data-i18n="games.modal.cancel">Cancel</button>
+          <button id="confirm-ok" class="button-primary" data-i18n="games.modal.confirm">Confirm</button>
         </div>
       </div>
     `;
@@ -369,6 +416,21 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   createModalsIfNeeded();
+
+  document.addEventListener('languageLoaded', () => {
+    const pairs = [
+      ['#game-modal-play',   'games.modal.play'],
+      ['#game-modal-page',   'games.modal.page'],
+      ['#confirm-title',     'games.modal.confirmTitle'],
+      ['#confirm-text',      'games.modal.confirmText'],
+      ['#confirm-cancel',    'games.modal.cancel'],
+      ['#confirm-ok',        'games.modal.confirm'],
+    ];
+    pairs.forEach(([sel, key]) => {
+      const el = document.querySelector(sel);
+      if (el) el.textContent = getT(key, el.textContent);
+    });
+  });
 
   let currentModalImages = [];
   let currentModalIdx = 0;
@@ -427,7 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (game.desc && game.desc.trim()) {
       descContainer.innerHTML = `
         <div style="background:rgba(0,0,0,0.4);padding:15px;border-radius:8px;font-size:clamp(0.9rem,3vw,1rem);line-height:1.5;color:rgba(255,255,255,0.9);overflow-y:auto;max-height:25vh;border:1px solid rgba(255,255,255,0.05);text-align:left;margin-top:15px;">
-          <strong style="display:block;margin-bottom:8px;font-size:1.1em;color:#ffffff;">Descripción:</strong>
+          <strong style="display:block;margin-bottom:8px;font-size:1.1em;color:#ffffff;">${getT('projects.descLabel', 'Description:')}</strong>
           <div style="white-space:pre-wrap;font-family:inherit;">${game.desc.trim()}</div>
         </div>`;
     } else {

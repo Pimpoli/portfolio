@@ -248,7 +248,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (p.desc && p.desc.trim() !== '') {
       descContainer.innerHTML = `
-        <strong style="display: block; margin-bottom: 8px; font-size: 1.1em; color: #ffffff;">Descripción:</strong>
+        <strong style="display: block; margin-bottom: 8px; font-size: 1.1em; color: #ffffff;">${getT('projects.descLabel', 'Description:')}</strong>
         <div style="white-space: pre-wrap; font-family: inherit;">${p.desc.trim()}</div>
       `;
     } else {
