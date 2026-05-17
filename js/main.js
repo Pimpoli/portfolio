@@ -209,7 +209,7 @@ async function fetchPresenceData(userId) {
       console.log('[Presence] presence.json →', j);
       if (typeof j?.userPresenceType === 'number') {
         const age = Date.now() - new Date(j.updatedAt || 0).getTime();
-        if (age < 15 * 60_000) {
+        if (age < 60 * 60_000) {
           return saveAndReturn(j);
         } else {
           console.warn('[Presence] presence.json muy viejo:', Math.round(age / 60000), 'min');
