@@ -22,20 +22,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // CONFIGURACIÓN: IDs de tus juegos
   // ──────────────────────────────────────────────────────────────────────────
   const GAME_IDS = [
-    16125269940,       // Anime Color Block Run
-    71541333892738,    // Bloxidextro
-    108138370693321,   // Avalanche of objects
+    108138370693321,       // Anime Color Block Run
+    107848717127408,    // Bloxidextro
+    16125269940,   // Avalanche of objects
     107726833867004,   // 67 Red Light Green Light
-    107848717127408    // Don't get stomped by Brainrot
+    71541333892738     // Don't get stomped by Brainrot
   ];
 
   // Datos de respaldo para si la API falla definitivamente
   const FALLBACK_GAMES = {
-    16125269940:     { name: 'Anime Color Block Run',           desc: 'Corre por bloques de colores en un mapa dinámico.' },
-    71541333892738:  { name: 'Bloxidextro',                     desc: 'Juego de Bloxidextro.' },
-    108138370693321: { name: 'Avalanche of objects',            desc: 'Sobrevive a la avalancha.' },
-    107726833867004: { name: '67 Luz Roja Luz Verde',           desc: 'Juego de supervivencia.' },
-    107848717127408: { name: "Don't get stomped by Brainrot",   desc: 'Esquiva al Brainrot antes de que te aplaste.' }
+    108138370693321: { name: 'Avalanche of objects', desc: 'Sobrevive a la avalancha.' },
+    107848717127408: { name: "Don't let celebrities crush you.", desc: 'Esquiva a las celebridades antes de que te aplaste.' }
+    107726833867004: { name: '67 Luz Roja Luz Verde',  desc: 'Juego de supervivencia.' },
+    16125269940: { name: 'Anime Color Block Run', desc: 'Corre por bloques de colores en un mapa dinámico.' },
+    71541333892738: { name: 'Bloxidextro', desc: 'Juego de Bloxidextro.' },
   };
 
   const gameDatabase = {};
