@@ -1,7 +1,7 @@
 {
-  "userPresenceType": 0,
-  "lastLocation": "Website",
-  "gameId": null,
-  "placeId": null,
-  "updatedAt": "2026-08-10T04:45:23.000Z"
+  "userPresenceType": 3,
+  "lastLocation": "Proyecto PR",
+  "gameId": "a4da61eb-1e1c-4bf0-9315-ab876e7dc68d",
+  "placeId": 117385395086965,
+  "updatedAt": "2026-08-10T06:03:09.000Z"
 }
