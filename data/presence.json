@@ -1,7 +1,7 @@
 {
-  "userPresenceType": 1,
-  "lastLocation": "Website",
-  "gameId": null,
-  "placeId": null,
-  "updatedAt": "2026-08-30T06:49:14.000Z"
+  "userPresenceType": 3,
+  "lastLocation": "WF",
+  "gameId": "ec7db474-a776-4ddb-9fbc-1050bc2e620f",
+  "placeId": 100424037854780,
+  "updatedAt": "2026-08-30T12:19:02.000Z"
 }
