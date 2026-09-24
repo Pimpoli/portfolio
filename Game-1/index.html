@@ -2,812 +2,514 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="description" content="Color Block: minijuego de plataformas para 1 jugador. Salta al bloque del color indicado antes de que se acabe el tiempo de cada ronda." />
-  <title>Color Block — PimpoliDev</title>
+  <meta name="theme-color" content="#0b0a14" />
+  <title>Color Block 3D — PimpoliDev</title>
   <link rel="icon" href="../img/MultiGameInc.webp" />
+  <script type="importmap">{"imports":{"three":"../js/vendor/three.module.min.js","three/addons/":"../js/vendor/addons/"}}</script>
+  <link rel="modulepreload" href="../js/vendor/three.module.min.js" />
+  <link rel="modulepreload" href="render-3d.js" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&amp;family=Figtree:wght@400;500;600;700&amp;display=swap" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg0: #0b0a14; --bg1: #141032; --bg2: #1c1446;
+      --surface: #17161f; --surface-2: #1f1d2a;
+      --border: #2a2838; --border-2: #363346;
+      --text: #f3f1fa; --muted: #a9a5bd;
+      --accent: #7c4dff; --accent-hover: #6a3df0; --accent-soft: #a98bff;
+      --danger: #ff6b6b; --gold: #f1c40f;
+      --font-display: 'Fredoka', ui-rounded, 'SF Pro Rounded', 'Nunito', 'Varela Round', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --font-ui: 'Figtree', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      --header-h: 64px;
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+      --sal: env(safe-area-inset-left, 0px);
+      --sar: env(safe-area-inset-right, 0px);
+      --top: calc(var(--header-h) + var(--sat));
+      --pad-x: 28px;
+      color-scheme: dark;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; }
     body {
-      background: #0a0a0f; color: #fff;
-      font-family: 'Segoe UI', sans-serif;
-      display: flex; flex-direction: column;
-      align-items: center; min-height: 100vh; overflow: hidden;
+      margin: 0; overflow: hidden; overscroll-behavior: none;
+      background: linear-gradient(180deg, var(--bg0) 0%, var(--bg1) 55%, var(--bg2) 100%) fixed;
+      background-color: var(--bg0);
+      color: var(--text); font-family: var(--font-ui);
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
     }
-    #topbar {
-      width: 100%; display: flex; align-items: center;
-      justify-content: space-between; padding: 10px 20px;
-      background: rgba(0,0,0,0.5); position: fixed; top: 0;
-      z-index: 100; backdrop-filter: blur(6px);
+    button { font: inherit; color: inherit; }
+    :focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 2px; }
+    .sr-only {
+      position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
     }
-    #topbar a { color: #ff4500; text-decoration: none; font-weight: 700; font-size: 0.9rem; }
-    #topbar a:hover { text-decoration: underline; }
-    #game-wrap {
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      width: 100%; height: 100vh; height: 100dvh; padding-top: 50px;
-    }
-    canvas { border-radius: 12px; box-shadow: 0 0 40px rgba(255,69,0,0.2); display: block; }
-    #ui-bar { display: flex; gap: 24px; align-items: center; margin-bottom: 12px; font-size: 1rem; font-weight: 700; }
-    #ui-bar span { opacity: 0.8; font-size: 0.85rem; }
-    .score-val { color: #fff; font-size: 1.2rem; }
-    #controls-hint { margin-top: 10px; font-size: 0.76rem; opacity: 0.4; text-align: center; line-height: 1.6; }
 
-    /* ── Mobile controls ── */
-    #mobile-controls {
-      display: none;
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      padding: 10px 16px 14px;
-      background: rgba(0,0,0,0.45);
-      backdrop-filter: blur(8px);
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 12px;
-      z-index: 200;
+    /* ── Fondo: brillo del color objetivo + rejilla CSS (mientras carga o en modo 2D) ── */
+    #glow {
+      position: fixed; z-index: 0; left: 50%; top: 55%; width: 900px; height: 320px;
+      transform: translate(-50%, -50%);
+      background-color: #3498db; opacity: 0.3;
+      -webkit-mask-image: radial-gradient(closest-side, #000 0%, rgba(0,0,0,0.55) 45%, transparent 100%);
+      mask-image: radial-gradient(closest-side, #000 0%, rgba(0,0,0,0.55) 45%, transparent 100%);
+      transition: background-color 0.6s ease;
       pointer-events: none;
     }
-    .mc-group { display: flex; gap: 8px; align-items: flex-end; pointer-events: auto; }
+    #floor-grid {
+      position: fixed; z-index: 0; left: -40%; right: -40%; bottom: -12vh; height: 62vh;
+      background-image:
+        linear-gradient(rgba(124,77,255,0.25) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,77,255,0.25) 1px, transparent 1px);
+      background-size: 64px 64px;
+      transform: perspective(700px) rotateX(64deg); transform-origin: 50% 100%;
+      opacity: 0.55; pointer-events: none;
+      -webkit-mask-image: linear-gradient(to top, #000 55%, transparent 100%);
+      mask-image: linear-gradient(to top, #000 55%, transparent 100%);
+    }
+    body.is-3d #floor-grid { display: none; }
+
+    /* ── Lienzo (WebGL o 2D) a pantalla completa ── */
+    #stage { position: fixed; inset: 0; z-index: 1; outline: none; }
+    #c { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+
+    /* ── Barra superior ── */
+    #topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+      height: var(--top);
+      padding: var(--sat) calc(var(--pad-x) + var(--sar)) 0 calc(var(--pad-x) + var(--sal));
+      display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px;
+      background: rgba(11,10,20,0.72);
+      border-bottom: 1px solid var(--border);
+    }
+    .back {
+      justify-self: start; min-height: 44px; display: inline-flex; align-items: center; gap: 6px;
+      padding: 0 6px; margin-left: -6px; border-radius: 10px;
+      font-size: 15px; font-weight: 600; color: var(--muted); text-decoration: none; white-space: nowrap;
+    }
+    .back:hover { color: var(--text); }
+    .title {
+      margin: 0; font-family: var(--font-display); font-size: 22px; font-weight: 700;
+      letter-spacing: 2px; white-space: nowrap;
+    }
+    .title span { font-size: 13px; letter-spacing: 1px; color: var(--accent-soft); }
+    .top-right { justify-self: end; display: flex; align-items: center; gap: 10px; }
+    .record {
+      height: 32px; padding: 0 12px; border-radius: 999px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; font-weight: 700; white-space: nowrap;
+    }
+    .record strong { color: var(--gold); font-variant-numeric: tabular-nums; }
+    .record svg { display: none; width: 15px; height: 15px; color: var(--gold); }
+    .icon-btn {
+      width: 44px; height: 44px; flex: none; border-radius: 12px; cursor: pointer;
+      border: 1px solid var(--border); background: var(--surface); color: var(--text);
+      display: grid; place-items: center; padding: 0;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .icon-btn:hover:not(:disabled) { background: var(--surface-2); border-color: var(--border-2); }
+    .icon-btn:disabled { opacity: 0.4; cursor: default; }
+    .icon-btn svg { width: 18px; height: 18px; }
+    .icon-btn .i-play, .icon-btn.is-paused .i-pause { display: none; }
+    .icon-btn.is-paused .i-play { display: block; }
+
+    /* ── HUD ── */
+    #hud {
+      position: fixed; top: var(--top); left: 0; right: 0; z-index: 5;
+      padding: 20px calc(var(--pad-x) + var(--sar)) 0 calc(var(--pad-x) + var(--sal));
+      display: grid; grid-template-columns: 1fr minmax(0, 420px) 1fr; gap: 12px; align-items: start;
+      pointer-events: none;
+    }
+    .hud-left { display: flex; gap: 10px; flex-wrap: wrap; }
+    .hud-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+    .chip {
+      height: 40px; padding: 0 16px; border-radius: 12px;
+      background: rgba(23,22,31,0.85); border: 1px solid var(--border);
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 14px; color: var(--muted); white-space: nowrap;
+    }
+    .chip strong {
+      font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+    .chip-lives { color: var(--danger); gap: 6px; }
+    #lives { display: flex; gap: 6px; }
+    #lives svg { width: 18px; height: 18px; display: block; }
+    .target {
+      --tc: #3498db; --tt: #5dade2;
+      padding: 14px 18px; border-radius: 18px;
+      background: rgba(23,22,31,0.9); border: 1px solid var(--border-2);
+      display: flex; flex-direction: column; gap: 10px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.45);
+      transition: border-color 0.2s, opacity 0.25s;
+    }
+    body.is-idle .target { opacity: 0; }
+    .t-row { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .t-swatch {
+      width: 40px; height: 40px; flex: none; border-radius: 10px; background: var(--tc);
+      box-shadow: 0 0 20px var(--tc);
+      box-shadow: 0 0 20px color-mix(in srgb, var(--tc) 70%, transparent);
+      transition: background-color 0.2s;
+    }
+    .t-text { display: flex; flex-direction: column; min-width: 0; }
+    .t-label {
+      font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .t-name { font-family: var(--font-display); font-size: 28px; font-weight: 700; line-height: 1.05; color: var(--tt); }
+    .t-secs {
+      margin-left: auto; font-family: var(--font-display); font-size: 24px; font-weight: 700;
+      font-variant-numeric: tabular-nums; white-space: nowrap;
+    }
+    .t-bar { height: 8px; border-radius: 999px; background: var(--border); overflow: hidden; }
+    #t-fill {
+      display: block; height: 100%; border-radius: 999px; background: var(--tc);
+      transform-origin: left center; transform: scaleX(1);
+    }
+    .target.is-urgent { border-color: rgba(255,107,107,0.55); }
+    .target.is-urgent .t-secs { color: var(--danger); }
+    .target.is-win .t-label, .target.is-win .t-secs { color: #58d68d; }
+    .target.is-win { border-color: rgba(88,214,141,0.55); }
+    .target.is-lose .t-label, .target.is-lose .t-secs { color: var(--danger); }
+    .target.is-lose { border-color: rgba(255,107,107,0.6); }
+    .target.is-shield .t-label, .target.is-shield .t-secs { color: #f7dc6f; }
+    /* Bonus activos: fuera del flujo para no cambiar la altura del marcador */
+    .bonuses {
+      position: absolute; top: 68px; right: calc(var(--pad-x) + var(--sar));
+      display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
+    }
+    .bonus {
+      height: 26px; padding: 0 10px; border-radius: 999px;
+      display: inline-flex; align-items: center;
+      font-size: 12px; font-weight: 700; color: var(--c); white-space: nowrap;
+      background: rgba(23,22,31,0.88); border: 1px solid var(--border-2);
+      border-color: color-mix(in srgb, var(--c) 45%, transparent);
+    }
+
+    /* ── Mensajes flotantes ── */
+    #toasts {
+      position: fixed; z-index: 6; left: 50%; top: 40%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 4px; pointer-events: none;
+    }
+    .toast {
+      font-family: var(--font-display); font-size: 26px; font-weight: 700; letter-spacing: 1px; white-space: nowrap;
+      text-shadow: 0 0 18px currentColor, 0 2px 0 rgba(0,0,0,0.45);
+      animation: toast-up 1.4s ease-out forwards;
+    }
+    @keyframes toast-up {
+      0% { opacity: 0; transform: translateY(10px) scale(0.9); }
+      12% { opacity: 1; transform: translateY(0) scale(1); }
+      65% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-46px); }
+    }
+    @keyframes toast-fade { 0% { opacity: 0; } 10%, 70% { opacity: 1; } 100% { opacity: 0; } }
+    body.is-paused .toast { animation-play-state: paused; }
+
+    /* ── Atajos de teclado (escritorio) ── */
+    #hints {
+      position: fixed; left: 0; right: 0; bottom: calc(18px + var(--sab)); z-index: 5;
+      display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 18px; padding: 0 12px;
+      font-size: 13px; color: var(--muted); pointer-events: none;
+    }
+    #hints > span { display: flex; align-items: center; gap: 6px; }
+    kbd {
+      min-width: 26px; height: 26px; padding: 0 7px; border-radius: 6px;
+      background: var(--surface-2); border: 1px solid var(--border-2); color: var(--text);
+      display: inline-flex; align-items: center; justify-content: center;
+      font: 700 13px var(--font-ui);
+    }
+
+    /* ── Controles táctiles ── */
+    #mobile-controls {
+      display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 8;
+      padding: 12px calc(16px + var(--sar)) calc(12px + var(--sab)) calc(16px + var(--sal));
+      justify-content: space-between; align-items: center; gap: 12px;
+      background: rgba(11,10,20,0.86); border-top: 1px solid var(--border);
+      pointer-events: none;
+    }
+    .mc-group { display: flex; align-items: center; gap: 10px; pointer-events: auto; }
     .mc-btn {
-      width: 60px; height: 60px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.18);
-      background: rgba(255,255,255,0.1);
-      color: #fff;
-      font-size: 1.4rem;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: manipulation;
-      transition: background 0.1s, transform 0.1s;
+      width: 64px; height: 64px; padding: 0; border-radius: 18px; cursor: pointer;
+      border: 1px solid var(--border-2); background: var(--surface-2); color: var(--text);
+      display: grid; place-items: center;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
+      touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+      transition: transform 0.08s, background-color 0.08s, border-color 0.08s;
     }
-    .mc-btn:active, .mc-btn.pressed {
-      background: rgba(255,69,0,0.45);
-      transform: scale(0.93);
-    }
+    .mc-btn svg { width: 28px; height: 28px; pointer-events: none; }
+    .mc-btn.pressed { background: var(--border); border-color: var(--accent-soft); transform: scale(0.93); }
+    .mc-drop { width: 56px; height: 56px; border-radius: 50%; }
+    .mc-drop svg { width: 24px; height: 24px; }
     .mc-jump {
-      width: 70px; height: 70px;
-      border-radius: 50%;
-      background: rgba(255,69,0,0.25);
-      border-color: rgba(255,69,0,0.45);
-      font-size: 1.6rem;
+      width: 76px; height: 76px; border-radius: 50%;
+      background: var(--accent); border-color: #9a78ff; color: #fff;
+      box-shadow: 0 8px 24px rgba(124,77,255,0.45), inset 0 1px 0 rgba(255,255,255,0.25);
     }
-    .mc-drop {
-      width: 50px; height: 50px;
-      border-radius: 50%;
-      font-size: 1.1rem;
-      opacity: 0.75;
+    .mc-jump svg { width: 32px; height: 32px; }
+    .mc-jump.pressed { background: var(--accent-hover); border-color: #c4b0ff; }
+    /* Pantalla baja (móvil en horizontal): controles en las esquinas, sin barra */
+    body.mc-lateral #mobile-controls {
+      background: transparent; border-top: 0;
+      padding: 0 calc(14px + var(--sar)) calc(12px + var(--sab)) calc(14px + var(--sal));
+      align-items: flex-end;
     }
-    .mc-pause {
-      width: 44px; height: 44px;
-      border-radius: 50%;
-      font-size: 0.9rem;
-      opacity: 0.75;
+    body.mc-lateral .mc-btn:not(.mc-jump):not(.mc-drop) { width: 58px; height: 58px; border-radius: 16px; }
+    body.mc-lateral .mc-jump { width: 68px; height: 68px; }
+    body.mc-lateral .mc-drop { width: 52px; height: 52px; }
+
+    /* ── Pantallas (inicio, pausa, fin) ── */
+    #overlay {
+      position: fixed; top: var(--top); left: 0; right: 0; bottom: 0; z-index: 9;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px calc(16px + var(--sar)) calc(16px + var(--sab)) calc(16px + var(--sal));
+      background: rgba(11,10,20,0.62);
+      cursor: pointer;
     }
-    /* Pantallas bajas (móvil en horizontal): controles a los lados del canvas */
-    body.mc-lateral #mobile-controls { background: transparent; backdrop-filter: none; }
-    body.mc-lateral .mc-pause-group { position: absolute; left: 16px; bottom: 90px; }
+    #overlay[hidden], .card[hidden] { display: none; }
+    .card {
+      width: min(400px, 100%); max-height: 100%; overflow: auto; cursor: default;
+      padding: 28px; border-radius: 20px;
+      background: rgba(23,22,31,0.96); border: 1px solid var(--border-2);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+      display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center;
+    }
+    .card h2 { margin: 0; font-family: var(--font-display); font-size: 34px; font-weight: 700; letter-spacing: 0.5px; line-height: 1.1; }
+    .card h2 .accent { color: var(--accent-soft); font-size: 0.6em; letter-spacing: 1px; vertical-align: 0.35em; }
+    .card p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.5; }
+    .card p strong { color: var(--text); }
+    .card .card-hint { font-size: 13px; }
+    .card .card-note { font-size: 13px; color: var(--accent-soft); }
+    .hint-touch { display: none; }
+    .swatches { display: flex; gap: 6px; padding-bottom: 4px; }
+    .swatches span {
+      width: 28px; height: 16px; border-radius: 5px; background: var(--c);
+      box-shadow: 0 5px 0 var(--d);
+    }
+    .btn {
+      min-height: 48px; padding: 0 24px; border-radius: 12px; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      font: 700 16px var(--font-ui); text-decoration: none; border: 1px solid transparent;
+      transition: background-color 0.15s, border-color 0.15s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 8px 24px rgba(124,77,255,0.35); }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary { background: var(--surface-2); color: var(--text); border-color: var(--border-2); }
+    .btn-secondary:hover { border-color: var(--accent-soft); }
+    .btn svg { width: 16px; height: 16px; }
+    #btn-start { width: 100%; }
+    .card-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; width: 100%; }
+    .card-actions .btn { flex: 1 1 auto; padding: 0 16px; white-space: nowrap; }
+    .badge {
+      padding: 4px 12px; border-radius: 999px; font-size: 13px !important; font-weight: 700;
+      color: var(--gold) !important; background: rgba(241,196,15,0.12); border: 1px solid rgba(241,196,15,0.35);
+    }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; margin: 0; }
+    .stats div { padding: 10px 6px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); }
+    .stats dt { font-size: 12px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); }
+    .stats dd { margin: 2px 0 0; font-family: var(--font-display); font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    #screen-over h2 { color: #ff8a80; }
+
+    /* ── Pantallas táctiles ── */
     @media (hover: none) and (pointer: coarse) {
       #mobile-controls { display: flex; }
-      #controls-hint { display: none; }
+      #hints { display: none; }
+      .hint-kb { display: none; }
+      .hint-touch { display: inline; }
     }
+    @media (max-height: 540px) { #hints { display: none; } }
+
+    /* ── Móvil / ventanas estrechas ── */
+    @media (max-width: 720px) {
+      :root { --header-h: 56px; --pad-x: 12px; }
+      .title { font-size: 18px; letter-spacing: 1.5px; }
+      .title span { font-size: 11px; }
+      .back { font-size: 14px; }
+      #hud {
+        grid-template-columns: 1fr auto; padding-top: 10px; gap: 8px;
+      }
+      .hud-left { gap: 8px; flex-wrap: nowrap; }
+      .bonuses { top: calc(100% + 6px); left: 12px; right: 12px; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+      .target { grid-column: 1 / -1; grid-row: 2; justify-self: center; width: min(420px, 100%); padding: 10px 14px; gap: 8px; border-radius: 16px; }
+      .chip { height: 36px; padding: 0 12px; font-size: 13px; gap: 6px; }
+      .chip strong { font-size: 18px; }
+      #lives { gap: 4px; }
+      #lives svg { width: 16px; height: 16px; }
+      .t-swatch { width: 34px; height: 34px; }
+      .t-name { font-size: 24px; }
+      .t-secs { font-size: 21px; }
+      .t-label { font-size: 11px; }
+      .card { padding: 22px; gap: 12px; }
+      .card h2 { font-size: 30px; }
+    }
+    @media (max-width: 420px) {
+      #topbar { grid-template-columns: auto 1fr auto; gap: 8px; }
+      .title { text-align: center; font-size: 16px; letter-spacing: 1px; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+      .top-right { gap: 6px; }
+      .back-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+      .back { font-size: 20px; min-width: 44px; justify-content: center; }
+      .record-label { display: none; }
+      .record svg { display: block; }
+      .record { padding: 0 10px; gap: 5px; }
+      .chip { padding: 0 10px; }
+      .bonus { font-size: 11px; padding: 0 8px; }
+    }
+    @media (max-width: 350px) {
+      .title { font-size: 14px; letter-spacing: 0.5px; }
+      .title span { font-size: 10px; }
+      .chip { padding: 0 8px; gap: 4px; }
+      #lives svg { width: 14px; height: 14px; }
+    }
+    /* Móvil en horizontal: cabecera y marcador compactos en una sola fila */
+    @media (max-height: 500px) and (orientation: landscape) {
+      :root { --header-h: 50px; --pad-x: 14px; }
+      .title { font-size: 17px; }
+      #hud { grid-template-columns: 1fr minmax(0, 340px) 1fr; padding-top: 6px; gap: 8px; }
+      .hud-left, .hud-right { flex-wrap: nowrap; }
+      .bonuses { top: 46px; left: auto; right: calc(var(--pad-x) + var(--sar)); flex-direction: column; align-items: flex-end; }
+      .target { grid-column: auto; grid-row: auto; width: auto; padding: 7px 12px; gap: 6px; border-radius: 14px; }
+      .t-row { gap: 10px; }
+      .t-swatch { width: 26px; height: 26px; border-radius: 8px; }
+      .t-label { font-size: 10px; }
+      .t-name { font-size: 18px; }
+      .t-secs { font-size: 17px; }
+      .t-bar { height: 5px; }
+      .chip { height: 34px; padding: 0 10px; font-size: 12px; }
+      .chip strong { font-size: 16px; }
+      .card { padding: 16px 20px; gap: 10px; width: min(460px, 100%); }
+      .card h2 { font-size: 24px; }
+      .card p { font-size: 14px; line-height: 1.4; }
+      .stats dd { font-size: 20px; }
+      .swatches { display: none; }
+      .btn { min-height: 44px; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
-      .mc-btn { transition: none; }
-      .mc-btn:active, .mc-btn.pressed { transform: none; }
+      .mc-btn, .icon-btn, .btn, .target, #glow, .t-swatch { transition: none; }
+      .mc-btn.pressed { transform: none; }
+      .toast { animation-name: toast-fade; }
     }
   </style>
 </head>
-<body>
-  <div id="topbar">
-    <a href="https://pimpolidev.com">← PimpoliDev</a>
-    <span style="font-weight:700;letter-spacing:1px;">COLOR BLOCK</span>
-    <span id="hiscore-top" style="font-size:0.85rem;opacity:0.6;">BEST: 0</span>
+<body class="is-idle">
+  <div id="floor-grid" aria-hidden="true"></div>
+  <div id="glow" aria-hidden="true"></div>
+
+  <main id="stage" tabindex="-1">
+    <canvas id="c" role="img" aria-label="Color Block 3D: tablero con plataformas de seis colores en tres filas y un cubo que controlas. Cuando se acaba el tiempo de la ronda debes estar sobre una plataforma del color indicado."></canvas>
+  </main>
+
+  <header id="topbar">
+    <a class="back" href="../" aria-label="Volver a PimpoliDev"><span aria-hidden="true">←</span><span class="back-text">PimpoliDev</span></a>
+    <h1 class="title">COLOR BLOCK <span>3D</span></h1>
+    <div class="top-right">
+      <span class="record">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 3h10v2h3v3a4 4 0 0 1-4 4h-.3A5 5 0 0 1 13 14.9V18h3v3H8v-3h3v-3.1A5 5 0 0 1 8.3 12H8a4 4 0 0 1-4-4V5h3V3zm0 4H6v1a2 2 0 0 0 1 1.7V7zm10 0v2.7A2 2 0 0 0 18 8V7h-1z"/></svg>
+        <span class="record-label">Récord</span> <strong id="hiscore">0</strong>
+      </span>
+      <button id="btn-pause" class="icon-btn" type="button" aria-label="Pausar" aria-pressed="false" disabled>
+        <svg class="i-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+        <svg class="i-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.2-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <section id="hud" aria-label="Marcador">
+    <div class="hud-left">
+      <span class="chip">Puntos <strong id="score">0</strong></span>
+      <span class="chip chip-lives"><span id="lives-sr" class="sr-only">Vidas: 3</span><span id="lives" aria-hidden="true"></span></span>
+    </div>
+    <div id="target" class="target">
+      <div class="t-row">
+        <span id="t-swatch" class="t-swatch" aria-hidden="true"></span>
+        <span class="t-text"><span id="t-label" class="t-label">Ve al color</span><span id="t-name" class="t-name">AZUL</span></span>
+        <span id="t-secs" class="t-secs"></span>
+      </div>
+      <div class="t-bar" aria-hidden="true"><span id="t-fill"></span></div>
+    </div>
+    <div class="hud-right">
+      <span class="chip">Ronda <strong id="round">1</strong></span>
+    </div>
+    <div id="bonuses" class="bonuses"></div>
+  </section>
+
+  <div id="toasts" aria-hidden="true"></div>
+
+  <div id="hints">
+    <span><kbd aria-label="Flecha izquierda">←</kbd><kbd aria-label="Flecha derecha">→</kbd>Mover</span>
+    <span><kbd>Espacio</kbd>Saltar</span>
+    <span><kbd aria-label="Flecha abajo">↓</kbd>Bajar</span>
+    <span><kbd>Esc</kbd>Pausa</span>
   </div>
 
-  <div id="game-wrap">
-    <div id="ui-bar">
-      <div><span>SCORE </span><span class="score-val" id="score-display">0</span></div>
-      <div><span>VIDAS </span><span class="score-val" id="lives-display">♥♥♥</span></div>
-      <div><span>RONDA </span><span class="score-val" id="round-display">1</span></div>
-    </div>
-    <canvas id="c" role="img" aria-label="Color Block: tablero de juego con plataformas de colores; salta a la del color indicado antes de que acabe la ronda"></canvas>
-    <div id="controls-hint">
-      A / D / ← → mover &nbsp;|&nbsp; W / ↑ / Space saltar &nbsp;|&nbsp; S / ↓ bajar &nbsp;|&nbsp; ESC pausa
-    </div>
-  </div>
-
-  <!-- Mobile D-pad -->
   <div id="mobile-controls">
     <div class="mc-group">
-      <button class="mc-btn" id="mc-left" aria-label="Mover izquierda">◀</button>
-      <button class="mc-btn" id="mc-right" aria-label="Mover derecha">▶</button>
+      <button class="mc-btn" id="mc-left" type="button" aria-label="Mover a la izquierda">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <button class="mc-btn" id="mc-right" type="button" aria-label="Mover a la derecha">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+      </button>
     </div>
-    <div class="mc-group mc-pause-group">
-      <button class="mc-btn mc-pause" id="mc-pause" aria-label="Pausa">❚❚</button>
-    </div>
-    <div class="mc-group" style="flex-direction:column; align-items:center; gap:6px;">
-      <button class="mc-btn mc-jump" id="mc-jump" aria-label="Saltar">▲</button>
-      <button class="mc-btn mc-drop" id="mc-drop" aria-label="Bajar">▼</button>
+    <div class="mc-group">
+      <button class="mc-btn mc-drop" id="mc-drop" type="button" aria-label="Bajar de la plataforma">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v13M6 12l6 6 6-6"/></svg>
+      </button>
+      <button class="mc-btn mc-jump" id="mc-jump" type="button" aria-label="Saltar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20V7M6 12l6-6 6 6"/></svg>
+      </button>
     </div>
   </div>
 
-<script>
-(function(){
-  'use strict';
-
-  // ─── roundRect polyfill ───────────────────────────────────────────────────
-  if (!CanvasRenderingContext2D.prototype.roundRect) {
-    CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h,r){
-      r = Math.min(r||0, w/2, h/2);
-      this.moveTo(x+r,y); this.lineTo(x+w-r,y);
-      this.quadraticCurveTo(x+w,y,x+w,y+r); this.lineTo(x+w,y+h-r);
-      this.quadraticCurveTo(x+w,y+h,x+w-r,y+h); this.lineTo(x+r,y+h);
-      this.quadraticCurveTo(x,y+h,x,y+h-r); this.lineTo(x,y+r);
-      this.quadraticCurveTo(x,y,x+r,y); this.closePath(); return this;
-    };
-  }
-
-  const canvas = document.getElementById('c');
-  const ctx    = canvas.getContext('2d');
-
-  // ─── Responsive canvas ────────────────────────────────────────────────────
-  // Solo recalcula tamaño y posiciones: el estado de la partida (plataformas
-  // eliminadas, avisos, jugador, ronda) se conserva.
-  const MIN_H = 300; // alto mínimo jugable (la fila superior está en H-260)
-  function resize() {
-    const oldW = canvas.width, oldH = canvas.height;
-    const wrap = document.getElementById('game-wrap');
-    const mc   = document.getElementById('mobile-controls');
-    const touchUI = mc && getComputedStyle(mc).display !== 'none';
-    let W, H;
-    document.body.classList.remove('mc-lateral');
-    wrap.style.paddingBottom = '';
-
-    if (touchUI) {
-      // Los controles táctiles son fijos abajo: el canvas no debe quedar debajo
-      const barH    = mc.offsetHeight;
-      const sideW   = Math.max(mc.firstElementChild.offsetWidth, mc.lastElementChild.offsetWidth) + 16;
-      const bottomH = window.innerHeight - 100 - barH;
-      if (bottomH < MIN_H && window.innerWidth - sideW * 2 >= 300) {
-        // Pantalla baja (horizontal): controles a los lados, canvas en el centro
-        document.body.classList.add('mc-lateral');
-        W = Math.min(window.innerWidth - sideW * 2, 900);
-        H = Math.min(window.innerHeight - 100, 500);
-      } else {
-        wrap.style.paddingBottom = barH + 'px';
-        W = Math.min(window.innerWidth - 20, 900);
-        H = Math.min(Math.max(bottomH, 280), 500);
-      }
-    } else {
-      W = Math.min(window.innerWidth  - 20, 900);
-      H = Math.min(window.innerHeight - 130, 500);
-    }
-
-    // Plataforma sobre la que está el jugador (para mantenerlo encima)
-    let standPf = null, standFrac = 0;
-    if (platforms.length) {
-      standPf = platforms.find(p => !p.dead &&
-        player.x + player.w > p.x && player.x < p.x + p.w &&
-        Math.abs((player.y + player.h) - p.y) <= 4);
-      if (standPf) standFrac = (player.x + player.w/2 - standPf.x) / standPf.w;
-    }
-
-    canvas.width  = W;
-    canvas.height = H;
-
-    if (!platforms.length) { generatePlatforms(); return; }
-
-    platforms.forEach(layoutPlatform);
-
-    // Reposicionar entidades proporcionalmente (las filas están ancladas abajo)
-    const sx = W / oldW, dyH = H - oldH;
-    if (standPf) {
-      player.x = standPf.x + standFrac * standPf.w - player.w/2;
-      player.y = standPf.y - player.h;
-    } else {
-      player.x = (player.x + player.w/2) * sx - player.w/2;
-      player.y += dyH;
-    }
-    player.x = Math.max(0, Math.min(W - player.w, player.x));
-    for (const pk of pickups)  { pk.x *= sx; pk.y += dyH; }
-    for (const m  of messages) { m.x = W/2;  m.y += dyH/2; }
-  }
-  window.addEventListener('resize', resize);
-
-  // ─── Colors ───────────────────────────────────────────────────────────────
-  const COLORS = [
-    { name:'ROJO',     hex:'#e74c3c' },
-    { name:'AZUL',     hex:'#3498db' },
-    { name:'VERDE',    hex:'#2ecc71' },
-    { name:'AMARILLO', hex:'#f1c40f' },
-    { name:'MORADO',   hex:'#9b59b6' },
-    { name:'NARANJA',  hex:'#e67e22' },
-  ];
-
-  // ─── Pickup types ─────────────────────────────────────────────────────────
-  const PICKUP_TYPES = [
-    { id:'heart',  sym:'♥',  color:'#e74c3c', glow:'#ff4444', label:'+1 VIDA'     },
-    { id:'heal',   sym:'✚',  color:'#2ecc71', glow:'#44ff88', label:'CURACIÓN'    },
-    { id:'slow',   sym:'⏱', color:'#3498db', glow:'#44aaff', label:'TIEMPO +'    },
-    { id:'shield', sym:'🛡', color:'#f1c40f', glow:'#ffee00', label:'ESCUDO'      },
-    { id:'double', sym:'×2', color:'#e67e22', glow:'#ff8800', label:'×2 PUNTOS'  },
-  ];
-
-  // ─── Game state ───────────────────────────────────────────────────────────
-  let score          = 0;
-  let lives          = 3;
-  let round          = 1;
-  let hiScore        = loadHiScore();
-  let gameOver       = false;
-  let gameOverAt     = 0;     // instante del GAME OVER (evita reinicios por toques accidentales)
-  let paused         = false;
-  let shieldActive   = false;
-  let scoreMultiplier= 1;
-  let slowRoundsLeft = 0;
-
-  // localStorage puede estar bloqueado (modo privado, cookies desactivadas...)
-  function loadHiScore() {
-    try { return parseInt(localStorage.getItem('cb_hs') || '0', 10) || 0; }
-    catch (e) { return 0; }
-  }
-  function saveHiScore() {
-    try { localStorage.setItem('cb_hs', hiScore); } catch (e) { /* sin almacenamiento */ }
-  }
-
-  document.getElementById('hiscore-top').textContent = 'BEST: ' + hiScore;
-
-  // ─── Player ───────────────────────────────────────────────────────────────
-  // Valores por fotograma a 60 fps; se escalan con dt para ir igual a 120/144 Hz
-  const GRAVITY    = 0.55;
-  const JUMP_FORCE = -13;
-  const SPEED      = 4.5;
-  const FRAME_MS   = 1000 / 60;
-  const MAX_DT     = 50;      // ms: evita saltos enormes tras cambiar de pestaña
-
-  const player = { x:60, y:100, w:28, h:42, vx:0, vy:0, grounded:false, colorIdx:-1 };
-  let dropPlatform = null; // specific platform to pass through when dropping
-  let dropTimer    = 0;   // ms countdown while drop is active
-
-  // ─── Platforms ────────────────────────────────────────────────────────────
-  let platforms = [];
-
-  // Posición/tamaño de una plataforma según su fila y columna y el tamaño del canvas
-  function layoutPlatform(p) {
-    const W = canvas.width, H = canvas.height;
-    if (p.row === 0) {        // Floor row (row 0) — never eliminated
-      const bw = Math.floor(W / 6);
-      p.x = p.col*bw; p.y = H-60; p.w = bw-2; p.h = 30;
-    } else if (p.row === 1) { // Mid row (row 1)
-      const bw2 = Math.floor(W / 6);
-      p.x = p.col*bw2+(p.col%2===0?0:8); p.y = H-160; p.w = bw2-12; p.h = 22;
-    } else {                  // Top row (row 2)
-      const bw3 = Math.floor(W / 7);
-      p.x = p.col*bw3+5; p.y = H-260; p.w = bw3-18; p.h = 20;
-    }
-  }
-
-  function makePlatform(row, col, colorIdx) {
-    const p = { x:0, y:0, w:0, h:0, colorIdx, row, col, dead:false, warningTimer:0 };
-    layoutPlatform(p);
-    return p;
-  }
-
-  function generatePlatforms() {
-    platforms = [];
-    for (let i = 0; i < 6; i++) platforms.push(makePlatform(0, i, i));
-    for (let i = 0; i < 6; i++) platforms.push(makePlatform(1, i, (i+2)%6));
-    for (let i = 0; i < 7; i++) platforms.push(makePlatform(2, i, (i+4)%6));
-
-    // Reposition player on first floor block
-    player.x = platforms[0].x + 20;
-    player.y = platforms[0].y - player.h - 2;
-    player.vx = 0; player.vy = 0; player.grounded = true;
-  }
-
-  function triggerElimination() {
-    const candidates = platforms.filter(p => !p.dead && p.warningTimer <= 0 && p.row > 0);
-    if (!candidates.length) return;
-    const target = candidates[Math.floor(Math.random() * candidates.length)];
-    target.warningTimer = 2200; // 2.2 s pulse then die
-  }
-
-  function checkRebuildPlatforms() {
-    if (platforms.filter(p => p.row > 0).every(p => p.dead)) {
-      // Keep floor, rebuild upper rows
-      platforms = platforms.filter(p => p.row === 0);
-      platforms.forEach(p => { p.dead = false; p.warningTimer = 0; });
-      for (let i = 0; i < 6; i++) platforms.push(makePlatform(1, i, (i+2)%6));
-      for (let i = 0; i < 7; i++) platforms.push(makePlatform(2, i, (i+4)%6));
-    }
-  }
-
-  // ─── Falling power-ups ────────────────────────────────────────────────────
-  let pickups = [];
-  let roundsSincePickup = 0;
-
-  function spawnPickup() {
-    const W = canvas.width;
-    const type = PICKUP_TYPES[Math.floor(Math.random() * PICKUP_TYPES.length)];
-    pickups.push({ ...type, x: 50 + Math.random()*(W-100), y: -20, vy: 0, collected: false, life: 12000 });
-  }
-
-  function updatePickups(dt, k) {
-    const H = canvas.height;
-    for (const pk of pickups) {
-      if (pk.collected) continue;
-      pk.life -= dt;
-      if (pk.life <= 0) { pk.collected = true; continue; }
-
-      // Gravity (lighter than player)
-      pk.vy = Math.min(pk.vy + GRAVITY * 0.45 * k, 8);
-      const dy = pk.vy * k;
-      pk.y += dy;
-
-      // Bounce on alive platforms
-      for (const p of platforms) {
-        if (p.dead) continue;
-        if (pk.x > p.x && pk.x < p.x + p.w) {
-          const bot = pk.y + 14;
-          if (bot - dy <= p.y && bot >= p.y) {
-            pk.y = p.y - 14;
-            pk.vy = -Math.abs(pk.vy) * 0.35;
-          }
-        }
-      }
-
-      if (pk.y > H + 30) { pk.collected = true; continue; }
-
-      // Player collision
-      if (player.x+player.w > pk.x-14 && player.x < pk.x+14 &&
-          player.y+player.h > pk.y-14 && player.y < pk.y+14) {
-        pk.collected = true;
-        applyPickup(pk);
-      }
-    }
-    pickups = pickups.filter(p => !p.collected);
-  }
-
-  function applyPickup(pk) {
-    switch (pk.id) {
-      case 'heart':  lives = Math.min(5, lives + 1);  updateHUD(); break;
-      case 'heal':   lives = Math.max(lives, 3);       updateHUD(); break;
-      case 'slow':   slowRoundsLeft = 2;                            break;
-      case 'shield': shieldActive = true;                           break;
-      case 'double': scoreMultiplier = 2;                           break;
-    }
-    addMessage(pk.label, pk.glow);
-  }
-
-  // ─── Floating messages ────────────────────────────────────────────────────
-  let messages = [];
-  function addMessage(text, color) {
-    messages.push({ text, color, x: canvas.width/2, y: canvas.height/2 - 30, life: 1400 });
-  }
-
-  // ─── Input ────────────────────────────────────────────────────────────────
-  const keys = {};
-  // Teclas que usa el juego: solo a estas se les bloquea la acción por defecto
-  const GAME_KEYS = ['Space','KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
-
-  function tryJump() {
-    if (paused || gameOver) return;
-    if (player.grounded) { player.vy = JUMP_FORCE; player.grounded = false; }
-  }
-
-  function tryDrop() {
-    if (paused || gameOver) return;
-    if (!player.grounded || dropTimer > 0) return;
-    // Find the specific platform the player is standing on (row > 0 only — can't drop through floor)
-    const standingPf = platforms.find(p =>
-      !p.dead && p.row > 0 &&
-      player.x + player.w > p.x && player.x < p.x + p.w &&
-      Math.abs((player.y + player.h) - p.y) <= 4
-    );
-    if (standingPf) {
-      dropPlatform = standingPf;
-      dropTimer    = 350;
-      player.vy    = 5;
-      player.grounded = false;
-    }
-  }
-
-  function togglePause() {
-    if (!gameOver) paused = !paused;
-  }
-
-  // Reinicio por toque/clic: pequeño margen para no saltarse el GAME OVER sin verlo
-  function tapRestart() {
-    if (gameOver && performance.now() - gameOverAt > 600) resetGame();
-  }
-
-  function setGameOver() {
-    gameOver   = true;
-    gameOverAt = performance.now();
-  }
-
-  document.addEventListener('keydown', e => {
-    keys[e.code] = true;
-    if (e.code === 'Escape') togglePause();
-    if (['Space','KeyW','ArrowUp'].includes(e.code))  tryJump();
-    if (['KeyS','ArrowDown'].includes(e.code))        tryDrop();
-    if (e.code === 'Enter' && gameOver) { resetGame(); e.preventDefault(); }
-    // No bloquear Tab, F5, Ctrl+R, Ctrl+F, zoom... ni nada con Ctrl/Meta/Alt
-    if (GAME_KEYS.includes(e.code) && !e.ctrlKey && !e.metaKey && !e.altKey) e.preventDefault();
-  });
-  document.addEventListener('keyup', e => { keys[e.code] = false; });
-
-  // Clic/toque en el canvas: continuar tras la pausa o reiniciar tras GAME OVER
-  canvas.addEventListener('click', () => {
-    if (gameOver)    tapRestart();
-    else if (paused) paused = false;
-  });
-
-  // Pausa automática al cambiar de pestaña o minimizar
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) return;
-    if (!gameOver) paused = true;
-    for (const k in keys) keys[k] = false; // evita teclas "pegadas"
-  });
-
-  // ─── Round ────────────────────────────────────────────────────────────────
-  // El reloj de ronda solo avanza mientras se juega (no en pausa ni con la pestaña oculta)
-  let targetColorIdx = 0;
-  let roundTimer     = 0;
-  let roundMs        = 3000;
-  let roundElapsed   = 0;   // ms jugados de la ronda actual
-  let roundActive    = false;
-  let nextRoundIn    = 0;   // ms de juego hasta la siguiente ronda (0 = ninguna pendiente)
-
-  function scheduleNewRound(ms) { nextRoundIn = ms; }
-
-  function newRound() {
-    targetColorIdx = Math.floor(Math.random() * COLORS.length);
-    roundElapsed   = 0;
-    nextRoundIn    = 0;
-    roundMs        = Math.max(1400, 3000 - round * 75);
-    if (slowRoundsLeft > 0) { roundMs = Math.min(roundMs * 1.6, 4000); slowRoundsLeft--; }
-    roundActive = true;
-    roundsSincePickup++;
-
-    // Eliminate platform every 3 rounds (after round 3)
-    if (round > 3 && round % 3 === 0) triggerElimination();
-
-    // Spawn a pickup every 4-6 rounds
-    if (roundsSincePickup >= 4 + Math.floor(Math.random() * 3)) {
-      spawnPickup(); roundsSincePickup = 0;
-    }
-  }
-
-  function updateRoundClock(dt) {
-    // Transición entre rondas en tiempo de juego (se congela en pausa)
-    if (nextRoundIn > 0) {
-      nextRoundIn -= dt;
-      if (nextRoundIn <= 0) newRound();
-    }
-    if (roundActive) roundElapsed += dt;
-  }
-
-  function checkRoundResult() {
-    if (!roundActive) return;
-    const elapsed = roundElapsed;
-    roundTimer = 1 - Math.min(elapsed / roundMs, 1);
-
-    if (elapsed < roundMs) return;
-    roundActive = false;
-
-    if (player.colorIdx === targetColorIdx) {
-      const pts = (10 + round) * scoreMultiplier;
-      scoreMultiplier = 1;
-      score += pts;
-      round++;
-      document.getElementById('score-display').textContent = score;
-      document.getElementById('round-display').textContent = round;
-      if (score > hiScore) {
-        hiScore = score;
-        saveHiScore();
-        document.getElementById('hiscore-top').textContent = 'BEST: ' + hiScore;
-      }
-      scheduleNewRound(700);
-    } else {
-      if (shieldActive) {
-        shieldActive = false;
-        addMessage('¡ESCUDO ACTIVADO!', '#f1c40f');
-        scheduleNewRound(700);
-      } else {
-        lives--;
-        updateHUD();
-        if (lives <= 0) { setGameOver(); }
-        else { scheduleNewRound(900); }
-      }
-    }
-  }
-
-  function updateHUD() {
-    const filled = Math.max(0, lives);
-    const empty  = Math.max(0, 3 - Math.min(lives, 3));
-    document.getElementById('lives-display').textContent = '♥'.repeat(filled) + '♡'.repeat(empty);
-  }
-
-  // ─── Physics ──────────────────────────────────────────────────────────────
-  // k = dt normalizado a 60 fps (k = 1 a 60 fps → mismo comportamiento de siempre)
-  function updatePlayer(dt, k) {
-    if (keys['ArrowLeft']  || keys['KeyA']) player.vx = -SPEED;
-    else if (keys['ArrowRight'] || keys['KeyD']) player.vx = SPEED;
-    else player.vx *= Math.pow(0.8, k);
-
-    if (dropTimer > 0) { dropTimer -= dt; if (dropTimer <= 0) dropPlatform = null; }
-
-    player.vy += GRAVITY * k;
-    const dy = player.vy * k;
-    player.x  += player.vx * k;
-    player.y  += dy;
-    player.grounded = false;
-    player.colorIdx = -1;
-
-    if (player.x < 0) player.x = 0;
-    if (player.x + player.w > canvas.width) player.x = canvas.width - player.w;
-
-    // Platform collision — skip the specific platform being dropped through
-    for (const p of platforms) {
-      if (p.dead || p === dropPlatform) continue;
-      if (player.x + player.w > p.x && player.x < p.x + p.w) {
-        const bot     = player.y + player.h;
-        const bot_prv = bot - dy;
-        if (bot_prv <= p.y && bot >= p.y && player.vy >= 0) {
-          player.y = p.y - player.h;
-          player.vy = 0;
-          player.grounded = true;
-          player.colorIdx = p.colorIdx;
-        }
-      }
-    }
-
-    // Fell off screen → lose life
-    if (player.y > canvas.height + 20) {
-      lives--;
-      updateHUD();
-      if (lives <= 0) { setGameOver(); return; }
-      const floor = platforms.find(p => p.row === 0 && !p.dead);
-      if (floor) {
-        player.x = floor.x + 20;
-        player.y = floor.y - player.h - 2;
-      }
-      player.vy = 0;
-    }
-  }
-
-  function updatePlatformWarnings(dt) {
-    for (const p of platforms) {
-      if (p.warningTimer <= 0) continue;
-      p.warningTimer -= dt;
-      if (p.warningTimer <= 0) {
-        p.dead = true;
-        checkRebuildPlatforms();
-      }
-    }
-  }
-
-  // ─── Draw ─────────────────────────────────────────────────────────────────
-  function draw(now) {
-    const W = canvas.width, H = canvas.height;
-    ctx.clearRect(0,0,W,H);
-    ctx.fillStyle = '#0d0d1a';
-    ctx.fillRect(0,0,W,H);
-
-    // ── Platforms ──
-    for (const p of platforms) {
-      if (p.dead) continue;
-      const col      = COLORS[p.colorIdx];
-      const isTarget = roundActive && p.colorIdx === targetColorIdx;
-
-      if (p.warningTimer > 0) {
-        // Pulse animation: scale oscillates, orange glow
-        const progress = 1 - p.warningTimer / 2200;
-        const scale    = 1 + 0.20 * Math.sin(progress * Math.PI * 9);
-        const alpha    = 0.55 + 0.45 * Math.abs(Math.sin(progress * Math.PI * 9));
-        const cx = p.x + p.w/2, cy = p.y + p.h/2;
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.scale(scale, scale);
-        ctx.shadowBlur  = 22; ctx.shadowColor = '#ff4400';
-        ctx.fillStyle   = `rgba(255,80,0,${alpha})`;
-        ctx.beginPath(); ctx.roundRect(-p.w/2, -p.h/2, p.w, p.h, 6); ctx.fill();
-        // Warning icon in center
-        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-        ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center';
-        ctx.fillText('!', 0, 5);
-        ctx.shadowBlur = 0; ctx.restore();
-      } else {
-        ctx.shadowBlur  = isTarget ? 18 : 3;
-        ctx.shadowColor = isTarget ? col.hex : 'transparent';
-        ctx.fillStyle   = isTarget ? col.hex : col.hex + 'bb';
-        ctx.beginPath(); ctx.roundRect(p.x, p.y, p.w, p.h, 6); ctx.fill();
-        ctx.shadowBlur = 0;
-        if (isTarget) {
-          ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
-          ctx.globalAlpha = 0.5 + 0.5 * Math.sin(now/150);
-          ctx.stroke(); ctx.globalAlpha = 1;
-        }
-      }
-    }
-
-    // ── Pickups ──
-    for (const pk of pickups) {
-      if (pk.collected) continue;
-      const bob = Math.sin(now/400 + pk.x/30) * 5;
-      ctx.shadowBlur  = 16; ctx.shadowColor = pk.glow;
-      ctx.fillStyle   = pk.color;
-      ctx.beginPath(); ctx.roundRect(pk.x-14, pk.y+bob-14, 28, 28, 8); ctx.fill();
-      ctx.shadowBlur  = 0;
-      ctx.fillStyle   = '#fff'; ctx.font = 'bold 14px monospace'; ctx.textAlign = 'center';
-      ctx.fillText(pk.sym, pk.x, pk.y + bob + 6);
-    }
-
-    // ── Player ──
-    // Shield aura
-    if (shieldActive) {
-      ctx.globalAlpha = 0.65 + 0.35 * Math.sin(now/180);
-      ctx.shadowBlur  = 24; ctx.shadowColor = '#f1c40f';
-      ctx.strokeStyle = '#f1c40f'; ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.arc(player.x + player.w/2, player.y + player.h/2, player.w * 0.9, 0, Math.PI*2);
-      ctx.stroke();
-      ctx.globalAlpha = 1; ctx.shadowBlur = 0;
-    }
-    ctx.shadowBlur = 10; ctx.shadowColor = '#00ffff';
-    ctx.fillStyle  = '#e0f8ff';
-    ctx.beginPath(); ctx.roundRect(player.x, player.y, player.w, player.h, 5); ctx.fill();
-    ctx.fillStyle  = '#000'; ctx.shadowBlur = 0;
-    ctx.fillRect(player.x+6,  player.y+10, 5, 5);
-    ctx.fillRect(player.x+17, player.y+10, 5, 5);
-
-    // ── HUD: target color bar ──
-    if (!gameOver) {
-      const tCol = COLORS[targetColorIdx];
-      const barW = Math.min(W*0.52, 340);
-      const barX = (W - barW) / 2;
-      const barY = 12; const barH = 38;
-
-      ctx.fillStyle = 'rgba(0,0,0,0.55)';
-      ctx.beginPath(); ctx.roundRect(barX-62, barY-4, barW+124, barH+8, 14); ctx.fill();
-
-      ctx.fillStyle = tCol.hex; ctx.shadowBlur = roundActive ? 12 : 0; ctx.shadowColor = tCol.hex;
-      ctx.beginPath(); ctx.arc(barX-32, barY+barH/2, 13, 0, Math.PI*2); ctx.fill();
-      ctx.shadowBlur = 0;
-
-      ctx.fillStyle = '#fff'; ctx.font = 'bold 17px monospace'; ctx.textAlign = 'center';
-      ctx.fillText('IR AL COLOR: ' + tCol.name, W/2, barY + 25);
-
-      if (roundActive) {
-        ctx.fillStyle = 'rgba(255,255,255,0.12)';
-        ctx.beginPath(); ctx.roundRect(barX, barY+barH+2, barW, 7, 4); ctx.fill();
-        const tc = roundTimer > 0.4 ? '#2ecc71' : roundTimer > 0.2 ? '#f1c40f' : '#e74c3c';
-        ctx.fillStyle = tc;
-        ctx.beginPath(); ctx.roundRect(barX, barY+barH+2, barW*roundTimer, 7, 4); ctx.fill();
-      }
-
-      // Active bonuses
-      let bonusTxt = [];
-      if (scoreMultiplier > 1) bonusTxt.push('×' + scoreMultiplier + ' PTS');
-      if (slowRoundsLeft > 0)  bonusTxt.push('⏱×' + slowRoundsLeft);
-      if (shieldActive)        bonusTxt.push('🛡 ESCUDO');
-      if (bonusTxt.length) {
-        ctx.fillStyle = 'rgba(0,0,0,0.5)';
-        ctx.beginPath(); ctx.roundRect(W-140, 10, 130, 22, 6); ctx.fill();
-        ctx.fillStyle = '#f1c40f'; ctx.font = '11px monospace'; ctx.textAlign = 'right';
-        ctx.fillText(bonusTxt.join(' · '), W-14, 25);
-      }
-    }
-
-    // ── Floating messages ──
-    ctx.textAlign = 'center';
-    for (const m of messages) {
-      const a = Math.min(1, m.life / 500);
-      ctx.globalAlpha = a;
-      ctx.shadowBlur  = 12; ctx.shadowColor = m.color;
-      ctx.fillStyle   = m.color; ctx.font = 'bold 22px monospace';
-      ctx.fillText(m.text, m.x, m.y);
-    }
-    ctx.globalAlpha = 1; ctx.shadowBlur = 0;
-
-    // ── Game Over ──
-    if (gameOver) {
-      ctx.fillStyle = 'rgba(0,0,0,0.78)'; ctx.fillRect(0,0,W,H);
-      ctx.textAlign = 'center';
-      ctx.shadowBlur = 22; ctx.shadowColor = '#ff0000';
-      ctx.fillStyle  = '#e74c3c'; ctx.font = `bold ${Math.min(52,W*0.09)}px monospace`;
-      ctx.fillText('GAME OVER', W/2, H/2-42);
-      ctx.shadowBlur = 0;
-      ctx.fillStyle  = '#fff'; ctx.font = `bold ${Math.min(26,W*0.045)}px monospace`;
-      ctx.fillText('SCORE: ' + score, W/2, H/2+10);
-      ctx.fillStyle  = '#f1c40f'; ctx.font = `${Math.min(20,W*0.035)}px monospace`;
-      ctx.fillText('MEJOR: ' + hiScore, W/2, H/2+44);
-      ctx.fillStyle  = '#aaa'; ctx.font = '14px monospace';
-      ctx.fillText('Pulsa ENTER o toca para reiniciar', W/2, H/2+80);
-    }
-
-    // ── Pause ──
-    if (paused && !gameOver) {
-      ctx.fillStyle = 'rgba(0,0,0,0.62)'; ctx.fillRect(0,0,W,H);
-      ctx.fillStyle = '#fff'; ctx.font = 'bold 36px monospace'; ctx.textAlign = 'center';
-      ctx.fillText('PAUSA', W/2, H/2);
-      ctx.fillStyle = '#aaa'; ctx.font = '16px monospace';
-      ctx.fillText('ESC o toca para continuar', W/2, H/2+36);
-    }
-
-    ctx.textAlign = 'left'; ctx.shadowBlur = 0;
-  }
-
-  // ─── Reset ────────────────────────────────────────────────────────────────
-  function resetGame() {
-    score = 0; lives = 3; round = 1; gameOver = false; paused = false;
-    shieldActive = false; scoreMultiplier = 1; slowRoundsLeft = 0;
-    pickups = []; messages = []; roundsSincePickup = 0;
-    dropPlatform = null; dropTimer = 0; nextRoundIn = 0;
-    document.getElementById('score-display').textContent = '0';
-    document.getElementById('round-display').textContent = '1';
-    updateHUD();
-    generatePlatforms();
-    newRound();
-  }
-
-  // ─── Game loop ────────────────────────────────────────────────────────────
-  let lastTs = 0;
-  function loop(ts) {
-    const dt = Math.min(Math.max(ts - lastTs, 0), MAX_DT);
-    const k  = dt / FRAME_MS;
-    lastTs = ts;
-
-    if (!paused && !gameOver) {
-      updatePlayer(dt, k);
-      updatePickups(dt, k);
-      updatePlatformWarnings(dt);
-      updateRoundClock(dt);
-      checkRoundResult();
-
-      // Animate messages
-      for (const m of messages) { m.y -= 1.2 * k; m.life -= dt; }
-      messages = messages.filter(m => m.life > 0);
-    }
-
-    draw(ts);
-    requestAnimationFrame(loop);
-  }
-
-  resize();
-  newRound();
-  requestAnimationFrame(loop);
-
-  // ─── Mobile touch controls ────────────────────────────────────────────────
-  function bindMobileBtn(id, keyCode, onPress) {
-    const btn = document.getElementById(id);
-    if (!btn) return;
-    const press = (e) => {
-      e.preventDefault();
-      if (keyCode) keys[keyCode] = true;
-      btn.classList.add('pressed');
-      // Tras GAME OVER cualquier botón táctil reinicia la partida
-      if (gameOver) { tapRestart(); return; }
-      if (onPress) onPress();
-    };
-    const release = (e) => {
-      e.preventDefault();
-      if (keyCode) keys[keyCode] = false;
-      btn.classList.remove('pressed');
-    };
-    btn.addEventListener('touchstart',  press,   { passive: false });
-    btn.addEventListener('touchend',    release, { passive: false });
-    btn.addEventListener('touchcancel', release, { passive: false });
-  }
-
-  bindMobileBtn('mc-left',  'ArrowLeft',  null);
-  bindMobileBtn('mc-right', 'ArrowRight', null);
-  bindMobileBtn('mc-jump',  'Space',      tryJump);
-  bindMobileBtn('mc-drop',  'ArrowDown',  tryDrop);
-  bindMobileBtn('mc-pause', null,         togglePause);
-})();
-</script>
-<script src="../js/destroygame.js" defer></script>
+  <div id="overlay">
+    <section id="screen-start" class="card" role="dialog" aria-modal="true" aria-labelledby="start-title" aria-describedby="start-desc">
+      <div class="swatches" aria-hidden="true">
+        <span style="--c:#e74c3c;--d:#8e2a20"></span><span style="--c:#3498db;--d:#1f5f8a"></span><span style="--c:#2ecc71;--d:#1b7d44"></span><span style="--c:#f1c40f;--d:#9a7c08"></span><span style="--c:#9b59b6;--d:#5e3570"></span><span style="--c:#e67e22;--d:#8f4d12"></span>
+      </div>
+      <h2 id="start-title">Color Block <span class="accent">3D</span></h2>
+      <p id="start-desc">Cuando se acabe el tiempo de cada ronda, colócate sobre una plataforma del <strong>color indicado</strong>. Si no, pierdes una vida. Las rondas van cada vez más rápido.</p>
+      <button id="btn-start" class="btn btn-primary" type="button" autofocus>
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.2-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+        Jugar
+      </button>
+      <p>Récord: <strong id="start-best">0</strong></p>
+      <p class="card-hint"><span class="hint-kb">Pulsa Enter o Espacio para empezar</span><span class="hint-touch">Toca para empezar</span></p>
+      <p id="mode-note" class="card-note" hidden>Tu navegador no admite WebGL: se muestra la versión 2D.</p>
+    </section>
+
+    <section id="screen-pause" class="card" role="dialog" aria-modal="true" aria-labelledby="pause-title" hidden>
+      <h2 id="pause-title">Pausa</h2>
+      <p>El tiempo de la ronda está detenido.</p>
+      <div class="card-actions">
+        <button id="btn-resume" class="btn btn-primary" type="button">Continuar</button>
+        <button id="btn-restart" class="btn btn-secondary" type="button">Reiniciar</button>
+      </div>
+      <p class="card-hint"><span class="hint-kb">Esc o clic fuera para continuar</span><span class="hint-touch">Toca fuera para continuar</span></p>
+    </section>
+
+    <section id="screen-over" class="card" role="dialog" aria-modal="true" aria-labelledby="over-title" hidden>
+      <h2 id="over-title">¡Fin de la partida!</h2>
+      <p id="over-record" class="badge" hidden>¡Nuevo récord!</p>
+      <dl class="stats">
+        <div><dt>Puntos</dt><dd id="over-score">0</dd></div>
+        <div><dt>Ronda</dt><dd id="over-round">1</dd></div>
+        <div><dt>Récord</dt><dd id="over-best">0</dd></div>
+      </dl>
+      <div class="card-actions">
+        <button id="btn-again" class="btn btn-primary" type="button">Jugar de nuevo</button>
+        <a class="btn btn-secondary" href="../">Salir</a>
+      </div>
+      <p class="card-hint"><span class="hint-kb">Pulsa Enter o haz clic para reiniciar</span><span class="hint-touch">Toca para reiniciar</span></p>
+    </section>
+  </div>
+
+  <div id="sr-status" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <noscript><p style="position:fixed;inset:auto 0 40% 0;text-align:center;z-index:20">Color Block necesita JavaScript para funcionar.</p></noscript>
+  <script type="module" src="game.js"></script>
+  <script src="../js/destroygame.js" defer></script>
 </body>
 </html>
