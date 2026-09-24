@@ -29,18 +29,20 @@
     set(k, v) { try { localStorage.setItem(k, v); } catch { /* sin almacenamiento */ } },
   };
 
-  // Caché con caducidad en sessionStorage
+  // Caché con caducidad en sessionStorage. Las claves llevan versión: la web anterior guardaba
+  // otros formatos con los mismos nombres (rbx_uid_…, rbx_fol_…) y los datos no cargaban.
+  const CACHE_VERSION = 'pd3:';
   const cache = {
     get(k, ttl) {
       try {
-        const raw = sessionStorage.getItem(k);
+        const raw = sessionStorage.getItem(CACHE_VERSION + k);
         if (!raw) return null;
         const { v, t: ts } = JSON.parse(raw);
         return Date.now() - ts < ttl ? v : null;
       } catch { return null; }
     },
     set(k, v) {
-      try { sessionStorage.setItem(k, JSON.stringify({ v, t: Date.now() })); } catch { /* lleno o bloqueado */ }
+      try { sessionStorage.setItem(CACHE_VERSION + k, JSON.stringify({ v, t: Date.now() })); } catch { /* lleno o bloqueado */ }
     },
   };
 
@@ -64,13 +66,19 @@
   }
 
   // Devuelve el JSON o null. Marca el rate-limit compartido si recibe 429.
-  async function fetchJSON(url, opts = {}, ms = 8000) {
-    try {
-      const res = await fetchWithTimeout(url, opts, ms);
-      if (res.status === 429) { setRateLimited(); return null; }
-      if (!res.ok) return null;
-      return await res.json();
-    } catch { return null; }
+  // retries: reintentos extra ante errores de red o 5xx (espera 0,8 s, 1,6 s…), nunca ante 429 o 4xx.
+  async function fetchJSON(url, opts = {}, ms = 8000, retries = 0) {
+    for (let attempt = 0; ; attempt++) {
+      let retryable = true;
+      try {
+        const res = await fetchWithTimeout(url, opts, ms);
+        if (res.status === 429) { setRateLimited(); return null; }
+        if (res.ok) return await res.json();
+        retryable = res.status >= 500;
+      } catch { /* red o tiempo agotado: se puede reintentar */ }
+      if (!retryable || attempt >= retries || isRateLimited()) return null;
+      await new Promise((r) => setTimeout(r, 800 * 2 ** attempt));
+    }
   }
 
   // ─── DOM ───────────────────────────────────────────────────────────────────

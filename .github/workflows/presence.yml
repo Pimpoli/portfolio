@@ -1,4 +1,4 @@
-name: Update Roblox Presence
+name: Update Roblox Presence & Data
 
 # Publica en data/presence.json el tipo de estado (0 desconectado, 1 en línea, 2 jugando,
 # 3 en Studio), la hora y, solo si está jugando, el juego (nombre y placeId).
@@ -85,15 +85,22 @@ jobs:
             cat data/presence.json
           fi
 
+      # Copia de los datos públicos de Roblox (juegos, portadas, avatar…) para que la web
+      # no dependa de roproxy. Si falla, se conserva la copia anterior y no rompe el resto.
+      - name: Fetch Roblox games & profile
+        continue-on-error: true
+        run: node scripts/fetch-roblox.mjs
+
       - name: Commit if changed
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/presence.json
+          if [ -f data/roblox.json ]; then git add data/roblox.json; fi
           if git diff --staged --quiet; then
             echo "No changes."
           else
-            git commit -m "chore: update presence [skip ci]"
+            git commit -m "chore: update presence and Roblox data [skip ci]"
             git pull --rebase origin main
             git push
           fi
