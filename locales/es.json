@@ -8,45 +8,86 @@
     "store": "Tienda",
     "contact": "Contacto"
   },
+  "a11y": {
+    "skip": "Saltar al contenido",
+    "language": "Idioma",
+    "themeLight": "Cambiar a modo claro",
+    "themeDark": "Cambiar a modo oscuro",
+    "menuOpen": "Abrir menú",
+    "menuClose": "Cerrar menú",
+    "backToTop": "Volver arriba ↑",
+    "backToTopShort": "Volver arriba",
+    "close": "Cerrar",
+    "prev": "Imagen anterior",
+    "next": "Imagen siguiente"
+  },
   "home": {
-    "title": "Hola, soy PimpoliDev",
-    "subtitle": "Desarrollador de Roblox con +4 años de exp • Experto en Lua (Roblox Studio)",
+    "greeting": "Hola, soy",
+    "subtitle": "Desarrollador de Roblox con más de 4 años de experiencia. Luau, UI/UX y sistemas modulares. Fundador de Multi Game Inc.",
     "cta": {
-      "projects": "Ver Proyectos",
-      "games": "Mis Juegos"
+      "projects": "Ver proyectos",
+      "games": "Mis juegos"
     }
+  },
+  "presence": {
+    "loading": "Consultando estado…",
+    "online": "En línea",
+    "ingame": "Jugando",
+    "instudio": "En Studio",
+    "offline": "Desconectado",
+    "nowOnline": "En línea ahora",
+    "nowIngame": "Jugando ahora",
+    "nowStudio": "En Studio ahora",
+    "nowOffline": "Desconectado ahora",
+    "followers": "{n} seguidores"
+  },
+  "stats": {
+    "label": "Estadísticas",
+    "years": "Años de experiencia",
+    "games": "Juegos publicados",
+    "visits": "Visitas totales",
+    "members": "Miembros en Multi Game Inc"
   },
   "about": {
     "title": "Sobre mí",
+    "heading": "Hago juegos que se sienten bien al jugarlos",
+    "intro": "Soy Anthony, programador de Roblox desde hace más de 4 años. Me enfoco en interfaces con animaciones fluidas y en sistemas modulares que se reutilizan de un juego a otro.",
+    "groupCta": "Ver grupo →",
     "list": {
-      "nameLabel": "Mi nombre:",
+      "nameLabel": "Mi nombre",
       "nameValue": "Anthony // Alias: PimpoliDev",
-      "expLabel": "Experiencia:",
-      "expValue": "Más de 4 años de experiencia como Programador",
-      "luauLabel": "Lenguaje principal:",
-      "luauValue": "Luau (Roblox) — dominio avanzado desde hace 4+ años",
-      "uiLabel": "UIs y animaciones:",
-      "uiValue": "Diseño de interfaces y animaciones fluidas para juegos",
-      "systemsLabel": "Sistemas propios:",
-      "systemsValue": "Frameworks modulares reutilizables que agilizan el desarrollo",
-      "enginesLabel": "Motores que manejo:",
+      "expLabel": "Experiencia",
+      "expValue": "Más de 4 años como programador",
+      "luauLabel": "Lenguaje principal",
+      "luauValue": "Luau (Roblox), dominio avanzado",
+      "uiLabel": "UIs y animaciones",
+      "uiValue": "Interfaces fluidas para juegos",
+      "systemsLabel": "Sistemas propios",
+      "systemsValue": "Frameworks modulares reutilizables",
+      "enginesLabel": "Motores que manejo",
       "enginesValue": "Roblox Studio y Godot Engine 4",
-      "studioLabel": "Fundador de",
-      "studioName": "Multi Game Inc"
+      "studioLabel": "Fundador de"
     },
     "skillsTitle": "Tech Stack",
     "skills": {
-      "luau":    "Luau",
-      "studio":  "Roblox Studio",
-      "godot":   "Godot Engine 4",
-      "ui":      "UI / UX",
+      "luau": "Luau",
+      "studio": "Roblox Studio",
+      "godot": "Godot Engine 4",
+      "ui": "UI / UX",
       "systems": "Sistemas propios"
     }
   },
   "projects": {
-    "title": "Mi Trabajo / Ejemplos",
-    "descLabel": "Descripción:",
-    "readMore": "Ver más",
+    "title": "Mi trabajo",
+    "channel": "Ver canal de YouTube →",
+    "more": "Ver más proyectos",
+    "less": "Ver menos",
+    "watchOnYoutube": "Ver en YouTube",
+    "kicker": {
+      "system": "Sistema",
+      "demo": "Demo",
+      "video": "Vídeo"
+    },
     "nodes": {
       "title": "Sistema de Nodos",
       "desc": ""
@@ -54,86 +95,72 @@
     "nodesDemo": {
       "title": "Demo Sistema de Nodos",
       "desc": "Conexión visual entre nodos."
-    },
-    "comingSoon": {
-      "title": "Próximamente",
-      "desc": "Próximamente"
     }
-  },
-  "stats": {
-    "years":   "Años de experiencia",
-    "games":   "Juegos publicados",
-    "visits":  "Visitas totales",
-    "members": "Miembros en el Studio"
-  },
-  "presence": {
-    "name": "Nombre:",
-    "state": "Estado:",
-    "online": "Online",
-    "ingame": "En Juego",
-    "instudio": "En Studio",
-    "offline": "Offline",
-    "game": "Juego:",
-    "location": "Ubicación:",
-    "followers": "Seguidores:"
   },
   "games": {
     "title": "Juegos que he creado",
     "webLabel": "Jugar en el navegador",
-    "solo": "1 jugador",
-    "duo": "2 jugadores",
     "robloxLabel": "En Roblox",
-    "play": "▶ Jugar",
+    "solo": "1 jugador · Teclado o táctil",
+    "duo": "2 jugadores · Mismo dispositivo",
+    "play": "Jugar",
+    "more": "Ver los {n} juegos",
+    "less": "Ver menos",
     "modal": {
       "play": "Jugar",
       "page": "Ir a la página",
       "confirmTitle": "Iniciar juego",
-      "confirmText": "¿Deseas iniciar el juego ahora?",
+      "confirmText": "¿Quieres abrir el juego en Roblox ahora?",
       "cancel": "Cancelar",
-      "confirm": "Confirmar"
+      "confirm": "Abrir Roblox"
     }
   },
   "store": {
-    "title": "Productos / Tienda",
-    "moreInfo": "Más Información",
+    "title": "Sistemas listos para tu juego",
+    "moreInfo": "Más información",
     "buy": "Comprar",
-    "for": "por",
-    "comingSoon": {
-      "name": "Próximamente",
-      "desc": "Próximamente.",
-      "price": "$Próximamente USD"
-    }
+    "noDesc": "Sin descripción.",
+    "productFallback": "Producto {n}"
   },
   "contact": {
-    "title": "Contacto y Redes Sociales",
-    "text": "No dudes en contactarme a través de cualquiera de estas plataformas:",
+    "title": "Hablemos",
+    "text": "No dudes en contactarme a través de cualquiera de estas plataformas.",
     "discord": "Únete al servidor",
     "roblox": "Ver perfil",
     "mgi": "Grupo en Roblox"
   },
+  "destroy": {
+    "exit": "SALIR",
+    "over": "DESTRUCCIÓN COMPLETADA",
+    "best": "MEJOR",
+    "again": "VOLVER A JUGAR"
+  },
   "mgi": {
+    "title": "Multi Game Inc — PimpoliDev",
     "badge": "Estudio independiente",
     "desc": "Estudio de desarrollo de juegos fundado por PimpoliDev. Creamos experiencias en Roblox y más plataformas.",
     "foundedLabel": "Año de fundación",
     "membersLabel": "Miembros del grupo",
     "gamesPublished": "Juegos publicados",
-    "aboutTitle": "Sobre el Estudio",
-    "nameRow": "Nombre:",
-    "founderRow": "Fundador:",
-    "foundedRow": "Fundado en:",
-    "platformRow": "Plataforma principal:",
-    "specialtyRow": "Especialidad:",
+    "aboutTitle": "Sobre el estudio",
+    "nameRow": "Nombre",
+    "founderRow": "Fundador",
+    "foundedRow": "Fundado en",
+    "platformRow": "Plataforma principal",
+    "specialtyRow": "Especialidad",
     "specialtyVal": "Juegos multijugador, sistemas de gameplay y UIs",
-    "langRow": "Lenguaje principal:",
-    "langVal": "Luau — dominio avanzado 4+ años",
-    "gamesTitle": "Juegos del Estudio",
+    "langRow": "Lenguaje principal",
+    "langVal": "Luau, dominio avanzado (4+ años)",
+    "gamesTitle": "Juegos del estudio",
+    "gamesSubtitle": "Todos los juegos publicados bajo Multi Game Inc en Roblox.",
     "contactTitle": "Contacto",
-    "contactText": "Puedes contactarnos a través de las mismas redes sociales de PimpoliDev:",
+    "contactText": "Puedes contactarnos a través de las mismas redes sociales de PimpoliDev.",
     "navStudio": "Estudio",
     "navGames": "Juegos",
     "navContact": "Contacto",
-    "gamesSubtitle": "Todos los juegos publicados bajo Multi Game Inc en Roblox.",
     "bannerTitle": "¿Quieres estar al tanto de lo nuevo?",
-    "bannerText": "Síguenos en el grupo oficial de Roblox."
+    "bannerText": "Síguenos en el grupo oficial de Roblox.",
+    "joinGroup": "Unirse al grupo",
+    "viewGroup": "Ver grupo en Roblox"
   }
 }

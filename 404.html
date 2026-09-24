@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Redirecting… — PimpoliDev</title>
+  <meta name="robots" content="noindex" />
 </head>
 <body>
 <script>
@@ -17,8 +18,12 @@
     redirect = '/Game-2/';
   else if (/\/(multigameinc|mgi|multi[-_]game[-_]?inc)$/i.test(path))
     redirect = '/MultiGameInc/';
+  else if (/\/destroy[-_]?game$/i.test(path))
+    redirect = '/#destroygame';
 
-  if (redirect) {
+  if (redirect === '/#destroygame') {
+    window.location.replace(redirect);
+  } else if (redirect) {
     // Preserve hash / query so ?destroygame still works after redirect
     window.location.replace(redirect + window.location.search + window.location.hash);
   } else {
