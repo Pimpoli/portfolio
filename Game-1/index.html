@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Color Block: minijuego de plataformas para 1 jugador. Salta al bloque del color indicado antes de que se acabe el tiempo de cada ronda." />
   <title>Color Block — PimpoliDev</title>
   <link rel="icon" href="../img/MultiGameInc.webp" />
   <style>
@@ -24,7 +25,7 @@
     #game-wrap {
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      width: 100%; height: 100vh; padding-top: 50px;
+      width: 100%; height: 100vh; height: 100dvh; padding-top: 50px;
     }
     canvas { border-radius: 12px; box-shadow: 0 0 40px rgba(255,69,0,0.2); display: block; }
     #ui-bar { display: flex; gap: 24px; align-items: center; margin-bottom: 12px; font-size: 1rem; font-weight: 700; }
@@ -78,9 +79,22 @@
       font-size: 1.1rem;
       opacity: 0.75;
     }
+    .mc-pause {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      font-size: 0.9rem;
+      opacity: 0.75;
+    }
+    /* Pantallas bajas (móvil en horizontal): controles a los lados del canvas */
+    body.mc-lateral #mobile-controls { background: transparent; backdrop-filter: none; }
+    body.mc-lateral .mc-pause-group { position: absolute; left: 16px; bottom: 90px; }
     @media (hover: none) and (pointer: coarse) {
       #mobile-controls { display: flex; }
       #controls-hint { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .mc-btn { transition: none; }
+      .mc-btn:active, .mc-btn.pressed { transform: none; }
     }
   </style>
 </head>
@@ -97,7 +111,7 @@
       <div><span>VIDAS </span><span class="score-val" id="lives-display">♥♥♥</span></div>
       <div><span>RONDA </span><span class="score-val" id="round-display">1</span></div>
     </div>
-    <canvas id="c"></canvas>
+    <canvas id="c" role="img" aria-label="Color Block: tablero de juego con plataformas de colores; salta a la del color indicado antes de que acabe la ronda"></canvas>
     <div id="controls-hint">
       A / D / ← → mover &nbsp;|&nbsp; W / ↑ / Space saltar &nbsp;|&nbsp; S / ↓ bajar &nbsp;|&nbsp; ESC pausa
     </div>
@@ -108,6 +122,9 @@
     <div class="mc-group">
       <button class="mc-btn" id="mc-left" aria-label="Mover izquierda">◀</button>
       <button class="mc-btn" id="mc-right" aria-label="Mover derecha">▶</button>
+    </div>
+    <div class="mc-group mc-pause-group">
+      <button class="mc-btn mc-pause" id="mc-pause" aria-label="Pausa">❚❚</button>
     </div>
     <div class="mc-group" style="flex-direction:column; align-items:center; gap:6px;">
       <button class="mc-btn mc-jump" id="mc-jump" aria-label="Saltar">▲</button>
@@ -135,10 +152,66 @@
   const ctx    = canvas.getContext('2d');
 
   // ─── Responsive canvas ────────────────────────────────────────────────────
+  // Solo recalcula tamaño y posiciones: el estado de la partida (plataformas
+  // eliminadas, avisos, jugador, ronda) se conserva.
+  const MIN_H = 300; // alto mínimo jugable (la fila superior está en H-260)
   function resize() {
-    canvas.width  = Math.min(window.innerWidth  - 20, 900);
-    canvas.height = Math.min(window.innerHeight - 130, 500);
-    generatePlatforms();
+    const oldW = canvas.width, oldH = canvas.height;
+    const wrap = document.getElementById('game-wrap');
+    const mc   = document.getElementById('mobile-controls');
+    const touchUI = mc && getComputedStyle(mc).display !== 'none';
+    let W, H;
+    document.body.classList.remove('mc-lateral');
+    wrap.style.paddingBottom = '';
+
+    if (touchUI) {
+      // Los controles táctiles son fijos abajo: el canvas no debe quedar debajo
+      const barH    = mc.offsetHeight;
+      const sideW   = Math.max(mc.firstElementChild.offsetWidth, mc.lastElementChild.offsetWidth) + 16;
+      const bottomH = window.innerHeight - 100 - barH;
+      if (bottomH < MIN_H && window.innerWidth - sideW * 2 >= 300) {
+        // Pantalla baja (horizontal): controles a los lados, canvas en el centro
+        document.body.classList.add('mc-lateral');
+        W = Math.min(window.innerWidth - sideW * 2, 900);
+        H = Math.min(window.innerHeight - 100, 500);
+      } else {
+        wrap.style.paddingBottom = barH + 'px';
+        W = Math.min(window.innerWidth - 20, 900);
+        H = Math.min(Math.max(bottomH, 280), 500);
+      }
+    } else {
+      W = Math.min(window.innerWidth  - 20, 900);
+      H = Math.min(window.innerHeight - 130, 500);
+    }
+
+    // Plataforma sobre la que está el jugador (para mantenerlo encima)
+    let standPf = null, standFrac = 0;
+    if (platforms.length) {
+      standPf = platforms.find(p => !p.dead &&
+        player.x + player.w > p.x && player.x < p.x + p.w &&
+        Math.abs((player.y + player.h) - p.y) <= 4);
+      if (standPf) standFrac = (player.x + player.w/2 - standPf.x) / standPf.w;
+    }
+
+    canvas.width  = W;
+    canvas.height = H;
+
+    if (!platforms.length) { generatePlatforms(); return; }
+
+    platforms.forEach(layoutPlatform);
+
+    // Reposicionar entidades proporcionalmente (las filas están ancladas abajo)
+    const sx = W / oldW, dyH = H - oldH;
+    if (standPf) {
+      player.x = standPf.x + standFrac * standPf.w - player.w/2;
+      player.y = standPf.y - player.h;
+    } else {
+      player.x = (player.x + player.w/2) * sx - player.w/2;
+      player.y += dyH;
+    }
+    player.x = Math.max(0, Math.min(W - player.w, player.x));
+    for (const pk of pickups)  { pk.x *= sx; pk.y += dyH; }
+    for (const m  of messages) { m.x = W/2;  m.y += dyH/2; }
   }
   window.addEventListener('resize', resize);
 
@@ -165,19 +238,32 @@
   let score          = 0;
   let lives          = 3;
   let round          = 1;
-  let hiScore        = parseInt(localStorage.getItem('cb_hs') || '0', 10);
+  let hiScore        = loadHiScore();
   let gameOver       = false;
+  let gameOverAt     = 0;     // instante del GAME OVER (evita reinicios por toques accidentales)
   let paused         = false;
   let shieldActive   = false;
   let scoreMultiplier= 1;
   let slowRoundsLeft = 0;
 
+  // localStorage puede estar bloqueado (modo privado, cookies desactivadas...)
+  function loadHiScore() {
+    try { return parseInt(localStorage.getItem('cb_hs') || '0', 10) || 0; }
+    catch (e) { return 0; }
+  }
+  function saveHiScore() {
+    try { localStorage.setItem('cb_hs', hiScore); } catch (e) { /* sin almacenamiento */ }
+  }
+
   document.getElementById('hiscore-top').textContent = 'BEST: ' + hiScore;
 
   // ─── Player ───────────────────────────────────────────────────────────────
+  // Valores por fotograma a 60 fps; se escalan con dt para ir igual a 120/144 Hz
   const GRAVITY    = 0.55;
   const JUMP_FORCE = -13;
   const SPEED      = 4.5;
+  const FRAME_MS   = 1000 / 60;
+  const MAX_DT     = 50;      // ms: evita saltos enormes tras cambiar de pestaña
 
   const player = { x:60, y:100, w:28, h:42, vx:0, vy:0, grounded:false, colorIdx:-1 };
   let dropPlatform = null; // specific platform to pass through when dropping
@@ -186,24 +272,32 @@
   // ─── Platforms ────────────────────────────────────────────────────────────
   let platforms = [];
 
-  function generatePlatforms() {
+  // Posición/tamaño de una plataforma según su fila y columna y el tamaño del canvas
+  function layoutPlatform(p) {
     const W = canvas.width, H = canvas.height;
+    if (p.row === 0) {        // Floor row (row 0) — never eliminated
+      const bw = Math.floor(W / 6);
+      p.x = p.col*bw; p.y = H-60; p.w = bw-2; p.h = 30;
+    } else if (p.row === 1) { // Mid row (row 1)
+      const bw2 = Math.floor(W / 6);
+      p.x = p.col*bw2+(p.col%2===0?0:8); p.y = H-160; p.w = bw2-12; p.h = 22;
+    } else {                  // Top row (row 2)
+      const bw3 = Math.floor(W / 7);
+      p.x = p.col*bw3+5; p.y = H-260; p.w = bw3-18; p.h = 20;
+    }
+  }
+
+  function makePlatform(row, col, colorIdx) {
+    const p = { x:0, y:0, w:0, h:0, colorIdx, row, col, dead:false, warningTimer:0 };
+    layoutPlatform(p);
+    return p;
+  }
+
+  function generatePlatforms() {
     platforms = [];
-
-    // Floor row (row 0) — never eliminated
-    const bw = Math.floor(W / 6);
-    for (let i = 0; i < 6; i++)
-      platforms.push({ x:i*bw, y:H-60, w:bw-2, h:30, colorIdx:i, row:0, dead:false, warningTimer:0 });
-
-    // Mid row (row 1)
-    const bw2 = Math.floor(W / 6);
-    for (let i = 0; i < 6; i++)
-      platforms.push({ x:i*bw2+(i%2===0?0:8), y:H-160, w:bw2-12, h:22, colorIdx:(i+2)%6, row:1, dead:false, warningTimer:0 });
-
-    // Top row (row 2)
-    const bw3 = Math.floor(W / 7);
-    for (let i = 0; i < 7; i++)
-      platforms.push({ x:i*bw3+5, y:H-260, w:bw3-18, h:20, colorIdx:(i+4)%6, row:2, dead:false, warningTimer:0 });
+    for (let i = 0; i < 6; i++) platforms.push(makePlatform(0, i, i));
+    for (let i = 0; i < 6; i++) platforms.push(makePlatform(1, i, (i+2)%6));
+    for (let i = 0; i < 7; i++) platforms.push(makePlatform(2, i, (i+4)%6));
 
     // Reposition player on first floor block
     player.x = platforms[0].x + 20;
@@ -223,13 +317,8 @@
       // Keep floor, rebuild upper rows
       platforms = platforms.filter(p => p.row === 0);
       platforms.forEach(p => { p.dead = false; p.warningTimer = 0; });
-      const W = canvas.width, H = canvas.height;
-      const bw2 = Math.floor(W/6);
-      for (let i = 0; i < 6; i++)
-        platforms.push({ x:i*bw2+(i%2===0?0:8), y:H-160, w:bw2-12, h:22, colorIdx:(i+2)%6, row:1, dead:false, warningTimer:0 });
-      const bw3 = Math.floor(W/7);
-      for (let i = 0; i < 7; i++)
-        platforms.push({ x:i*bw3+5, y:H-260, w:bw3-18, h:20, colorIdx:(i+4)%6, row:2, dead:false, warningTimer:0 });
+      for (let i = 0; i < 6; i++) platforms.push(makePlatform(1, i, (i+2)%6));
+      for (let i = 0; i < 7; i++) platforms.push(makePlatform(2, i, (i+4)%6));
     }
   }
 
@@ -243,7 +332,7 @@
     pickups.push({ ...type, x: 50 + Math.random()*(W-100), y: -20, vy: 0, collected: false, life: 12000 });
   }
 
-  function updatePickups(dt) {
+  function updatePickups(dt, k) {
     const H = canvas.height;
     for (const pk of pickups) {
       if (pk.collected) continue;
@@ -251,15 +340,16 @@
       if (pk.life <= 0) { pk.collected = true; continue; }
 
       // Gravity (lighter than player)
-      pk.vy = Math.min(pk.vy + GRAVITY * 0.45, 8);
-      pk.y += pk.vy;
+      pk.vy = Math.min(pk.vy + GRAVITY * 0.45 * k, 8);
+      const dy = pk.vy * k;
+      pk.y += dy;
 
       // Bounce on alive platforms
       for (const p of platforms) {
         if (p.dead) continue;
         if (pk.x > p.x && pk.x < p.x + p.w) {
           const bot = pk.y + 14;
-          if (bot - pk.vy <= p.y && bot >= p.y) {
+          if (bot - dy <= p.y && bot >= p.y) {
             pk.y = p.y - 14;
             pk.vy = -Math.abs(pk.vy) * 0.35;
           }
@@ -297,43 +387,84 @@
 
   // ─── Input ────────────────────────────────────────────────────────────────
   const keys = {};
+  // Teclas que usa el juego: solo a estas se les bloquea la acción por defecto
+  const GAME_KEYS = ['Space','KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
+
+  function tryJump() {
+    if (paused || gameOver) return;
+    if (player.grounded) { player.vy = JUMP_FORCE; player.grounded = false; }
+  }
+
+  function tryDrop() {
+    if (paused || gameOver) return;
+    if (!player.grounded || dropTimer > 0) return;
+    // Find the specific platform the player is standing on (row > 0 only — can't drop through floor)
+    const standingPf = platforms.find(p =>
+      !p.dead && p.row > 0 &&
+      player.x + player.w > p.x && player.x < p.x + p.w &&
+      Math.abs((player.y + player.h) - p.y) <= 4
+    );
+    if (standingPf) {
+      dropPlatform = standingPf;
+      dropTimer    = 350;
+      player.vy    = 5;
+      player.grounded = false;
+    }
+  }
+
+  function togglePause() {
+    if (!gameOver) paused = !paused;
+  }
+
+  // Reinicio por toque/clic: pequeño margen para no saltarse el GAME OVER sin verlo
+  function tapRestart() {
+    if (gameOver && performance.now() - gameOverAt > 600) resetGame();
+  }
+
+  function setGameOver() {
+    gameOver   = true;
+    gameOverAt = performance.now();
+  }
+
   document.addEventListener('keydown', e => {
     keys[e.code] = true;
-    if (e.code === 'Escape' && !gameOver) paused = !paused;
-    if (!paused && !gameOver) {
-      if (['Space','KeyW','ArrowUp'].includes(e.code) && player.grounded) {
-        player.vy = JUMP_FORCE; player.grounded = false;
-      }
-      if (['KeyS','ArrowDown'].includes(e.code) && player.grounded && dropTimer <= 0) {
-        // Find the specific platform the player is standing on (row > 0 only — can't drop through floor)
-        const standingPf = platforms.find(p =>
-          !p.dead && p.row > 0 &&
-          player.x + player.w > p.x && player.x < p.x + p.w &&
-          Math.abs((player.y + player.h) - p.y) <= 4
-        );
-        if (standingPf) {
-          dropPlatform = standingPf;
-          dropTimer    = 350;
-          player.vy    = 5;
-          player.grounded = false;
-        }
-      }
-    }
-    if (e.code === 'Enter' && gameOver) resetGame();
-    e.preventDefault();
+    if (e.code === 'Escape') togglePause();
+    if (['Space','KeyW','ArrowUp'].includes(e.code))  tryJump();
+    if (['KeyS','ArrowDown'].includes(e.code))        tryDrop();
+    if (e.code === 'Enter' && gameOver) { resetGame(); e.preventDefault(); }
+    // No bloquear Tab, F5, Ctrl+R, Ctrl+F, zoom... ni nada con Ctrl/Meta/Alt
+    if (GAME_KEYS.includes(e.code) && !e.ctrlKey && !e.metaKey && !e.altKey) e.preventDefault();
   });
   document.addEventListener('keyup', e => { keys[e.code] = false; });
 
+  // Clic/toque en el canvas: continuar tras la pausa o reiniciar tras GAME OVER
+  canvas.addEventListener('click', () => {
+    if (gameOver)    tapRestart();
+    else if (paused) paused = false;
+  });
+
+  // Pausa automática al cambiar de pestaña o minimizar
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) return;
+    if (!gameOver) paused = true;
+    for (const k in keys) keys[k] = false; // evita teclas "pegadas"
+  });
+
   // ─── Round ────────────────────────────────────────────────────────────────
+  // El reloj de ronda solo avanza mientras se juega (no en pausa ni con la pestaña oculta)
   let targetColorIdx = 0;
   let roundTimer     = 0;
   let roundMs        = 3000;
-  let lastRoundTs    = 0;
+  let roundElapsed   = 0;   // ms jugados de la ronda actual
   let roundActive    = false;
+  let nextRoundIn    = 0;   // ms de juego hasta la siguiente ronda (0 = ninguna pendiente)
+
+  function scheduleNewRound(ms) { nextRoundIn = ms; }
 
   function newRound() {
     targetColorIdx = Math.floor(Math.random() * COLORS.length);
-    lastRoundTs    = performance.now();
+    roundElapsed   = 0;
+    nextRoundIn    = 0;
     roundMs        = Math.max(1400, 3000 - round * 75);
     if (slowRoundsLeft > 0) { roundMs = Math.min(roundMs * 1.6, 4000); slowRoundsLeft--; }
     roundActive = true;
@@ -348,9 +479,18 @@
     }
   }
 
-  function checkRoundResult(now) {
+  function updateRoundClock(dt) {
+    // Transición entre rondas en tiempo de juego (se congela en pausa)
+    if (nextRoundIn > 0) {
+      nextRoundIn -= dt;
+      if (nextRoundIn <= 0) newRound();
+    }
+    if (roundActive) roundElapsed += dt;
+  }
+
+  function checkRoundResult() {
     if (!roundActive) return;
-    const elapsed = now - lastRoundTs;
+    const elapsed = roundElapsed;
     roundTimer = 1 - Math.min(elapsed / roundMs, 1);
 
     if (elapsed < roundMs) return;
@@ -365,20 +505,20 @@
       document.getElementById('round-display').textContent = round;
       if (score > hiScore) {
         hiScore = score;
-        localStorage.setItem('cb_hs', hiScore);
+        saveHiScore();
         document.getElementById('hiscore-top').textContent = 'BEST: ' + hiScore;
       }
-      setTimeout(newRound, 700);
+      scheduleNewRound(700);
     } else {
       if (shieldActive) {
         shieldActive = false;
         addMessage('¡ESCUDO ACTIVADO!', '#f1c40f');
-        setTimeout(newRound, 700);
+        scheduleNewRound(700);
       } else {
         lives--;
         updateHUD();
-        if (lives <= 0) { gameOver = true; }
-        else { setTimeout(newRound, 900); }
+        if (lives <= 0) { setGameOver(); }
+        else { scheduleNewRound(900); }
       }
     }
   }
@@ -390,16 +530,18 @@
   }
 
   // ─── Physics ──────────────────────────────────────────────────────────────
-  function updatePlayer(dt) {
+  // k = dt normalizado a 60 fps (k = 1 a 60 fps → mismo comportamiento de siempre)
+  function updatePlayer(dt, k) {
     if (keys['ArrowLeft']  || keys['KeyA']) player.vx = -SPEED;
     else if (keys['ArrowRight'] || keys['KeyD']) player.vx = SPEED;
-    else player.vx *= 0.8;
+    else player.vx *= Math.pow(0.8, k);
 
     if (dropTimer > 0) { dropTimer -= dt; if (dropTimer <= 0) dropPlatform = null; }
 
-    player.vy += GRAVITY;
-    player.x  += player.vx;
-    player.y  += player.vy;
+    player.vy += GRAVITY * k;
+    const dy = player.vy * k;
+    player.x  += player.vx * k;
+    player.y  += dy;
     player.grounded = false;
     player.colorIdx = -1;
 
@@ -411,7 +553,7 @@
       if (p.dead || p === dropPlatform) continue;
       if (player.x + player.w > p.x && player.x < p.x + p.w) {
         const bot     = player.y + player.h;
-        const bot_prv = bot - player.vy;
+        const bot_prv = bot - dy;
         if (bot_prv <= p.y && bot >= p.y && player.vy >= 0) {
           player.y = p.y - player.h;
           player.vy = 0;
@@ -425,7 +567,7 @@
     if (player.y > canvas.height + 20) {
       lives--;
       updateHUD();
-      if (lives <= 0) { gameOver = true; return; }
+      if (lives <= 0) { setGameOver(); return; }
       const floor = platforms.find(p => p.row === 0 && !p.dead);
       if (floor) {
         player.x = floor.x + 20;
@@ -582,7 +724,7 @@
       ctx.fillStyle  = '#f1c40f'; ctx.font = `${Math.min(20,W*0.035)}px monospace`;
       ctx.fillText('MEJOR: ' + hiScore, W/2, H/2+44);
       ctx.fillStyle  = '#aaa'; ctx.font = '14px monospace';
-      ctx.fillText('Pulsa ENTER para reiniciar', W/2, H/2+80);
+      ctx.fillText('Pulsa ENTER o toca para reiniciar', W/2, H/2+80);
     }
 
     // ── Pause ──
@@ -591,7 +733,7 @@
       ctx.fillStyle = '#fff'; ctx.font = 'bold 36px monospace'; ctx.textAlign = 'center';
       ctx.fillText('PAUSA', W/2, H/2);
       ctx.fillStyle = '#aaa'; ctx.font = '16px monospace';
-      ctx.fillText('ESC para continuar', W/2, H/2+36);
+      ctx.fillText('ESC o toca para continuar', W/2, H/2+36);
     }
 
     ctx.textAlign = 'left'; ctx.shadowBlur = 0;
@@ -602,6 +744,7 @@
     score = 0; lives = 3; round = 1; gameOver = false; paused = false;
     shieldActive = false; scoreMultiplier = 1; slowRoundsLeft = 0;
     pickups = []; messages = []; roundsSincePickup = 0;
+    dropPlatform = null; dropTimer = 0; nextRoundIn = 0;
     document.getElementById('score-display').textContent = '0';
     document.getElementById('round-display').textContent = '1';
     updateHUD();
@@ -612,17 +755,19 @@
   // ─── Game loop ────────────────────────────────────────────────────────────
   let lastTs = 0;
   function loop(ts) {
-    const dt = ts - lastTs;
+    const dt = Math.min(Math.max(ts - lastTs, 0), MAX_DT);
+    const k  = dt / FRAME_MS;
     lastTs = ts;
 
     if (!paused && !gameOver) {
-      updatePlayer(dt);
-      updatePickups(dt);
+      updatePlayer(dt, k);
+      updatePickups(dt, k);
       updatePlatformWarnings(dt);
-      checkRoundResult(ts);
+      updateRoundClock(dt);
+      checkRoundResult();
 
       // Animate messages
-      for (const m of messages) { m.y -= 1.2; m.life -= dt; }
+      for (const m of messages) { m.y -= 1.2 * k; m.life -= dt; }
       messages = messages.filter(m => m.life > 0);
     }
 
@@ -640,13 +785,15 @@
     if (!btn) return;
     const press = (e) => {
       e.preventDefault();
-      keys[keyCode] = true;
+      if (keyCode) keys[keyCode] = true;
       btn.classList.add('pressed');
+      // Tras GAME OVER cualquier botón táctil reinicia la partida
+      if (gameOver) { tapRestart(); return; }
       if (onPress) onPress();
     };
     const release = (e) => {
       e.preventDefault();
-      keys[keyCode] = false;
+      if (keyCode) keys[keyCode] = false;
       btn.classList.remove('pressed');
     };
     btn.addEventListener('touchstart',  press,   { passive: false });
@@ -656,10 +803,9 @@
 
   bindMobileBtn('mc-left',  'ArrowLeft',  null);
   bindMobileBtn('mc-right', 'ArrowRight', null);
-  bindMobileBtn('mc-jump',  'Space', () => {
-    if (player.grounded) { player.vy = JUMP_FORCE; player.grounded = false; }
-  });
-  bindMobileBtn('mc-drop',  'ArrowDown', null);
+  bindMobileBtn('mc-jump',  'Space',      tryJump);
+  bindMobileBtn('mc-drop',  'ArrowDown',  tryDrop);
+  bindMobileBtn('mc-pause', null,         togglePause);
 })();
 </script>
 <script src="../js/destroygame.js" defer></script>

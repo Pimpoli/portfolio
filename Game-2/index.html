@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Ambidextro: minijuego cooperativo de plataformas para 2 jugadores en el mismo dispositivo. Haz que los dos personajes se toquen a lo largo de 25 niveles." />
   <title>Ambidextro — PimpoliDev</title>
   <link rel="icon" href="../img/MultiGameInc.webp" />
   <style>
@@ -24,7 +25,7 @@
     #game-wrap {
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      width: 100%; height: 100vh; padding-top: 50px; gap: 8px;
+      width: 100%; height: 100vh; height: 100dvh; padding-top: 50px; gap: 8px;
     }
     canvas { border-radius: 12px; box-shadow: 0 0 40px rgba(78,205,196,0.15); display: block; }
     #controls-wrap { display: flex; gap: 32px; font-size: 0.75rem; opacity: 0.42; text-align: center; }
@@ -67,9 +68,14 @@
     }
     .mc-label.p1 { color: #ff6b6b; }
     .mc-label.p2 { color: #4ecdc4; }
+    /* Pantallas bajas (móvil en horizontal): controles a los lados del canvas */
+    body.mc-lateral #mobile-controls { background: transparent; backdrop-filter: none; }
     @media (hover: none) and (pointer: coarse) {
       #mobile-controls { display: flex; }
       #controls-wrap { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .mc-btn.pressed { transform: none; }
     }
   </style>
 </head>
@@ -82,7 +88,7 @@
 </div>
 
 <div id="game-wrap">
-  <canvas id="c"></canvas>
+  <canvas id="c" role="img" aria-label="Ambidextro: tablero de juego con dos personajes, P1 rojo y P2 turquesa, que deben llegar a tocarse saltando entre plataformas"></canvas>
   <div id="controls-wrap">
     <div class="ctrl-p1">P1: A ← / D → / W ↑  (también ← → ↑)</div>
     <div class="ctrl-p2">P2: J ← / L → / I ↑</div>
@@ -134,12 +140,38 @@
   let W = 800, H = 450;
 
   // ─── Responsive ───────────────────────────────────────────────────────────
+  // Solo recalcula tamaño y posiciones: nivel, temporizador y gameState se conservan.
+  const MIN_H = 240; // alto mínimo con los controles táctiles debajo del canvas
   function resize() {
-    W = Math.min(window.innerWidth - 10, 860);
-    H = Math.min(window.innerHeight - 120, 480);
+    const oldW = W, oldH = H;
+    const wrap = document.getElementById('game-wrap');
+    const mc   = document.getElementById('mobile-controls');
+    const touchUI = mc && getComputedStyle(mc).display !== 'none';
+    document.body.classList.remove('mc-lateral');
+    wrap.style.paddingBottom = '';
+
+    if (touchUI) {
+      // Los controles táctiles son fijos abajo: el canvas no debe quedar debajo
+      const barH    = mc.offsetHeight;
+      const sideW   = Math.max(mc.firstElementChild.offsetWidth, mc.lastElementChild.offsetWidth) + 10;
+      const bottomH = window.innerHeight - 60 - barH;
+      if (bottomH < MIN_H && window.innerWidth - sideW * 2 >= 300) {
+        // Pantalla baja (horizontal): controles a los lados, canvas en el centro
+        document.body.classList.add('mc-lateral');
+        W = Math.min(window.innerWidth - sideW * 2, 860);
+        H = Math.min(window.innerHeight - 60, 480);
+      } else {
+        wrap.style.paddingBottom = barH + 'px';
+        W = Math.min(window.innerWidth - 10, 860);
+        H = Math.min(Math.max(bottomH, 200), 480);
+      }
+    } else {
+      W = Math.min(window.innerWidth - 10, 860);
+      H = Math.min(window.innerHeight - 120, 480);
+    }
     canvas.width  = W;
     canvas.height = H;
-    if (typeof currentLevel === 'number') buildLevel(currentLevel);
+    if (platforms.length) relayoutLevel(oldW, oldH);
   }
   window.addEventListener('resize', resize);
 
@@ -265,16 +297,21 @@
       const p2s = [pf[1][0] + pf[1][2] - 0.10, pf[1][1] - 0.10];
 
       // Spikes: max 1 per platform, wider trigger margin so player can dodge
+      // Todas las plataformas intermedias miden pfW (≥ 0.10), así que valen todas;
+      // antes se exigía > 0.12 y los niveles 21-25 se quedaban siempre sin pinchos.
       const spikeCount = Math.round(lerp(0, 3, t));
       const spikes = [];
-      const midPfs = pf.slice(2).filter(p => p[2] > 0.12); // only on wide-enough platforms
+      const midPfs = pf.slice(2).filter(p => p[2] >= 0.08); // only on wide-enough platforms
+      const nSpikes = Math.min(spikeCount, midPfs.length);   // evita un bucle infinito abajo
       const usedPfs = new Set();
-      for (let si = 0; si < spikeCount && midPfs.length > 0; si++) {
+      for (let si = 0; si < nSpikes; si++) {
         let idx;
         do { idx = Math.floor(rng() * midPfs.length); } while (usedPfs.has(idx));
         usedPfs.add(idx);
         const tgt    = midPfs[idx];
-        const margin = 0.06;
+        // Margen de 0.06 en plataformas anchas; en las estrechas se reduce para que
+        // el pincho quede sobre la plataforma y siempre quede un lado libre donde pisar
+        const margin = Math.min(0.06, tgt[2] / 2 - 0.02);
         const xOnPf  = tgt[0] + margin + rng() * Math.max(0, tgt[2] - margin * 2);
         spikes.push({ xPct: xOnPf, yPct: tgt[1], triggerDist: lerp(115, 80, t) });
       }
@@ -306,10 +343,30 @@
   let timerMax     = 15;
   let lastTs       = 0;
   let gameState    = 'playing'; // 'playing'|'win'|'lost'|'complete'
+  let completeTimeout = null;   // paso 'win' → 'complete' tras el último nivel
 
   // ─── Build level ──────────────────────────────────────────────────────────
+  // Push players out of any platforms they may overlap at spawn
+  function pushOutOfPlatforms(px, py, pw, ph) {
+    let y = py;
+    for (const pf of platforms) {
+      if (px + pw > pf.x && px < pf.x + pf.w && y + ph > pf.y && y < pf.y + pf.h) {
+        y = pf.y - ph - 2;
+      }
+    }
+    return y;
+  }
+
+  // Punto de aparición en píxeles a partir de la posición relativa del nivel
+  function spawnPoint(pos, p) {
+    const x = pos[0]*W;
+    return { x, y: pushOutOfPlatforms(x, pos[1]*H, p.w, p.h) };
+  }
+
   function buildLevel(idx) {
     const lv = LEVELS[idx];
+    clearTimeout(completeTimeout);
+    completeTimeout = null;
 
     platforms = lv.pf.map(([px,py,pw,ph]) => ({
       x:px*W, y:py*H, w:pw*W, h:ph*H,
@@ -319,6 +376,7 @@
     spikes = lv.spikes.map(sp => ({
       x: sp.xPct * W,
       yBase: sp.yPct * H,    // top surface of the platform the spike sits on
+      xPct: sp.xPct, yPct: sp.yPct,
       triggerDist: sp.triggerDist,
       emerge: 0, width:13, height:22,
       dmgP1:false, dmgP2:false,
@@ -334,6 +392,7 @@
             type: types[Math.floor(Math.random() * types.length)],
             x: pf.x + pf.w/2,
             y: pf.y - 22,
+            pfIdx: i + 2,
             collected: false,
           });
         }
@@ -342,23 +401,10 @@
 
     p1 = mkPlayer(C1);
     p2 = mkPlayer(C2);
-    p1.x = lv.p1[0]*W; p1.y = lv.p1[1]*H;
-    p2.x = lv.p2[0]*W; p2.y = lv.p2[1]*H;
-
-    // Push players out of any platforms they may overlap at spawn
-    function pushOutOfPlatforms(px, py, pw, ph) {
-      let y = py;
-      for (const pf of platforms) {
-        if (px + pw > pf.x && px < pf.x + pf.w && y + ph > pf.y && y < pf.y + pf.h) {
-          y = pf.y - ph - 2;
-        }
-      }
-      return y;
-    }
-    p1.y = pushOutOfPlatforms(p1.x, p1.y, p1.w, p1.h);
-    p2.y = pushOutOfPlatforms(p2.x, p2.y, p2.w, p2.h);
-    p1.spawn = { x:p1.x, y:p1.y };
-    p2.spawn = { x:p2.x, y:p2.y };
+    p1.spawn = spawnPoint(lv.p1, p1);
+    p2.spawn = spawnPoint(lv.p2, p2);
+    p1.x = p1.spawn.x; p1.y = p1.spawn.y;
+    p2.x = p2.spawn.x; p2.y = p2.spawn.y;
 
     timerMax  = lv.time !== null ? lv.time : Infinity;
     timer     = timerMax;
@@ -367,44 +413,97 @@
     document.getElementById('level-top').textContent = `NIVEL ${idx+1} / ${TOTAL_LVLS}`;
   }
 
+  // Tras un cambio de tamaño: recoloca todo proporcionalmente sin reiniciar el nivel
+  function relayoutLevel(oldW, oldH) {
+    // Plataforma que pisa cada jugador (para dejarlo encima de ella)
+    const anchorOf = p => {
+      const pf = platforms.find(pf =>
+        p.x + p.w > pf.x && p.x < pf.x + pf.w && Math.abs((p.y + p.h) - pf.y) <= 4);
+      return pf ? { pf, frac: (p.x + p.w/2 - pf.x) / pf.w } : null;
+    };
+    const a1 = anchorOf(p1), a2 = anchorOf(p2);
+
+    for (const pf of platforms) {
+      pf.x = pf.xPct*W; pf.y = pf.yPct*H; pf.w = pf.wPct*W; pf.h = pf.hPct*H;
+    }
+    for (const sp of spikes) { sp.x = sp.xPct*W; sp.yBase = sp.yPct*H; }
+    for (const pk of pickups) {
+      const pf = platforms[pk.pfIdx];
+      pk.x = pf.x + pf.w/2; pk.y = pf.y - 22;
+    }
+
+    const lv = LEVELS[currentLevel];
+    p1.spawn = spawnPoint(lv.p1, p1);
+    p2.spawn = spawnPoint(lv.p2, p2);
+
+    for (const [p, a] of [[p1, a1], [p2, a2]]) {
+      if (a) {
+        p.x = a.pf.x + a.frac * a.pf.w - p.w/2;
+        p.y = a.pf.y - p.h;
+      } else {
+        p.x = (p.x + p.w/2) * W / oldW - p.w/2;
+        p.y = (p.y + p.h)   * H / oldH - p.h;
+      }
+      p.x = Math.max(0, Math.min(W - p.w, p.x));
+    }
+  }
+
   // ─── Input ────────────────────────────────────────────────────────────────
   const keys = {};
+  // Teclas que usa el juego: solo a estas se les bloquea la acción por defecto
+  const GAME_KEYS = ['KeyA','KeyD','KeyW','ArrowLeft','ArrowRight','ArrowUp','ArrowDown',
+                     'KeyJ','KeyL','KeyI','Space'];
+
+  // Avanza desde las pantallas de victoria / derrota / completado (teclado o toque)
+  function advanceState() {
+    if (gameState === 'win' && currentLevel < TOTAL_LVLS - 1) {
+      currentLevel++; buildLevel(currentLevel);
+    } else if (gameState === 'win' && currentLevel >= TOTAL_LVLS - 1) {
+      // After last level, same as complete
+      clearTimeout(completeTimeout); completeTimeout = null;
+      gameState = 'complete';
+    } else if (gameState === 'lost') {
+      buildLevel(currentLevel);
+    } else if (gameState === 'complete') {
+      sessionSeed = Math.trunc(Date.now() * (Math.random() + 0.1));
+      LEVELS = makeLevels();
+      currentLevel = 5; // skip to first random level
+      buildLevel(currentLevel);
+    }
+  }
+
   document.addEventListener('keydown', e => {
     keys[e.code] = true;
-    if (e.code === 'Enter' || e.code === 'Space') {
-      if (gameState === 'win' && currentLevel < TOTAL_LVLS - 1) {
-        currentLevel++; buildLevel(currentLevel);
-      } else if (gameState === 'win' && currentLevel >= TOTAL_LVLS - 1) {
-        // After last level, same as complete
-        gameState = 'complete';
-      } else if (gameState === 'lost') {
-        buildLevel(currentLevel);
-      } else if (gameState === 'complete') {
-        sessionSeed = Math.trunc(Date.now() * (Math.random() + 0.1));
-        LEVELS = makeLevels();
-        currentLevel = 5; // skip to first random level
-        buildLevel(currentLevel);
-      }
+    if ((e.code === 'Enter' || e.code === 'Space') && !e.repeat) {
+      if (gameState !== 'playing') { advanceState(); e.preventDefault(); }
     }
-    e.preventDefault();
+    // No bloquear Tab, F5, Ctrl+R, Ctrl+F, zoom... ni nada con Ctrl/Meta/Alt
+    if (GAME_KEYS.includes(e.code) && !e.ctrlKey && !e.metaKey && !e.altKey) e.preventDefault();
   });
   document.addEventListener('keyup', e => { keys[e.code] = false; });
 
+  // Al cambiar de pestaña se sueltan todas las teclas (evita teclas "pegadas")
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) for (const k in keys) keys[k] = false;
+  });
+
   // ─── Player physics ───────────────────────────────────────────────────────
-  function updatePlayer(p, leftKeys, rightKeys, jumpKeys, dtMs) {
-    const goLeft  = leftKeys.some(k  => keys[k]);
-    const goRight = rightKeys.some(k => keys[k]);
-    const doJump  = jumpKeys.some(k  => keys[k]);
+  // k = dt normalizado a 60 fps (k = 1 a 60 fps → mismo comportamiento de siempre)
+  function updatePlayer(p, leftKeys, rightKeys, jumpKeys, dtMs, k) {
+    const goLeft  = leftKeys.some(key  => keys[key]);
+    const goRight = rightKeys.some(key => keys[key]);
+    const doJump  = jumpKeys.some(key  => keys[key]);
 
     if (goLeft)        p.vx = -SPD;
     else if (goRight)  p.vx = SPD;
-    else               p.vx *= 0.78;
+    else               p.vx *= Math.pow(0.78, k);
 
     if (doJump && p.grounded) { p.vy = JUMP_FORCE; p.grounded = false; }
 
-    p.vy = Math.min(p.vy + GRAVITY, 16); // cap fall speed to prevent tunneling
-    p.x  += p.vx;
-    p.y  += p.vy;
+    p.vy = Math.min(p.vy + GRAVITY * k, 16); // cap fall speed to prevent tunneling
+    const dy = p.vy * k;
+    p.x  += p.vx * k;
+    p.y  += dy;
     p.grounded = false;
 
     if (p.x < 0) p.x = 0;
@@ -413,7 +512,7 @@
     for (const pf of platforms) {
       if (p.x + p.w > pf.x && p.x < pf.x + pf.w) {
         const bot     = p.y + p.h;
-        const bot_prv = bot - p.vy;
+        const bot_prv = bot - dy;
         if (bot_prv <= pf.y + 4 && bot >= pf.y - 2 && p.vy >= 0) {
           p.y = pf.y - p.h; p.vy = 0; p.grounded = true;
         }
@@ -431,14 +530,14 @@
   }
 
   // ─── Spikes ───────────────────────────────────────────────────────────────
-  function updateSpikes(dtMs) {
+  function updateSpikes(dtMs, k) {
     for (const sp of spikes) {
       const midX   = p => p.x + p.w/2;
       const near1  = Math.abs(midX(p1) - sp.x) < sp.triggerDist;
       const near2  = Math.abs(midX(p2) - sp.x) < sp.triggerDist;
 
-      if (near1 || near2) sp.emerge = Math.min(1, sp.emerge + 0.038);
-      else                sp.emerge = Math.max(0, sp.emerge - 0.025);
+      if (near1 || near2) sp.emerge = Math.min(1, sp.emerge + 0.038 * k);
+      else                sp.emerge = Math.max(0, sp.emerge - 0.025 * k);
 
       if (sp.emerge < 0.65) { sp.dmgP1 = false; sp.dmgP2 = false; }
 
@@ -672,9 +771,9 @@
       ctx.shadowBlur = 0; ctx.fillStyle = '#fff';
       ctx.font = `${Math.min(20,W*0.035)}px monospace`;
       if (currentLevel < TOTAL_LVLS-1)
-        ctx.fillText('ENTER / SPACE → siguiente nivel', W/2, H/2+20);
+        ctx.fillText('ENTER / SPACE / toca → siguiente nivel', W/2, H/2+20);
       else
-        ctx.fillText('ENTER / SPACE → ¡COMPLETADO!', W/2, H/2+20);
+        ctx.fillText('ENTER / SPACE / toca → ¡COMPLETADO!', W/2, H/2+20);
     }
 
     if (gameState === 'lost') {
@@ -683,8 +782,8 @@
       ctx.shadowBlur = 20; ctx.shadowColor = '#e74c3c';
       ctx.fillStyle  = '#e74c3c'; ctx.font = `bold ${Math.min(44,W*0.08)}px monospace`;
       ctx.fillText('TIEMPO AGOTADO', W/2, H/2-30);
-      ctx.shadowBlur = 0; ctx.fillStyle = '#aaa'; ctx.font = '18px monospace';
-      ctx.fillText('ENTER / SPACE para reintentar', W/2, H/2+20);
+      ctx.shadowBlur = 0; ctx.fillStyle = '#aaa'; ctx.font = `${Math.min(18,W*0.035)}px monospace`;
+      ctx.fillText('ENTER / SPACE / toca para reintentar', W/2, H/2+20);
     }
 
     if (gameState === 'complete') {
@@ -697,34 +796,42 @@
       ctx.font = `${Math.min(20,W*0.036)}px monospace`;
       ctx.fillText('Superaste los ' + TOTAL_LVLS + ' niveles de Ambidextro', W/2, H/2-5);
       ctx.fillStyle = '#4ecdc4'; ctx.font = `${Math.min(15,W*0.027)}px monospace`;
-      ctx.fillText('ENTER / SPACE → nuevos niveles aleatorios generados', W/2, H/2+38);
+      ctx.fillText('ENTER / SPACE / toca → nuevos niveles aleatorios generados', W/2, H/2+38);
     }
 
     ctx.textAlign = 'left'; ctx.shadowBlur = 0;
   }
 
   // ─── Main loop ────────────────────────────────────────────────────────────
+  const FRAME_MS = 1000 / 60;
+  const MAX_DT   = 50;   // ms: al volver de otra pestaña no se descuenta el tiempo perdido
+
   function loop(ts) {
-    const dt   = (ts - lastTs) / 1000;  // seconds
+    const dtMs = Math.min(Math.max(ts - lastTs, 0), MAX_DT);
+    const dt   = dtMs / 1000;  // seconds
+    const k    = dtMs / FRAME_MS;
     lastTs     = ts;
-    const dtMs = dt * 1000;
 
     if (gameState === 'playing') {
-      updatePlayer(p1, ['KeyA','ArrowLeft'], ['KeyD','ArrowRight'], ['KeyW','ArrowUp'], dtMs);
-      updatePlayer(p2, ['KeyJ'],             ['KeyL'],              ['KeyI'],          dtMs);
+      updatePlayer(p1, ['KeyA','ArrowLeft'], ['KeyD','ArrowRight'], ['KeyW','ArrowUp'], dtMs, k);
+      updatePlayer(p2, ['KeyJ'],             ['KeyL'],              ['KeyI'],          dtMs, k);
 
       if (timer !== Infinity) {
         timer -= dt;
         if (timer <= 0) { timer = 0; gameState = 'lost'; }
       }
 
-      updateSpikes(dtMs);
+      updateSpikes(dtMs, k);
       updatePickups(ts);
 
       if (touching()) {
         gameState = 'win';
         if (currentLevel >= TOTAL_LVLS - 1) {
-          setTimeout(() => { gameState = 'complete'; }, 1300);
+          clearTimeout(completeTimeout);
+          completeTimeout = setTimeout(() => {
+            completeTimeout = null;
+            if (gameState === 'win' && currentLevel >= TOTAL_LVLS - 1) gameState = 'complete';
+          }, 1300);
         }
       }
     }
@@ -772,20 +879,7 @@
   });
 
   // Tap canvas to advance state screens on mobile
-  canvas.addEventListener('click', () => {
-    if (gameState === 'win' && currentLevel < TOTAL_LVLS - 1) {
-      currentLevel++; buildLevel(currentLevel);
-    } else if (gameState === 'win') {
-      gameState = 'complete';
-    } else if (gameState === 'lost') {
-      buildLevel(currentLevel);
-    } else if (gameState === 'complete') {
-      sessionSeed = Math.trunc(Date.now() * (Math.random() + 0.1));
-      LEVELS = makeLevels();
-      currentLevel = 5;
-      buildLevel(currentLevel);
-    }
-  });
+  canvas.addEventListener('click', advanceState);
 })();
 </script>
 <script src="../js/destroygame.js" defer></script>
