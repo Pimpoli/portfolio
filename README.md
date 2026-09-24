@@ -10,7 +10,8 @@ Es un sitio estático: HTML, CSS y JavaScript sin frameworks ni paso de compilac
 | --- | --- |
 | `index.html` | Página principal: inicio, estadísticas, sobre mí, proyectos, juegos, tienda y contacto. |
 | `MultiGameInc/` | Página del estudio Multi Game Inc. |
-| `Game-1/`, `Game-2/` | Minijuegos en canvas: *Color Block* (1 jugador) y *Ambidextro* (2 jugadores). Funcionan con teclado y con pantalla táctil. |
+| `Game-1/`, `Game-2/` | Minijuegos en 3D (three.js): *Color Block* (1 jugador) y *Ambidextro* (2 jugadores). Funcionan con teclado y con pantalla táctil; sin WebGL usan el dibujo 2D de antes. |
+| `js/vendor/` | three.js r170 (licencia MIT) y los addons que usan los juegos, servidos desde el propio sitio. |
 | `404.html` | Redirige rutas antiguas o mal escritas (`/game1`, `/mgi`, `/destroygame`…). |
 | `css/style.css` | Todos los estilos del sitio. Los colores están como variables en `:root` y el tema claro en `:root[data-theme="light"]`. |
 | `css/destroygame.css` | Estilos del easter egg *DestroyGame* (se cargan solo al activarlo). |
@@ -46,7 +47,7 @@ También funciona la extensión **Live Server** de VS Code.
 
 ## Estado de Roblox (GitHub Action)
 
-`.github/workflows/presence.yml` consulta la API de presencia de Roblox y guarda en `data/presence.json` **solo** el tipo de estado (desconectado, en línea, jugando o en Studio) y la hora. No guarda qué juego, servidor o lugar de Studio tienes abierto, porque ese archivo es público.
+`.github/workflows/presence.yml` consulta la API de presencia de Roblox y guarda en `data/presence.json` el tipo de estado (desconectado, en línea, jugando o en Studio), la hora y, si estás jugando, el nombre y el `placeId` del juego. No guarda el servidor (`gameId`), que permitiría a cualquiera entrar en tu mismo servidor, ni el lugar que tengas abierto en Studio, que puede ser un proyecto sin publicar.
 
 Necesita uno de estos *secrets* del repositorio (Settings → Secrets and variables → Actions):
 
