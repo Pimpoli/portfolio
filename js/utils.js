@@ -144,10 +144,19 @@
     mediaDialog = el('dialog', { class: 'modal', 'aria-labelledby': 'media-dialog-title' }, [
       el('div', { class: 'modal__panel' }, [
         closeBtn,
-        el('div', { class: 'modal__media' }),
+        el('div', { class: 'modal__media-col' }, [
+          el('div', { class: 'modal__media' }),
+          el('dl', { class: 'modal__stats' }),
+        ]),
         el('div', { class: 'modal__body' }, [
-          el('p', { class: 'modal__kicker' }),
-          el('h2', { class: 'modal__title', id: 'media-dialog-title' }),
+          el('div', { class: 'modal__head' }, [
+            el('img', { class: 'modal__icon', alt: '', width: 64, height: 64 }),
+            el('div', { class: 'modal__heading' }, [
+              el('p', { class: 'modal__kicker' }),
+              el('h2', { class: 'modal__title', id: 'media-dialog-title' }),
+            ]),
+          ]),
+          el('ul', { class: 'modal__chips' }),
           el('div', { class: 'modal__desc' }),
           el('div', { class: 'modal__actions' }),
         ]),
@@ -164,11 +173,23 @@
     return mediaDialog;
   }
 
-  function showMediaDialog({ media, kicker = '', title = '', desc = '', actions = [], onClose = null }) {
+  // Opciones extra (ventana de juego): layout 'split', icon (url), chips [texto], stats [{ label, value, tone }]
+  function showMediaDialog({ media, kicker = '', title = '', desc = '', actions = [], onClose = null,
+    layout = 'stack', icon: iconUrl = null, chips = [], stats = [] }) {
     const dlg = ensureMediaDialog();
     const q = (s) => dlg.querySelector(s);
+    dlg.classList.toggle('modal--split', layout === 'split');
     q('.modal__media').replaceChildren(...(media ? [media] : []));
     q('.modal__media').hidden = !media;
+    const iconEl = q('.modal__icon');
+    iconEl.hidden = !iconUrl;
+    if (iconUrl) iconEl.src = iconUrl; else iconEl.removeAttribute('src');
+    q('.modal__chips').replaceChildren(...chips.filter(Boolean).map((c) => el('li', { class: 'chip', text: c })));
+    q('.modal__chips').hidden = !chips.filter(Boolean).length;
+    q('.modal__stats').replaceChildren(...stats.map((s) => el('div', { class: 'modal__stat' + (s.tone ? ` modal__stat--${s.tone}` : '') }, [
+      el('dt', { text: s.label }), el('dd', { text: s.value }),
+    ])));
+    q('.modal__stats').hidden = stats.length === 0;
     q('.modal__kicker').textContent = kicker;
     q('.modal__kicker').hidden = !kicker;
     q('.modal__title').textContent = title;

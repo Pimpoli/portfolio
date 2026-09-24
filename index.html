@@ -20,7 +20,7 @@
   <meta name="twitter:title"       content="PimpoliDev — Roblox Developer & Founder of Multi Game Inc" />
   <meta name="twitter:description" content="Roblox developer with 4+ years of experience in Luau, UI/UX and modular systems. Founder of Multi Game Inc." />
   <meta name="twitter:image"       content="https://pimpolidev.com/img/PimpoliDev.png" />
-  <meta name="theme-color"         content="#100e0d" />
+  <meta name="theme-color"         content="#0e0d14" />
 
   <!-- Tema e indicador de JS antes de pintar (evita parpadeo) -->
   <script>
@@ -31,7 +31,7 @@
     })();
   </script>
 
-  <link rel="icon" href="img/MultiGameInc.webp" type="image/webp" />
+  <link rel="icon" href="img/PimpoliDev.webp" type="image/webp" />
   <link rel="apple-touch-icon" href="img/PimpoliDev.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -47,7 +47,7 @@
   <header class="site-header">
     <div class="container header-inner">
       <a class="brand" href="#home">
-        <img class="brand-logo" src="img/MultiGameInc.webp" alt="" width="40" height="40" />
+        <img class="brand-logo" src="img/PimpoliDev.webp" alt="" width="40" height="40" />
         <span class="brand-name">PimpoliDev</span>
       </a>
 
@@ -113,17 +113,25 @@
         </div>
 
         <div class="hero-profile reveal">
-          <a id="roblox-profile-container" class="avatar-ring" data-status="offline" href="https://www.roblox.com/users/3404416545/profile" target="_blank" rel="noopener" aria-label="PimpoliDev on Roblox">
-            <img id="roblox-profile-img" src="img/PimpoliDev.webp" alt="" width="324" height="324" referrerpolicy="no-referrer" />
-          </a>
-          <div class="profile-card">
-            <img src="img/roblox.webp" alt="" width="36" height="36" />
-            <div class="profile-card__text">
-              <strong>PimpoliDev</strong>
-              <span id="followers-count">Roblox</span>
+          <div class="avatar-stage" data-tilt>
+            <div class="avatar-stage__card" id="roblox-profile-container" data-status="offline">
+              <span class="avatar-stage__pedestal" aria-hidden="true"></span>
+              <img id="roblox-avatar" class="avatar-stage__img is-fallback" src="img/PimpoliDev.webp" alt="PimpoliDev's Roblox avatar" data-i18n="presence.avatarAlt" data-i18n-attr="alt" width="420" height="420" referrerpolicy="no-referrer" />
+              <a class="avatar-stage__name" href="https://www.roblox.com/users/3404416545/profile" target="_blank" rel="noopener">
+                <img src="img/roblox.webp" alt="" width="16" height="16" />
+                <span id="roblox-display-name">PimpoliDev</span>
+              </a>
             </div>
-            <span class="profile-badge" data-status="offline"><span class="presence-label" data-i18n="presence.offline">Offline</span></span>
           </div>
+          <a class="now-card" id="now-card" data-status="offline" href="https://www.roblox.com/users/3404416545/profile" target="_blank" rel="noopener">
+            <span class="now-card__icon"><img id="now-icon" src="img/roblox.webp" alt="" width="56" height="56" referrerpolicy="no-referrer" /></span>
+            <span class="now-card__text">
+              <span class="now-card__label" data-i18n="presence.offline">Offline</span>
+              <span class="now-card__title" id="now-title" data-i18n="presence.offlineText">Visit my Roblox profile</span>
+              <span class="now-card__meta" id="followers-count">Roblox</span>
+            </span>
+            <span class="now-card__cta" id="now-cta" data-i18n="presence.viewProfile">View profile →</span>
+          </a>
         </div>
       </div>
     </section>
@@ -170,7 +178,7 @@
         <div class="about-details reveal">
           <dl class="info-grid">
             <div class="info-card"><dt data-i18n="about.list.nameLabel">My name</dt><dd data-i18n="about.list.nameValue">Anthony // Alias: PimpoliDev</dd></div>
-            <div class="info-card"><dt data-i18n="about.list.expLabel">Experience</dt><dd data-i18n="about.list.expValue">More than 4 years as a programmer</dd></div>
+            <div class="info-card"><dt data-i18n="about.list.sinceLabel">On Roblox since</dt><dd id="roblox-since" data-i18n="about.list.expValue">More than 4 years as a programmer</dd></div>
             <div class="info-card"><dt data-i18n="about.list.luauLabel">Main language</dt><dd data-i18n="about.list.luauValue">Luau (Roblox), advanced mastery</dd></div>
             <div class="info-card"><dt data-i18n="about.list.uiLabel">UIs and animations</dt><dd data-i18n="about.list.uiValue">Smooth interfaces for games</dd></div>
             <div class="info-card"><dt data-i18n="about.list.systemsLabel">Custom systems</dt><dd data-i18n="about.list.systemsValue">Reusable modular frameworks</dd></div>
@@ -215,28 +223,36 @@
 
         <h3 class="sublabel" data-i18n="games.webLabel">Play in your browser</h3>
         <div class="minigame-grid">
-          <a class="minigame-card reveal" href="Game-1/">
-            <span class="minigame-icon minigame-icon--blocks" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
-            <span class="minigame-info">
-              <span class="minigame-name">Color Block</span>
-              <span class="minigame-meta" data-i18n="games.solo">1 player · Keyboard or touch</span>
+          <a class="minigame-card reveal" href="Game-1/" data-tilt>
+            <span class="minigame-preview minigame-preview--blocks" aria-hidden="true">
+              <span class="mp-row"><span style="--c:#e74c3c;--d:#8e2a20"></span><span class="is-target" style="--c:#3498db;--d:#1f5f8a"></span><span style="--c:#2ecc71;--d:#1b7d44"></span><span style="--c:#f1c40f;--d:#9a7c08"></span><span style="--c:#9b59b6;--d:#5e3570"></span></span>
+              <span class="mp-player"></span>
             </span>
-            <span class="minigame-play">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-              <span data-i18n="games.play">Play</span>
+            <span class="minigame-body">
+              <span class="minigame-info">
+                <span class="minigame-name">Color Block</span>
+                <span class="minigame-meta" data-i18n="games.solo">1 player · Keyboard or touch</span>
+              </span>
+              <span class="minigame-play">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                <span data-i18n="games.play">Play</span>
+              </span>
             </span>
           </a>
-          <a class="minigame-card reveal" href="Game-2/">
-            <span class="minigame-icon minigame-icon--duo" aria-hidden="true">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2 20c0-3.3 2.7-6 6-6M22 20c0-3.3-2.7-6-6-6M9 17l3-3 3 3"/></svg>
+          <a class="minigame-card reveal" href="Game-2/" data-tilt>
+            <span class="minigame-preview minigame-preview--duo" aria-hidden="true">
+              <span class="mp-side"><span class="mp-cube" style="--c:#ff6b6b"></span><span class="mp-slab"></span></span>
+              <span class="mp-side"><span class="mp-cube" style="--c:#4ecdc4"></span><span class="mp-slab"></span></span>
             </span>
-            <span class="minigame-info">
-              <span class="minigame-name">Ambidextro</span>
-              <span class="minigame-meta" data-i18n="games.duo">2 players · Same keyboard</span>
-            </span>
-            <span class="minigame-play">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-              <span data-i18n="games.play">Play</span>
+            <span class="minigame-body">
+              <span class="minigame-info">
+                <span class="minigame-name">Ambidextro</span>
+                <span class="minigame-meta" data-i18n="games.duo">2 players · Same device</span>
+              </span>
+              <span class="minigame-play">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                <span data-i18n="games.play">Play</span>
+              </span>
             </span>
           </a>
         </div>

@@ -32,14 +32,21 @@
   "presence": {
     "loading": "Consultando estado…",
     "online": "En línea",
-    "ingame": "Jugando",
+    "ingame": "Jugando ahora",
     "instudio": "En Studio",
     "offline": "Desconectado",
     "nowOnline": "En línea ahora",
-    "nowIngame": "Jugando ahora",
+    "nowIngame": "Jugando ahora en Roblox",
     "nowStudio": "En Studio ahora",
     "nowOffline": "Desconectado ahora",
-    "followers": "{n} seguidores"
+    "followers": "{n} seguidores",
+    "onlineText": "Conectado en Roblox",
+    "studioText": "Creando algo nuevo en Roblox Studio",
+    "offlineText": "Visita mi perfil de Roblox",
+    "viewGame": "Ver juego →",
+    "viewProfile": "Ver perfil →",
+    "friends": "{n} amigos",
+    "avatarAlt": "Avatar de Roblox de PimpoliDev"
   },
   "stats": {
     "label": "Estadísticas",
@@ -66,7 +73,8 @@
       "systemsValue": "Frameworks modulares reutilizables",
       "enginesLabel": "Motores que manejo",
       "enginesValue": "Roblox Studio y Godot Engine 4",
-      "studioLabel": "Fundador de"
+      "studioLabel": "Fundador de",
+      "sinceLabel": "En Roblox desde"
     },
     "skillsTitle": "Tech Stack",
     "skills": {
@@ -99,7 +107,7 @@
   },
   "games": {
     "title": "Juegos que he creado",
-    "webLabel": "Jugar en el navegador",
+    "webLabel": "Jugar en el navegador · 3D",
     "robloxLabel": "En Roblox",
     "solo": "1 jugador · Teclado o táctil",
     "duo": "2 jugadores · Mismo dispositivo",
@@ -107,13 +115,23 @@
     "more": "Ver los {n} juegos",
     "less": "Ver menos",
     "modal": {
-      "play": "Jugar",
-      "page": "Ir a la página",
+      "play": "Jugar en Roblox",
+      "page": "Ver página",
       "confirmTitle": "Iniciar juego",
       "confirmText": "¿Quieres abrir el juego en Roblox ahora?",
       "cancel": "Cancelar",
-      "confirm": "Abrir Roblox"
-    }
+      "confirm": "Abrir Roblox",
+      "video": "Vídeo",
+      "playingNow": "Jugando ahora",
+      "visits": "Visitas",
+      "favorites": "Favoritos",
+      "likes": "Me gusta",
+      "maxPlayers": "Hasta {n} jugadores",
+      "updated": "Actualizado {date}"
+    },
+    "playing": "{n} jugando",
+    "visits": "{n} visitas",
+    "likes": "{n}% me gusta"
   },
   "store": {
     "title": "Sistemas listos para tu juego",

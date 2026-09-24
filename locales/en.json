@@ -32,14 +32,21 @@
   "presence": {
     "loading": "Checking status…",
     "online": "Online",
-    "ingame": "Playing",
+    "ingame": "Playing now",
     "instudio": "In Studio",
     "offline": "Offline",
     "nowOnline": "Online now",
-    "nowIngame": "Playing now",
+    "nowIngame": "Playing on Roblox now",
     "nowStudio": "In Studio now",
     "nowOffline": "Offline right now",
-    "followers": "{n} followers"
+    "followers": "{n} followers",
+    "onlineText": "Online on Roblox",
+    "studioText": "Building something new in Roblox Studio",
+    "offlineText": "Visit my Roblox profile",
+    "viewGame": "View game →",
+    "viewProfile": "View profile →",
+    "friends": "{n} friends",
+    "avatarAlt": "PimpoliDev's Roblox avatar"
   },
   "stats": {
     "label": "Stats",
@@ -66,7 +73,8 @@
       "systemsValue": "Reusable modular frameworks",
       "enginesLabel": "Engines I use",
       "enginesValue": "Roblox Studio and Godot Engine 4",
-      "studioLabel": "Founder of"
+      "studioLabel": "Founder of",
+      "sinceLabel": "On Roblox since"
     },
     "skillsTitle": "Tech Stack",
     "skills": {
@@ -99,7 +107,7 @@
   },
   "games": {
     "title": "Games I've made",
-    "webLabel": "Play in your browser",
+    "webLabel": "Play in your browser · 3D",
     "robloxLabel": "On Roblox",
     "solo": "1 player · Keyboard or touch",
     "duo": "2 players · Same device",
@@ -107,13 +115,23 @@
     "more": "View all {n} games",
     "less": "Show less",
     "modal": {
-      "play": "Play",
-      "page": "Go to page",
+      "play": "Play on Roblox",
+      "page": "View page",
       "confirmTitle": "Start game",
       "confirmText": "Do you want to open the game in Roblox now?",
       "cancel": "Cancel",
-      "confirm": "Open Roblox"
-    }
+      "confirm": "Open Roblox",
+      "video": "Video",
+      "playingNow": "Playing now",
+      "visits": "Visits",
+      "favorites": "Favorites",
+      "likes": "Likes",
+      "maxPlayers": "Up to {n} players",
+      "updated": "Updated {date}"
+    },
+    "playing": "{n} playing",
+    "visits": "{n} visits",
+    "likes": "{n}% likes"
   },
   "store": {
     "title": "Ready-made systems for your game",

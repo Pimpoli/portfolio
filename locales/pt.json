@@ -32,14 +32,21 @@
   "presence": {
     "loading": "Consultando status…",
     "online": "Online",
-    "ingame": "Jogando",
+    "ingame": "Jogando agora",
     "instudio": "No Studio",
     "offline": "Offline",
     "nowOnline": "Online agora",
-    "nowIngame": "Jogando agora",
+    "nowIngame": "Jogando agora no Roblox",
     "nowStudio": "No Studio agora",
     "nowOffline": "Offline agora",
-    "followers": "{n} seguidores"
+    "followers": "{n} seguidores",
+    "onlineText": "Conectado no Roblox",
+    "studioText": "Criando algo novo no Roblox Studio",
+    "offlineText": "Visite meu perfil do Roblox",
+    "viewGame": "Ver jogo →",
+    "viewProfile": "Ver perfil →",
+    "friends": "{n} amigos",
+    "avatarAlt": "Avatar do Roblox do PimpoliDev"
   },
   "stats": {
     "label": "Estatísticas",
@@ -66,7 +73,8 @@
       "systemsValue": "Frameworks modulares reutilizáveis",
       "enginesLabel": "Motores que uso",
       "enginesValue": "Roblox Studio e Godot Engine 4",
-      "studioLabel": "Fundador da"
+      "studioLabel": "Fundador da",
+      "sinceLabel": "No Roblox desde"
     },
     "skillsTitle": "Tech Stack",
     "skills": {
@@ -99,7 +107,7 @@
   },
   "games": {
     "title": "Jogos que eu criei",
-    "webLabel": "Jogar no navegador",
+    "webLabel": "Jogar no navegador · 3D",
     "robloxLabel": "No Roblox",
     "solo": "1 jogador · Teclado ou toque",
     "duo": "2 jogadores · Mesmo dispositivo",
@@ -107,13 +115,23 @@
     "more": "Ver os {n} jogos",
     "less": "Ver menos",
     "modal": {
-      "play": "Jogar",
-      "page": "Ir para a página",
+      "play": "Jogar no Roblox",
+      "page": "Ver página",
       "confirmTitle": "Iniciar jogo",
       "confirmText": "Quer abrir o jogo no Roblox agora?",
       "cancel": "Cancelar",
-      "confirm": "Abrir Roblox"
-    }
+      "confirm": "Abrir Roblox",
+      "video": "Vídeo",
+      "playingNow": "Jogando agora",
+      "visits": "Visitas",
+      "favorites": "Favoritos",
+      "likes": "Curtidas",
+      "maxPlayers": "Até {n} jogadores",
+      "updated": "Atualizado em {date}"
+    },
+    "playing": "{n} jogando",
+    "visits": "{n} visitas",
+    "likes": "{n}% curtidas"
   },
   "store": {
     "title": "Sistemas prontos para o seu jogo",

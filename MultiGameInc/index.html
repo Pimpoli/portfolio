@@ -12,7 +12,7 @@
   <meta property="og:description" content="Game development studio founded by PimpoliDev. Roblox games and more." />
   <meta property="og:image"       content="https://pimpolidev.com/img/PimpoliDev.png" />
   <meta name="twitter:card"       content="summary" />
-  <meta name="theme-color"        content="#100e0d" />
+  <meta name="theme-color"        content="#0e0d14" />
 
   <script>
     (function () {
@@ -31,9 +31,11 @@
     /* Estilos propios de la página del estudio (el resto viene de css/style.css) */
     .mgi-hero { text-align: center; padding-bottom: 96px; }
     .mgi-hero .hero-text { align-items: center; max-width: 720px; margin-inline: auto; }
+    .mgi-hero::after { left: 50%; right: auto; margin-left: -280px; top: 0; }
     .mgi-logo {
-      width: 128px; height: 128px; border-radius: 28px;
-      box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent) 12%, transparent), var(--shadow);
+      width: 132px; height: 132px; border-radius: 30px;
+      box-shadow: 0 0 0 8px var(--accent-glow), 0 24px 60px rgba(0, 0, 0, 0.5);
+      transform: perspective(600px) rotateX(8deg) rotateY(-10deg);
     }
     .mgi-badge {
       display: inline-flex; align-items: center; min-height: 32px; padding: 0 14px; border-radius: 999px;
@@ -46,7 +48,12 @@
     .brand-back { color: var(--muted); font-weight: 600; margin-right: 2px; }
     .info-card dd a { color: var(--accent-text); }
     .info-card dd a:hover { text-decoration: underline; }
-    .founder-card--banner { margin-top: 32px; }
+    .founder-card--banner { margin-top: 32px; background: linear-gradient(90deg, var(--accent-glow) 0%, var(--surface) 60%); }
+    .founder-card--banner .founder-card__cta {
+      min-height: 48px; padding: 0 22px; border-radius: 14px; display: inline-flex; align-items: center;
+      background: var(--accent); color: var(--on-accent);
+    }
+    @media (max-width: 600px) { .founder-card--banner .founder-card__cta { padding: 0 14px; min-height: 40px; } }
     @media (max-width: 900px) {
       .mgi-hero { padding-bottom: 64px; }
       .mgi-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 32px; }
@@ -109,7 +116,7 @@
     <section class="hero mgi-hero">
       <div class="container">
         <div class="hero-text">
-          <img class="mgi-logo reveal" src="../img/MultiGameInc.webp" alt="" width="128" height="128" />
+          <span class="mgi-logo-wrap reveal"><img class="mgi-logo" src="../img/MultiGameInc.webp" alt="" width="128" height="128" /></span>
           <p class="mgi-badge reveal" data-i18n="mgi.badge">Independent studio</p>
           <h1 class="hero-title reveal">Multi Game Inc</h1>
           <p class="hero-lead reveal" data-i18n="mgi.desc">Game development studio founded by PimpoliDev. We create experiences on Roblox and more platforms.</p>

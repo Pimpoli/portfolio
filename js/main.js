@@ -114,51 +114,118 @@
   }
 
   /* ═══════════ Avatar y estado de Roblox ═══════════ */
+  const PROFILE_URL = `https://www.roblox.com/users/${USER_ID}/profile`;
   const STATUS = ['offline', 'online', 'ingame', 'studio'];
-  const LABEL_KEYS = { offline: 'presence.offline', online: 'presence.online', ingame: 'presence.ingame', studio: 'presence.instudio' };
-  const PILL_KEYS  = { offline: 'presence.nowOffline', online: 'presence.nowOnline', ingame: 'presence.nowIngame', studio: 'presence.nowStudio' };
-  const FALLBACK   = { offline: 'Offline', online: 'Online', ingame: 'In game', studio: 'In Studio' };
-  const PILL_FALLBACK = { offline: 'Offline right now', online: 'Online now', ingame: 'Playing now', studio: 'In Studio now' };
+  const PILL = {
+    offline: ['presence.nowOffline', 'Offline right now'], online: ['presence.nowOnline', 'Online now'],
+    ingame: ['presence.nowIngame', 'Playing now on Roblox'], studio: ['presence.nowStudio', 'In Studio now'],
+  };
+  const LABEL = {
+    offline: ['presence.offline', 'Offline'], online: ['presence.online', 'Online'],
+    ingame: ['presence.ingame', 'Playing now'], studio: ['presence.instudio', 'In Studio'],
+  };
+  const TITLE = {
+    offline: ['presence.offlineText', 'Visit my Roblox profile'], online: ['presence.onlineText', 'Online on Roblox'],
+    studio: ['presence.studioText', 'Building something new in Roblox Studio'],
+  };
 
-  function applyPresence(type) {
-    const status = STATUS[type] || 'offline';
+  const setKey = (el, [key, fallback]) => { if (!el) return; el.setAttribute('data-i18n', key); el.textContent = t(key, fallback); };
+  let lastIconPlace = null;
+
+  function applyPresence(p) {
+    const status = STATUS[p?.type] || 'offline';
     document.querySelectorAll('[data-status]').forEach((el) => { el.dataset.status = status; });
-    document.querySelectorAll('.status-pill .presence-label').forEach((el) => {
-      el.setAttribute('data-i18n', PILL_KEYS[status]);
-      el.textContent = t(PILL_KEYS[status], PILL_FALLBACK[status]);
-    });
-    document.querySelectorAll('.profile-badge .presence-label').forEach((el) => {
-      el.setAttribute('data-i18n', LABEL_KEYS[status]);
-      el.textContent = t(LABEL_KEYS[status], FALLBACK[status]);
-    });
+    document.querySelectorAll('.status-pill .presence-label').forEach((el) => setKey(el, PILL[status]));
+
+    const card = document.getElementById('now-card');
+    if (!card) return;
+    setKey(card.querySelector('.now-card__label'), LABEL[status]);
+    const title = document.getElementById('now-title');
+    const cta = document.getElementById('now-cta');
+    const icon = document.getElementById('now-icon');
+
+    if (status === 'ingame' && p.game) {
+      // El nombre del juego lo pone su creador: se inserta como texto
+      title.removeAttribute('data-i18n');
+      title.textContent = p.game;
+    } else {
+      setKey(title, TITLE[status] || TITLE.online);
+    }
+    const gameUrl = status === 'ingame' && p.placeId ? `https://www.roblox.com/games/${p.placeId}` : null;
+    card.href = gameUrl || PROFILE_URL;
+    setKey(cta, gameUrl ? ['presence.viewGame', 'View game →'] : ['presence.viewProfile', 'View profile →']);
+
+    const place = gameUrl ? p.placeId : null;
+    if (place !== lastIconPlace) {
+      lastIconPlace = place;
+      if (!place) {
+        icon.src = window.U.asset('img/roblox.webp');
+      } else {
+        // Se precarga y solo se cambia cuando el icono del juego ya está listo
+        window.Roblox.placeIcon(place).then((url) => {
+          if (!url || lastIconPlace !== place) return;
+          const probe = new Image();
+          probe.onload = () => { if (lastIconPlace === place) icon.src = url; };
+          probe.src = url;
+        });
+      }
+    }
   }
 
-  let followerCount = null;
-  function renderFollowers() {
+  const counts = { followers: null, friends: null };
+  function renderCounts() {
     const el = document.getElementById('followers-count');
-    if (!el || followerCount === null) return;
-    el.textContent = tf('presence.followers', '{n} followers', { n: followerCount.toLocaleString(document.documentElement.lang || undefined) });
+    if (!el) return;
+    const lang = document.documentElement.lang || undefined;
+    const parts = [];
+    if (counts.followers !== null) parts.push(tf('presence.followers', '{n} followers', { n: counts.followers.toLocaleString(lang) }));
+    if (counts.friends !== null) parts.push(tf('presence.friends', '{n} friends', { n: counts.friends.toLocaleString(lang) }));
+    if (parts.length) el.textContent = parts.join(' · ');
   }
 
   async function refreshPresence() {
-    const [pres, fol] = await Promise.allSettled([window.Roblox.presence(USER_ID), window.Roblox.followers(USER_ID)]);
-    applyPresence(pres.status === 'fulfilled' && typeof pres.value === 'number' ? pres.value : 0);
-    if (fol.status === 'fulfilled' && fol.value !== null) { followerCount = fol.value; renderFollowers(); }
+    const [pres, fol, fri] = await Promise.allSettled([
+      window.Roblox.presence(USER_ID), window.Roblox.followers(USER_ID), window.Roblox.friends(USER_ID),
+    ]);
+    applyPresence(pres.status === 'fulfilled' && pres.value ? pres.value : { type: 0 });
+    if (fol.status === 'fulfilled' && fol.value !== null) counts.followers = fol.value;
+    if (fri.status === 'fulfilled' && fri.value !== null) counts.friends = fri.value;
+    renderCounts();
   }
 
+  // Avatar de cuerpo entero (PNG transparente) desde Roblox; si falla se queda el logo
   async function loadAvatar() {
-    const img = document.getElementById('roblox-profile-img');
+    const img = document.getElementById('roblox-avatar');
     if (!img) return;
-    const url = await window.Roblox.avatarUrl(USER_ID);
-    if (!url) return; // se queda la imagen local
+    const url = await window.Roblox.avatarUrl(USER_ID, 'full');
+    if (!url) return;
     const probe = new Image();
-    probe.onload = () => { img.src = url; };
+    probe.onload = () => { img.src = url; img.classList.remove('is-fallback'); };
     probe.src = url;
+  }
+
+  // Nombre visible y fecha de creación de la cuenta
+  let accountCreated = null;
+  function renderSince() {
+    const el = document.getElementById('roblox-since');
+    if (!el || !accountCreated) return;
+    el.removeAttribute('data-i18n');
+    el.textContent = new Intl.DateTimeFormat(document.documentElement.lang || undefined, { month: 'long', year: 'numeric' })
+      .format(new Date(accountCreated));
+  }
+  async function loadProfile() {
+    const info = await window.Roblox.profile(USER_ID);
+    if (!info) return;
+    const nameEl = document.getElementById('roblox-display-name');
+    if (nameEl && info.displayName) nameEl.textContent = info.displayName;
+    accountCreated = info.created;
+    renderSince();
   }
 
   function initPresence() {
     if (!document.getElementById('roblox-profile-container')) return;
     loadAvatar();
+    loadProfile();
     refreshPresence();
 
     let timer = null;
@@ -168,8 +235,41 @@
       if (document.visibilityState === 'visible') { refreshPresence(); start(); } else stop();
     });
     start();
-    document.addEventListener('languageLoaded', renderFollowers);
+    document.addEventListener('languageLoaded', () => { renderCounts(); renderSince(); });
   }
+
+  /* ═══════════ Inclinación 3D con el puntero ([data-tilt]) ═══════════ */
+  function initTilt() {
+    if (reduceMotion || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    document.querySelectorAll('[data-tilt]').forEach(bindTilt);
+  }
+  function bindTilt(el) {
+    if (el._tilt) return;
+    el._tilt = true;
+    const max = el.classList.contains('avatar-stage') ? 10 : 6;
+    let frame = 0;
+    el.addEventListener('pointermove', (e) => {
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        el.style.setProperty('--ry', `${(x * max * 2).toFixed(2)}deg`);
+        el.style.setProperty('--rx', `${(-y * max * 2).toFixed(2)}deg`);
+        el.classList.add('is-tilting');
+      });
+    });
+    el.addEventListener('pointerleave', () => {
+      cancelAnimationFrame(frame);
+      el.style.removeProperty('--ry');
+      el.style.removeProperty('--rx');
+      el.classList.remove('is-tilting');
+    });
+  }
+  window.bindTilt = (root = document) => {
+    if (reduceMotion || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    root.querySelectorAll('[data-tilt]').forEach(bindTilt);
+  };
 
   /* ═══════════ Inicio ═══════════ */
   const year = document.getElementById('year');
@@ -179,6 +279,7 @@
   initMenu();
   initScrollUI();
   initPresence();
+  initTilt();
   observeReveal();
 
   // Exportado para MultiGameInc (misma lógica de formato)

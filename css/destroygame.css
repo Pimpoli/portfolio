@@ -77,7 +77,7 @@ body.dg-active { cursor: none; user-select: none; -webkit-user-select: none; tou
 #dg-gameover .dg-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
 #dg-gameover button {
   min-height: 44px; padding: 10px 28px;
-  background: #ff5a1f; color: #1a0b04; font-weight: 700;
+  background: #7c4dff; color: #ffffff; font-weight: 700;
   border: none; border-radius: 10px; cursor: pointer;
   font-size: 1rem; font-family: inherit;
 }
