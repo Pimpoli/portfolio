@@ -194,24 +194,35 @@
       actions: [playBtn, pageLink],
       onClose: c.stop,
     });
-    window.Roblox.gameVideos(g.universeId).then((videos) => { if (dlg.open && dlg.contains(c.root)) c.addVideos(videos); });
+    window.Roblox.gameVideos(g).then((videos) => { if (dlg.open && dlg.contains(c.root)) c.addVideos(videos); });
   }
 
   // ─── Carga ────────────────────────────────────────────────────────────────
-  let retried = false;
-  function load(refresh) {
-    window.Roblox.getGames({ refresh }).then((list) => {
+  // 1) La copia de data/roblox.json (rápida y fiable) y 2) datos en vivo encima. Si en vivo
+  // falla, se reintenta con espera creciente (o cuando termina el rate-limit), hasta 3 veces.
+  let attempts = 0;
+  function refreshLive() {
+    window.Roblox.refreshGames(games).then((fresh) => {
+      if (fresh && fresh.some((g) => g.live)) {
+        games = fresh;
+        render();
+        return;
+      }
+      attempts += 1;
+      if (attempts < 3) setTimeout(refreshLive, isRateLimited() ? 95_000 : 8000 * attempts);
+    });
+  }
+
+  function load() {
+    window.Roblox.getGames().then((list) => {
       games = list;
       render();
-      // Si alguna petición falló (y no es por rate-limit), se reintenta una vez
-      if (!retried && list.some((g) => !g.live) && !isRateLimited()) {
-        retried = true;
-        setTimeout(() => load(true), 8000);
-      }
+      refreshLive();
     });
   }
 
   render();
-  load(false);
-  document.addEventListener('languageLoaded', () => { if (moreBtn) updateMoreBtn(); });
+  load();
+  // Las tarjetas llevan textos traducidos ("3 jugando", "visitas"…): se repintan al cambiar de idioma
+  document.addEventListener('languageLoaded', render);
 })();

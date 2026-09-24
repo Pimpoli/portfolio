@@ -4,21 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title data-i18n="title">PimpoliDev Portfolio</title>
-  <meta name="description" content="PimpoliDev — Roblox developer with 4+ years of experience in Luau, UI/UX and modular systems. Founder of Multi Game Inc." />
+  <meta name="description" content="PimpoliDev — Game developer with 4+ years of experience in Roblox Studio, Godot Engine and a custom Voxel Engine. Luau, GDScript and C++. Founder of Multi Game Inc." />
 
   <!-- Open Graph / redes sociales -->
   <meta property="og:type"        content="website" />
   <meta property="og:url"         content="https://pimpolidev.com/" />
   <meta property="og:site_name"   content="PimpoliDev Portfolio" />
   <meta property="og:title"       content="PimpoliDev — Roblox Developer & Founder of Multi Game Inc" />
-  <meta property="og:description" content="Roblox developer with 4+ years of experience in Luau, UI/UX and modular systems. Founder of Multi Game Inc." />
+  <meta property="og:description" content="Game developer with 4+ years of experience in Roblox Studio, Godot Engine and a custom Voxel Engine. Luau, GDScript and C++. Founder of Multi Game Inc." />
   <meta property="og:image"       content="https://pimpolidev.com/img/PimpoliDev.png" />
   <meta property="og:image:width"  content="500" />
   <meta property="og:image:height" content="500" />
   <meta name="twitter:card"        content="summary" />
   <meta name="twitter:creator"     content="@PimpoliDev" />
   <meta name="twitter:title"       content="PimpoliDev — Roblox Developer & Founder of Multi Game Inc" />
-  <meta name="twitter:description" content="Roblox developer with 4+ years of experience in Luau, UI/UX and modular systems. Founder of Multi Game Inc." />
+  <meta name="twitter:description" content="Game developer with 4+ years of experience in Roblox Studio, Godot Engine and a custom Voxel Engine. Luau, GDScript and C++. Founder of Multi Game Inc." />
   <meta name="twitter:image"       content="https://pimpolidev.com/img/PimpoliDev.png" />
   <meta name="theme-color"         content="#0e0d14" />
 
@@ -96,7 +96,7 @@
             <span class="presence-label" data-i18n="presence.loading">Checking status…</span>
           </p>
           <h1 class="hero-title reveal"><span data-i18n="home.greeting">Hi, I'm</span> <span class="hero-accent">PimpoliDev</span></h1>
-          <p class="hero-lead reveal" data-i18n="home.subtitle">Roblox developer with 4+ years of experience. Luau, UI/UX and modular systems. Founder of Multi Game Inc.</p>
+          <p class="hero-lead reveal" data-i18n="home.subtitle">Game developer with 4+ years of experience in Roblox Studio, Godot Engine and my own Voxel Engine. I code in Luau, GDScript and C++. Founder of Multi Game Inc.</p>
           <div class="hero-cta reveal">
             <a href="#projects" class="btn btn--primary" data-i18n="home.cta.projects">View projects</a>
             <a href="#games" class="btn btn--ghost">
@@ -165,24 +165,32 @@
           <p class="eyebrow" data-i18n="about.title">About me</p>
           <h2 class="section-title" data-i18n="about.heading">I make games that feel good to play</h2>
           <p class="section-lead" data-i18n="about.intro">I'm Anthony, a Roblox programmer for more than 4 years. I focus on interfaces with smooth animations and on modular systems that carry over from one game to the next.</p>
-          <h3 class="chips-title" data-i18n="about.skillsTitle">Tech Stack</h3>
-          <ul class="chip-list">
-            <li class="chip"><span class="chip-dot" style="--dot:#6aa8ff" aria-hidden="true"></span><span data-i18n="about.skills.luau">Luau</span></li>
-            <li class="chip"><span class="chip-dot" style="--dot:var(--accent)" aria-hidden="true"></span><span data-i18n="about.skills.studio">Roblox Studio</span></li>
-            <li class="chip"><span class="chip-dot" style="--dot:#7fb2e0" aria-hidden="true"></span><span data-i18n="about.skills.godot">Godot Engine 4</span></li>
-            <li class="chip"><span class="chip-dot" style="--dot:#3ddc84" aria-hidden="true"></span><span data-i18n="about.skills.ui">UI / UX</span></li>
-            <li class="chip"><span class="chip-dot" style="--dot:#ffb340" aria-hidden="true"></span><span data-i18n="about.skills.systems">Custom systems</span></li>
-          </ul>
+          <div class="stack">
+            <h3 class="chips-title" data-i18n="about.langsTitle">Languages</h3>
+            <ul class="chip-list">
+              <li class="chip"><span class="chip-dot" style="--dot:#38d0f5" aria-hidden="true"></span>Luau</li>
+              <li class="chip"><span class="chip-dot" style="--dot:#478cbf" aria-hidden="true"></span>GDScript</li>
+              <li class="chip"><span class="chip-dot" style="--dot:#f34b7d" aria-hidden="true"></span>C++</li>
+            </ul>
+          </div>
+          <div class="stack">
+            <h3 class="chips-title" data-i18n="about.enginesTitle">Engines</h3>
+            <ul class="chip-list">
+              <li class="chip"><span class="chip-dot" style="--dot:#a98bff" aria-hidden="true"></span>Roblox Studio</li>
+              <li class="chip"><span class="chip-dot" style="--dot:#6fa8dc" aria-hidden="true"></span>Godot Engine</li>
+              <li class="chip"><span class="chip-dot" style="--dot:#3ddc84" aria-hidden="true"></span>Voxel Engine <span class="chip-tag" data-i18n="about.ownEngine">custom</span></li>
+            </ul>
+          </div>
         </div>
 
         <div class="about-details reveal">
           <dl class="info-grid">
             <div class="info-card"><dt data-i18n="about.list.nameLabel">My name</dt><dd data-i18n="about.list.nameValue">Anthony // Alias: PimpoliDev</dd></div>
             <div class="info-card"><dt data-i18n="about.list.sinceLabel">On Roblox since</dt><dd id="roblox-since" data-i18n="about.list.expValue">More than 4 years as a programmer</dd></div>
-            <div class="info-card"><dt data-i18n="about.list.luauLabel">Main language</dt><dd data-i18n="about.list.luauValue">Luau (Roblox), advanced mastery</dd></div>
+            <div class="info-card"><dt data-i18n="about.list.luauLabel">Languages</dt><dd data-i18n="about.list.luauValue">Luau, GDScript and C++</dd></div>
             <div class="info-card"><dt data-i18n="about.list.uiLabel">UIs and animations</dt><dd data-i18n="about.list.uiValue">Smooth interfaces for games</dd></div>
             <div class="info-card"><dt data-i18n="about.list.systemsLabel">Custom systems</dt><dd data-i18n="about.list.systemsValue">Reusable modular frameworks</dd></div>
-            <div class="info-card"><dt data-i18n="about.list.enginesLabel">Engines I use</dt><dd data-i18n="about.list.enginesValue">Roblox Studio and Godot Engine 4</dd></div>
+            <div class="info-card"><dt data-i18n="about.list.enginesLabel">Engines I use</dt><dd data-i18n="about.list.enginesValue">Roblox Studio, Godot Engine and my own Voxel Engine</dd></div>
           </dl>
           <a class="founder-card" href="https://www.roblox.com/communities/17387910/Multi-Game-Inc" target="_blank" rel="noopener">
             <img src="img/MultiGameInc.webp" alt="" width="52" height="52" loading="lazy" />

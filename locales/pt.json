@@ -23,7 +23,7 @@
   },
   "home": {
     "greeting": "Olá, sou o",
-    "subtitle": "Desenvolvedor de Roblox com mais de 4 anos de experiência. Luau, UI/UX e sistemas modulares. Fundador da Multi Game Inc.",
+    "subtitle": "Desenvolvedor de jogos com mais de 4 anos de experiência no Roblox Studio, Godot Engine e no meu próprio Voxel Engine. Programo em Luau, GDScript e C++. Fundador da Multi Game Inc.",
     "cta": {
       "projects": "Ver projetos",
       "games": "Meus jogos"
@@ -58,32 +58,27 @@
   "about": {
     "title": "Sobre mim",
     "heading": "Faço jogos que são gostosos de jogar",
-    "intro": "Sou o Anthony, programador de Roblox há mais de 4 anos. Foco em interfaces com animações fluidas e em sistemas modulares que reaproveito de um jogo para outro.",
+    "intro": "Sou o Anthony, programador de jogos há mais de 4 anos: Luau no Roblox, GDScript no Godot e C++ no meu próprio motor de voxels. Foco em interfaces com animações fluidas e em sistemas modulares que reaproveito de um jogo para outro.",
     "groupCta": "Ver grupo →",
     "list": {
       "nameLabel": "Meu nome",
       "nameValue": "Anthony // Alias: PimpoliDev",
       "expLabel": "Experiência",
       "expValue": "Mais de 4 anos como programador",
-      "luauLabel": "Linguagem principal",
-      "luauValue": "Luau (Roblox), domínio avançado",
+      "luauLabel": "Linguagens",
+      "luauValue": "Luau, GDScript e C++",
       "uiLabel": "UIs e animações",
       "uiValue": "Interfaces fluidas para jogos",
       "systemsLabel": "Sistemas próprios",
       "systemsValue": "Frameworks modulares reutilizáveis",
       "enginesLabel": "Motores que uso",
-      "enginesValue": "Roblox Studio e Godot Engine 4",
+      "enginesValue": "Roblox Studio, Godot Engine e meu próprio Voxel Engine",
       "studioLabel": "Fundador da",
       "sinceLabel": "No Roblox desde"
     },
-    "skillsTitle": "Tech Stack",
-    "skills": {
-      "luau": "Luau",
-      "studio": "Roblox Studio",
-      "godot": "Godot Engine 4",
-      "ui": "UI / UX",
-      "systems": "Sistemas próprios"
-    }
+    "langsTitle": "Linguagens",
+    "enginesTitle": "Motores",
+    "ownEngine": "próprio"
   },
   "projects": {
     "title": "Meu trabalho",
@@ -167,8 +162,8 @@
     "platformRow": "Plataforma principal",
     "specialtyRow": "Especialidade",
     "specialtyVal": "Jogos multijogador, sistemas de gameplay e UIs",
-    "langRow": "Linguagem principal",
-    "langVal": "Luau, domínio avançado (4+ anos)",
+    "langRow": "Linguagens",
+    "langVal": "Luau, GDScript e C++",
     "gamesTitle": "Jogos do estúdio",
     "gamesSubtitle": "Todos os jogos publicados sob a Multi Game Inc no Roblox.",
     "contactTitle": "Contato",

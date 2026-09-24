@@ -71,7 +71,7 @@
     document.addEventListener('click', (e) => {
       if (document.body.classList.contains('nav-open') && !nav.contains(e.target) && !btn.contains(e.target)) setOpen(false);
     });
-    window.matchMedia('(min-width: 901px)').addEventListener('change', (m) => { if (m.matches) setOpen(false); });
+    window.matchMedia('(min-width: 1101px)').addEventListener('change', (m) => { if (m.matches) setOpen(false); });
     document.addEventListener('languageLoaded', () => setOpen(document.body.classList.contains('nav-open')));
   }
 

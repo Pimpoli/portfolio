@@ -24,6 +24,8 @@ Es un sitio estático: HTML, CSS y JavaScript sin frameworks ni paso de compilac
 | `js/destroygame.js` | Easter egg: añade `#destroygame` a la URL (o ve a `/destroygame`). |
 | `locales/*.json` | Textos en `es`, `en` y `pt`. |
 | `data/presence.json` | Estado de Roblox que escribe el GitHub Action. |
+| `data/roblox.json` | Copia de tus datos públicos de Roblox (juegos, portadas, iconos, vídeos, visitas, avatar, seguidores, miembros del grupo) que genera el Action. La web la usa primero, así que los juegos cargan aunque roproxy falle. |
+| `scripts/fetch-roblox.mjs` | Script que genera `data/roblox.json` llamando a las APIs de Roblox. |
 | `scripts/optimize-images.js` | Convierte a WebP y redimensiona las imágenes de `img/`. |
 
 ## Cómo cambiar el contenido
@@ -45,7 +47,7 @@ python3 -m http.server 8080
 
 También funciona la extensión **Live Server** de VS Code.
 
-## Estado de Roblox (GitHub Action)
+## Estado y datos de Roblox (GitHub Action)
 
 `.github/workflows/presence.yml` consulta la API de presencia de Roblox y guarda en `data/presence.json` el tipo de estado (desconectado, en línea, jugando o en Studio), la hora y, si estás jugando, el nombre y el `placeId` del juego. No guarda el servidor (`gameId`), que permitiría a cualquiera entrar en tu mismo servidor, ni el lugar que tengas abierto en Studio, que puede ser un proyecto sin publicar.
 
@@ -53,6 +55,8 @@ Necesita uno de estos *secrets* del repositorio (Settings → Secrets and variab
 
 - `ROBLOX_API_KEY`: API key de Open Cloud. Es la opción recomendada.
 - `ROBLOX_COOKIE`: cookie `.ROBLOSECURITY`. Da acceso completo a la cuenta, así que es mejor usar la de una cuenta secundaria.
+
+El mismo Action ejecuta `scripts/fetch-roblox.mjs` y guarda `data/roblox.json` con los datos públicos de tus juegos y tu perfil; si Roblox no responde, se conserva la copia anterior. Después la web pide los datos en vivo a roproxy para tener los números al momento.
 
 GitHub puede retrasar bastante las ejecuciones programadas. Si `presence.json` tiene más de 60 minutos, la web lo ignora y consulta Roblox directamente.
 
