@@ -1,78 +1,70 @@
 name: Update Roblox Presence
 
+# Publica en data/presence.json el tipo de estado (0 desconectado, 1 en línea, 2 jugando,
+# 3 en Studio), la hora y, solo si está jugando, el juego (nombre y placeId).
+# Nunca el servidor (gameId), que permitiría entrar en tu mismo servidor, ni el lugar
+# abierto en Studio, que podría ser un proyecto sin publicar.
+
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '*/5 * * * *'   # GitHub puede retrasar las ejecuciones programadas
   workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: presence
+  cancel-in-progress: false
+
 jobs:
   fetch:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Fetch & write presence
         env:
+          # Recomendado: API key de Open Cloud (no caduca y no da acceso a la cuenta).
           ROBLOX_API_KEY: ${{ secrets.ROBLOX_API_KEY }}
+          # Alternativa: cookie .ROBLOSECURITY. Da acceso completo a la cuenta; mejor la de una cuenta secundaria.
           ROBLOX_COOKIE:  ${{ secrets.ROBLOX_COOKIE }}
         run: |
           USER_ID=3404416545
           SUCCESS=false
 
-          # ── Helper: write presence.json directly ───────────────────────────
-          write_presence() {
-            local type="$1" location="$2" gameid="$3" placeid="$4"
-            local loc_json="null" gid_json="null" pid_json="null"
-            [ -n "$location" ] && loc_json="\"$location\""
-            [ -n "$gameid"   ] && gid_json="\"$gameid\""
-            [ -n "$placeid"  ] && pid_json="$placeid"
-            cat > data/presence.json << JSONEOF
-          {
-            "userPresenceType": $type,
-            "lastLocation": $loc_json,
-            "gameId": $gid_json,
-            "placeId": $pid_json,
-            "updatedAt": "$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")"
-          }
-          JSONEOF
-            echo "Presence written: type=$type location=$location"
-          }
-
-          # ── Helper: call presence.roblox.com with given headers ────────────
+          # Consulta presence.roblox.com con las cabeceras dadas y guarda el estado (sin gameId)
           call_presence_api() {
             local label="$1"; shift
             echo "--- Trying: $label ---"
-            HTTP_CODE=$(curl -s -o /tmp/rbx_response.json -w "%{http_code}" \
+            HTTP_CODE=$(curl -s -o /tmp/rbx_response.json -w "%{http_code}" --max-time 15 \
               -X POST "https://presence.roblox.com/v1/presence/users" \
               -H "Content-Type: application/json" -H "Accept: application/json" \
               "$@" -d "{\"userIds\":[$USER_ID]}")
             echo "HTTP $HTTP_CODE"
-            if [ "$HTTP_CODE" = "200" ] && jq -e '.userPresences[0]' /tmp/rbx_response.json > /dev/null 2>&1; then
+            if [ "$HTTP_CODE" = "200" ] && jq -e '.userPresences[0].userPresenceType | numbers' /tmp/rbx_response.json > /dev/null 2>&1; then
               jq --arg ts "$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")" \
-                '.userPresences[0] | {
-                   userPresenceType: (.userPresenceType // 0),
-                   lastLocation: .lastLocation, gameId: .gameId,
-                   placeId: .placeId, updatedAt: $ts
-                 }' /tmp/rbx_response.json > data/presence.json
+                '.userPresences[0] as $p
+                 | { userPresenceType: $p.userPresenceType, updatedAt: $ts }
+                 + (if $p.userPresenceType == 2
+                    then { lastLocation: $p.lastLocation, placeId: $p.placeId, rootPlaceId: $p.rootPlaceId, universeId: $p.universeId }
+                    else {} end)' \
+                /tmp/rbx_response.json > data/presence.json
               echo "✓ $label succeeded"
               return 0
             fi
-            echo "✗ $label failed — response: $(cat /tmp/rbx_response.json)"
+            echo "✗ $label failed"
             return 1
           }
 
-          # ── Method 1: Open Cloud API key (no expiry) ───────────────────────
+          # Método 1: API key de Open Cloud
           if [ -n "$ROBLOX_API_KEY" ]; then
-            call_presence_api "Open Cloud API key" -H "x-api-key: ${ROBLOX_API_KEY}" \
-              && SUCCESS=true
+            call_presence_api "Open Cloud API key" -H "x-api-key: ${ROBLOX_API_KEY}" && SUCCESS=true
           fi
 
-          # ── Method 2: Cookie + CSRF token ──────────────────────────────────
+          # Método 2: cookie + token CSRF
           if [ "$SUCCESS" = "false" ] && [ -n "$ROBLOX_COOKIE" ]; then
-            CSRF=$(curl -si -X POST "https://auth.roblox.com/v2/logout" \
+            CSRF=$(curl -si --max-time 15 -X POST "https://auth.roblox.com/v2/logout" \
               -H "Content-Type: application/json" \
               -H "Cookie: .ROBLOSECURITY=${ROBLOX_COOKIE}" \
               | grep -i "x-csrf-token:" | awk '{print $2}' | tr -d '\r\n')
@@ -82,38 +74,12 @@ jobs:
               && SUCCESS=true
           fi
 
-          # ── Method 3: Scrape public profile page (zero auth, zero maintenance)
+          rm -f /tmp/rbx_response.json
+
+          # Si todo falla NO se escribe nada: la web ignora un presence.json de más de 60 min
+          # y usa sus propios métodos, en lugar de mostrar un estado inventado.
           if [ "$SUCCESS" = "false" ]; then
-            echo "--- Scraping public Roblox profile page ---"
-            PAGE=$(curl -s -L --max-time 15 \
-              -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" \
-              "https://www.roblox.com/users/${USER_ID}/profile")
-
-            if [ -n "$PAGE" ]; then
-              echo "Page fetched (${#PAGE} bytes). Searching for presence..."
-
-              if echo "$PAGE" | grep -qi 'icon-studio\|in.studio\|presenceType.*3\|"presenceType":3\|UserPresenceType.*3'; then
-                write_presence 3 "Studio" "" ""
-                SUCCESS=true
-              elif echo "$PAGE" | grep -qi 'icon-game\|in.game\|presenceType.*2\|"presenceType":2\|UserPresenceType.*2'; then
-                write_presence 2 "In Game" "" ""
-                SUCCESS=true
-              elif echo "$PAGE" | grep -qi 'icon-online\|isOnline.*true\|"isOnline":true\|presenceType.*1\|"presenceType":1\|UserPresenceType.*1'; then
-                write_presence 1 "" "" ""
-                SUCCESS=true
-              else
-                echo "No presence indicator found in HTML — assuming offline"
-                write_presence 0 "" "" ""
-                SUCCESS=true
-              fi
-            else
-              echo "Profile page fetch returned empty response"
-            fi
-          fi
-
-          # ── Final result ───────────────────────────────────────────────────
-          if [ "$SUCCESS" = "false" ]; then
-            echo "::warning::All presence methods failed."
+            echo "::warning::All presence methods failed; data/presence.json left unchanged."
           else
             echo "--- Final presence.json ---"
             cat data/presence.json

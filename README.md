@@ -1,99 +1,70 @@
-# Portfolio Web - MultiGameInc (PimpoliDev)
+# PimpoliDev — Portafolio web
 
-Este repositorio contiene los archivos para un portafolio web profesional de un desarrollador de Roblox (PimpoliDev), con soporte multilingüe, modo oscuro/ligero, animaciones suaves y secciones:
+Portafolio de **PimpoliDev** (desarrollador de Roblox y fundador de **Multi Game Inc**), publicado en GitHub Pages en [pimpolidev.com](https://pimpolidev.com).
 
-- **index.html**: HTML principal con secciones: Home, About, Projects, Store, Contact.
-- **css/style.css**: Estilos CSS, incluye diseño oscuro/ligero, animaciones, responsive.
-- **js/i18n.js**: Lógica de internacionalización (carga de archivos JSON según idioma seleccionado).
-- **js/main.js**: Script de interactividad: menú móvil, scroll suave, cambio de tema (dark/light), animaciones.
-- **locales/**: Archivos JSON con traducciones para: en (inglés), es, pt, fr, zh-CN (chino simplificado), zh-TW (chino tradicional), ja (japonés), ko (coreano), ar (árabe).
-- **img/**: Contiene:
-  - `avatar.png`: Foto/avatar del desarrollador.
-  - `logo-pattern.png`: Patrón de logotipos de Roblox para fondo.
-  - `favicon.ico`: Icono de la página.
-  - (Opcional) OTROS íconos estáticos si no usas Font Awesome.
+Es un sitio estático: HTML, CSS y JavaScript sin frameworks ni paso de compilación. Tiene tema oscuro y claro, está en español, inglés y portugués, y muestra datos en vivo de Roblox y YouTube.
 
-## Estructura y propósito de cada archivo
+## Estructura
 
-### index.html
-- Define la estructura del portafolio:
-  - **`<header>`**: Barra de navegación fija, con logo y menú.
-  - **Sección `#home`**: Introducción con nombre, subtítulo y avatar.
-  - **Sección `#about`**: Información personal, experiencia, lenguajes y motores.
-  - **Sección `#projects`**: Ejemplos de trabajo. Tarjetas con imágenes o videos.
-  - **Sección `#store`**: Productos disponibles, cada uno con tarjeta.
-  - **Sección `#contact`**: Iconos de redes sociales (Discord, Twitter, Roblox, YouTube).
-  - **Footer**: Año dinámico.
+| Ruta | Qué es |
+| --- | --- |
+| `index.html` | Página principal: inicio, estadísticas, sobre mí, proyectos, juegos, tienda y contacto. |
+| `MultiGameInc/` | Página del estudio Multi Game Inc. |
+| `Game-1/`, `Game-2/` | Minijuegos en 3D (three.js): *Color Block* (1 jugador) y *Ambidextro* (2 jugadores). Funcionan con teclado y con pantalla táctil; sin WebGL usan el dibujo 2D de antes. |
+| `js/vendor/` | three.js r170 (licencia MIT) y los addons que usan los juegos, servidos desde el propio sitio. |
+| `404.html` | Redirige rutas antiguas o mal escritas (`/game1`, `/mgi`, `/destroygame`…). |
+| `css/style.css` | Todos los estilos del sitio. Los colores están como variables en `:root` y el tema claro en `:root[data-theme="light"]`. |
+| `css/destroygame.css` | Estilos del easter egg *DestroyGame* (se cargan solo al activarlo). |
+| `js/config.js` | **Configuración central**: IDs de Roblox, lista de juegos, clave de YouTube y productos de la tienda. |
+| `js/utils.js` | Utilidades compartidas: traducciones, caché, peticiones y ventanas modales. |
+| `js/roblox.js` | Datos públicos de Roblox a través de roproxy (juegos, visitas, miembros, avatar y estado). |
+| `js/i18n.js` | Idiomas: usa el idioma guardado, si no el del navegador, y si no inglés. |
+| `js/main.js` | Tema, menú móvil, scroll, animaciones de entrada, avatar y estado de Roblox. |
+| `js/stats.js`, `js/projects.js`, `js/games.js`, `js/products.js` | Cada sección dinámica de la home. |
+| `js/destroygame.js` | Easter egg: añade `#destroygame` a la URL (o ve a `/destroygame`). |
+| `locales/*.json` | Textos en `es`, `en` y `pt`. |
+| `data/presence.json` | Estado de Roblox que escribe el GitHub Action. |
+| `scripts/optimize-images.js` | Convierte a WebP y redimensiona las imágenes de `img/`. |
 
-- Incluye atributos `data-i18n="clave"` para text
-- `<select id="languageSwitcher">` para cambiar idioma.
-- Botón de modo oscuro/ligero con icono de luna/sol.
-- Animaciones de scroll suave a secciones.
+## Cómo cambiar el contenido
 
-### css/style.css
-- Variables CSS (`:root`) para colores en modo oscuro y claro.
-- Mixins para transiciones suaves.
-- Estilos responsive con grid y flex.
-- Patrón de fondo semitransparente con logotipos de Roblox.
-- Clases para animaciones: fade-in, scroll, hover.
-- Estilos para `dark-mode` y `light-mode`.
+- **Añadir un juego de Roblox:** agrega su `placeId` y nombre a `games` en `js/config.js`. El contador de "Juegos publicados" se actualiza solo.
+- **Añadir un producto:** agrega `{ youtubeId, gumroadUrl, price, currency }` a `store` en `js/config.js`. El título y la miniatura salen del vídeo de YouTube.
+- **Cambiar textos:** edita `locales/es.json`, `locales/en.json` y `locales/pt.json`. Cada elemento con `data-i18n="clave"` toma su texto de ahí.
+- **Imágenes nuevas:** ponlas en `img/` y ejecuta `npm install && npm run images` para convertirlas a WebP.
 
-### js/i18n.js
-- Detecta idioma en `localStorage` o idioma del navegador.
-- Carga JSON correspondiente (`locales/<lang>.json`).
-- Reemplaza innerText de elementos con `data-i18n`.
-- Maneja idiomas RTL como árabe.
-- Comentarios explicativos en cada función.
+## Probar en local
 
-### js/main.js
-- **Menú móvil**: Abre/cierra menú deslizable.
-- **Scroll suave**: Al hacer clic en enlaces del menú, desplaza suavemente a la sección.
-- **Tema oscuro/ligero**: Cambia clases `dark-mode`/`light-mode` en `<body>`, anima transición de colores.
-- **Detecta y aplica tema inicial de `localStorage`**.
-- **Animaciones de entrada**: Al cargar cada sección, efecto fade-in.
-- Comentarios detallados explicando cada bloque.
+Cualquier servidor estático sirve. Por ejemplo:
 
-### locales/*.json
-- Cada archivo JSON contiene un objeto anidado con llaves coincidentes con `data-i18n`.
-- Traducciones para:
-  - Inglés (`en.json`)
-  - Español (`es.json`)
-  - Portugués (`pt.json`)
-  - Francés (`fr.json`)
-  - Chino simplificado (`zh-CN.json`)
-  - Chino tradicional (`zh-TW.json`)
-  - Japonés (`ja.json`)
-  - Coreano (`ko.json`)
-  - Árabe (`ar.json`) (RTL)
+```bash
+npm start            # npx serve en http://localhost:8080
+# o
+python3 -m http.server 8080
+```
 
-## Datos personales configurables
-- En `locales/*.json`, revisa secciones: `home`, `about`, `projects`, `store`, `contact`.
-- Actualiza texto `about.description` y puntos de experiencia.
-- Lista de proyectos: título, descripción, rutas de imágenes/videos.
-- Sección de tienda: nombre, descripción, precio, enlace de pago (opcional).
-- Redes sociales: actualiza enlaces en `index.html`.
-- En sección "Juegos creados", se usa la API de Roblox para obtener íconos y nombres dinámicos.
+También funciona la extensión **Live Server** de VS Code.
 
-## Instrucciones para correr localmente
-1. Clonar o descargar este repositorio.
-2. Abrir la carpeta en VS Code.
-3. Instalar extensión **Live Server**.
-4. Hacer clic derecho en `index.html` → **Open with Live Server**.
-5. Navegar y probar:
-   - Cambio de idioma en el selector.
-   - Cambio de tema con el botón de luna/sol.
-   - Scroll suave al hacer clic en enlaces.
-   - Animaciones de fade-in.
+## Estado de Roblox (GitHub Action)
 
-## Cómo personalizar
-- **Imágenes**: Reemplaza archivos en `img/` (avatar.png, fondos, íconos propios).
-- **JSON de idiomas**: Agrega o modifica traducciones en `locales/<lang>.json`.
-- **Colores**: Edita variables CSS en `:root` dentro de `style.css`.
-- **Animaciones**: Agrega clases CSS animadas y usa en HTML.
+`.github/workflows/presence.yml` consulta la API de presencia de Roblox y guarda en `data/presence.json` el tipo de estado (desconectado, en línea, jugando o en Studio), la hora y, si estás jugando, el nombre y el `placeId` del juego. No guarda el servidor (`gameId`), que permitiría a cualquiera entrar en tu mismo servidor, ni el lugar que tengas abierto en Studio, que puede ser un proyecto sin publicar.
+
+Necesita uno de estos *secrets* del repositorio (Settings → Secrets and variables → Actions):
+
+- `ROBLOX_API_KEY`: API key de Open Cloud. Es la opción recomendada.
+- `ROBLOX_COOKIE`: cookie `.ROBLOSECURITY`. Da acceso completo a la cuenta, así que es mejor usar la de una cuenta secundaria.
+
+GitHub puede retrasar bastante las ejecuciones programadas. Si `presence.json` tiene más de 60 minutos, la web lo ignora y consulta Roblox directamente.
+
+## Clave de YouTube
+
+La clave de `js/config.js` es de navegador y cualquiera puede verla. Para que no la usen desde otras webs, restríngela en [Google Cloud Console](https://console.cloud.google.com/apis/credentials):
+
+1. **Restricción de aplicación:** referentes HTTP → `https://pimpolidev.com/*`.
+2. **Restricción de API:** solo *YouTube Data API v3*.
 
 ## Dependencias externas
-- **Font Awesome**: Proporciona íconos de redes sociales y sol/luna.
-- **Normalize.css**: Resetea estilos base del navegador.
-- **Google Fonts**: Carga fuente Roboto para textos.
 
----
+- [Google Fonts](https://fonts.google.com): Fredoka y Figtree.
+- [roproxy](https://roproxy.com): proxy público de las APIs de Roblox.
+- YouTube Data API v3 y Gumroad.

@@ -8,45 +8,94 @@
     "store": "Loja",
     "contact": "Contato"
   },
+  "a11y": {
+    "skip": "Pular para o conteúdo",
+    "language": "Idioma",
+    "themeLight": "Mudar para o modo claro",
+    "themeDark": "Mudar para o modo escuro",
+    "menuOpen": "Abrir menu",
+    "menuClose": "Fechar menu",
+    "backToTop": "Voltar ao topo ↑",
+    "backToTopShort": "Voltar ao topo",
+    "close": "Fechar",
+    "prev": "Imagem anterior",
+    "next": "Próxima imagem"
+  },
   "home": {
-    "title": "Olá, sou o PimpoliDev",
-    "subtitle": "Desenvolvedor de Roblox com +4 anos de exp • Especialista em Lua (Roblox Studio)",
+    "greeting": "Olá, sou o",
+    "subtitle": "Desenvolvedor de Roblox com mais de 4 anos de experiência. Luau, UI/UX e sistemas modulares. Fundador da Multi Game Inc.",
     "cta": {
-      "projects": "Ver Projetos",
-      "games": "Meus Jogos"
+      "projects": "Ver projetos",
+      "games": "Meus jogos"
     }
+  },
+  "presence": {
+    "loading": "Consultando status…",
+    "online": "Online",
+    "ingame": "Jogando agora",
+    "instudio": "No Studio",
+    "offline": "Offline",
+    "nowOnline": "Online agora",
+    "nowIngame": "Jogando agora no Roblox",
+    "nowStudio": "No Studio agora",
+    "nowOffline": "Offline agora",
+    "followers": "{n} seguidores",
+    "onlineText": "Conectado no Roblox",
+    "studioText": "Criando algo novo no Roblox Studio",
+    "offlineText": "Visite meu perfil do Roblox",
+    "viewGame": "Ver jogo →",
+    "viewProfile": "Ver perfil →",
+    "friends": "{n} amigos",
+    "avatarAlt": "Avatar do Roblox do PimpoliDev"
+  },
+  "stats": {
+    "label": "Estatísticas",
+    "years": "Anos de experiência",
+    "games": "Jogos publicados",
+    "visits": "Visitas totais",
+    "members": "Membros na Multi Game Inc"
   },
   "about": {
     "title": "Sobre mim",
+    "heading": "Faço jogos que são gostosos de jogar",
+    "intro": "Sou o Anthony, programador de Roblox há mais de 4 anos. Foco em interfaces com animações fluidas e em sistemas modulares que reaproveito de um jogo para outro.",
+    "groupCta": "Ver grupo →",
     "list": {
-      "nameLabel": "Meu nome:",
+      "nameLabel": "Meu nome",
       "nameValue": "Anthony // Alias: PimpoliDev",
-      "expLabel": "Experiência:",
-      "expValue": "Mais de 4 anos de experiência como Programador",
-      "luauLabel": "Linguagem principal:",
-      "luauValue": "Luau (Roblox) — domínio avançado há 4+ anos",
-      "uiLabel": "UIs e animações:",
-      "uiValue": "Design de interfaces e animações fluidas para jogos",
-      "systemsLabel": "Sistemas próprios:",
-      "systemsValue": "Frameworks modulares reutilizáveis que agilizam o desenvolvimento",
-      "enginesLabel": "Motores que uso:",
+      "expLabel": "Experiência",
+      "expValue": "Mais de 4 anos como programador",
+      "luauLabel": "Linguagem principal",
+      "luauValue": "Luau (Roblox), domínio avançado",
+      "uiLabel": "UIs e animações",
+      "uiValue": "Interfaces fluidas para jogos",
+      "systemsLabel": "Sistemas próprios",
+      "systemsValue": "Frameworks modulares reutilizáveis",
+      "enginesLabel": "Motores que uso",
       "enginesValue": "Roblox Studio e Godot Engine 4",
       "studioLabel": "Fundador da",
-      "studioName": "Multi Game Inc"
+      "sinceLabel": "No Roblox desde"
     },
     "skillsTitle": "Tech Stack",
     "skills": {
-      "luau":    "Luau",
-      "studio":  "Roblox Studio",
-      "godot":   "Godot Engine 4",
-      "ui":      "UI / UX",
+      "luau": "Luau",
+      "studio": "Roblox Studio",
+      "godot": "Godot Engine 4",
+      "ui": "UI / UX",
       "systems": "Sistemas próprios"
     }
   },
   "projects": {
-    "title": "Meu Trabalho / Exemplos",
-    "descLabel": "Descrição:",
-    "readMore": "Ver mais",
+    "title": "Meu trabalho",
+    "channel": "Ver canal no YouTube →",
+    "more": "Ver mais projetos",
+    "less": "Ver menos",
+    "watchOnYoutube": "Ver no YouTube",
+    "kicker": {
+      "system": "Sistema",
+      "demo": "Demo",
+      "video": "Vídeo"
+    },
     "nodes": {
       "title": "Sistema de Nós",
       "desc": ""
@@ -54,86 +103,82 @@
     "nodesDemo": {
       "title": "Demo Sistema de Nós",
       "desc": "Conexão visual entre nós."
-    },
-    "comingSoon": {
-      "title": "Em breve",
-      "desc": "Em breve"
     }
-  },
-  "stats": {
-    "years":   "Anos de experiência",
-    "games":   "Jogos publicados",
-    "visits":  "Visitas totais",
-    "members": "Membros no Studio"
-  },
-  "presence": {
-    "name": "Nome:",
-    "state": "Status:",
-    "online": "Online",
-    "ingame": "No Jogo",
-    "instudio": "No Studio",
-    "offline": "Offline",
-    "game": "Jogo:",
-    "location": "Localização:",
-    "followers": "Seguidores:"
   },
   "games": {
     "title": "Jogos que eu criei",
-    "webLabel": "Jogar no navegador",
-    "solo": "1 jogador",
-    "duo": "2 jogadores",
+    "webLabel": "Jogar no navegador · 3D",
     "robloxLabel": "No Roblox",
-    "play": "▶ Jogar",
+    "solo": "1 jogador · Teclado ou toque",
+    "duo": "2 jogadores · Mesmo dispositivo",
+    "play": "Jogar",
+    "more": "Ver os {n} jogos",
+    "less": "Ver menos",
     "modal": {
-      "play": "Jogar",
-      "page": "Ir para a página",
+      "play": "Jogar no Roblox",
+      "page": "Ver página",
       "confirmTitle": "Iniciar jogo",
-      "confirmText": "Quer iniciar o jogo agora?",
+      "confirmText": "Quer abrir o jogo no Roblox agora?",
       "cancel": "Cancelar",
-      "confirm": "Confirmar"
-    }
+      "confirm": "Abrir Roblox",
+      "video": "Vídeo",
+      "playingNow": "Jogando agora",
+      "visits": "Visitas",
+      "favorites": "Favoritos",
+      "likes": "Curtidas",
+      "maxPlayers": "Até {n} jogadores",
+      "updated": "Atualizado em {date}"
+    },
+    "playing": "{n} jogando",
+    "visits": "{n} visitas",
+    "likes": "{n}% curtidas"
   },
   "store": {
-    "title": "Produtos / Loja",
-    "moreInfo": "Mais Informações",
+    "title": "Sistemas prontos para o seu jogo",
+    "moreInfo": "Mais informações",
     "buy": "Comprar",
-    "for": "por",
-    "comingSoon": {
-      "name": "Em breve",
-      "desc": "Em breve.",
-      "price": "$Em breve USD"
-    }
+    "noDesc": "Sem descrição.",
+    "productFallback": "Produto {n}"
   },
   "contact": {
-    "title": "Contato e Redes Sociais",
-    "text": "Sinta-se à vontade para entrar em contato através de qualquer uma destas plataformas:",
+    "title": "Vamos conversar",
+    "text": "Fique à vontade para entrar em contato por qualquer uma destas plataformas.",
     "discord": "Entre no servidor",
     "roblox": "Ver perfil",
     "mgi": "Grupo no Roblox"
   },
+  "destroy": {
+    "exit": "SAIR",
+    "over": "DESTRUIÇÃO COMPLETA",
+    "best": "RECORDE",
+    "again": "JOGAR DE NOVO"
+  },
   "mgi": {
+    "title": "Multi Game Inc — PimpoliDev",
     "badge": "Estúdio independente",
     "desc": "Estúdio de desenvolvimento de jogos fundado pelo PimpoliDev. Criamos experiências no Roblox e mais plataformas.",
-    "foundedLabel": "Fundado em",
+    "foundedLabel": "Fundação",
     "membersLabel": "Membros do grupo",
     "gamesPublished": "Jogos publicados",
-    "aboutTitle": "Sobre o Estúdio",
-    "nameRow": "Nome:",
-    "founderRow": "Fundador:",
-    "foundedRow": "Fundado em:",
-    "platformRow": "Plataforma principal:",
-    "specialtyRow": "Especialidade:",
+    "aboutTitle": "Sobre o estúdio",
+    "nameRow": "Nome",
+    "founderRow": "Fundador",
+    "foundedRow": "Fundado em",
+    "platformRow": "Plataforma principal",
+    "specialtyRow": "Especialidade",
     "specialtyVal": "Jogos multijogador, sistemas de gameplay e UIs",
-    "langRow": "Linguagem principal:",
-    "langVal": "Luau — domínio avançado há 4+ anos",
-    "gamesTitle": "Jogos do Estúdio",
+    "langRow": "Linguagem principal",
+    "langVal": "Luau, domínio avançado (4+ anos)",
+    "gamesTitle": "Jogos do estúdio",
+    "gamesSubtitle": "Todos os jogos publicados sob a Multi Game Inc no Roblox.",
     "contactTitle": "Contato",
-    "contactText": "Você pode nos contatar pelas redes sociais do PimpoliDev:",
+    "contactText": "Você pode nos contatar pelas redes sociais do PimpoliDev.",
     "navStudio": "Estúdio",
     "navGames": "Jogos",
     "navContact": "Contato",
-    "gamesSubtitle": "Todos os jogos publicados sob o Multi Game Inc no Roblox.",
     "bannerTitle": "Quer ficar por dentro das novidades?",
-    "bannerText": "Siga-nos no grupo oficial do Roblox."
+    "bannerText": "Siga-nos no grupo oficial do Roblox.",
+    "joinGroup": "Entrar no grupo",
+    "viewGroup": "Ver grupo no Roblox"
   }
 }

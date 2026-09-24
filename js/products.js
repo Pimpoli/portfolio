@@ -1,288 +1,97 @@
-// js/products.js - Tienda integrada con YouTube, Gumroad y Botón Centrado
+// js/products.js — Tienda: productos de Gumroad presentados con su vídeo de YouTube
 
-document.addEventListener('DOMContentLoaded', async () => {
-  const storeSection = document.getElementById('products-container') || document.getElementById('store-container');
-  if (!storeSection) return;
+(function () {
+  'use strict';
 
-  // ==========================================
-  // CONFIGURACIÓN DE TUS PRODUCTOS ACTUALIZADOS
-  // ==========================================
-  const STORE_PRODUCTS = [
-    {
-      youtubeId: 'iUatLzmCRtE', 
-      gumroadUrl: 'https://pimpolidev.gumroad.com/l/wyfdgk', 
-      price: '$3.00 USD' 
-    },
-    {
-      youtubeId: '8G_FWh10mqU', 
-      gumroadUrl: 'https://pimpolidev.gumroad.com/l/rxlko',
-      price: '$8.00 USD'
-    }
-  ];
+  const grid = document.getElementById('products-container');
+  if (!grid) return;
 
-  // En local: la key vive en server.js (proxy). En producción (GitHub Pages): se usa directa.
-  const _YK = 'AIzaSyAI0klDbsko8_UrYOe0Rwu6aK6vrIS2iNc';
+  const { t, tf, el, icon, ICONS, fetchJSON, cache, showMediaDialog } = window.U;
+  const YT_ID = /^[\w-]{11}$/;
 
-  storeSection.innerHTML = '';
-  storeSection.className = ''; 
+  let products = window.SITE.store.map((p) => ({ ...p, title: '', desc: '', thumb: '' }));
 
-  const getT = (key, fallbackText) => {
-    if (!window.translations) return fallbackText;
-    const parts = key.split('.');
-    let text = window.translations;
-    for (let p of parts) {
-      if (text && text[p]) {
-        text = text[p];
-      } else {
-        return fallbackText;
-      }
-    }
-    return typeof text === 'string' ? text : fallbackText;
-  };
-
-  async function fetchProductsData() {
-    const ids = STORE_PRODUCTS.map(p => p.youtubeId).filter(id => id).join(',');
-    if (!ids) return STORE_PRODUCTS;
-
-    async function parseYouTubeResponse(data) {
-      if (!data.items) return null;
-      return STORE_PRODUCTS.map(product => {
-        const ytData = data.items.find(item => item.id === product.youtubeId);
-        if (ytData) {
-          return {
-            ...product,
-            title: ytData.snippet.title,
-            desc: ytData.snippet.description,
-            thumb: ytData.snippet.thumbnails?.high?.url || ytData.snippet.thumbnails?.default?.url
-          };
-        }
-        return { ...product, title: 'Producto', desc: 'Descripción no disponible', thumb: 'img/MultiGameInc.webp' };
-      });
-    }
-
-    // Estrategia 1: proxy local
-    if (window.PROXY_BASE) {
-      try {
-        const res = await fetch(`${window.PROXY_BASE}/youtube/videos?ids=${ids}`);
-        if (res.ok) {
-          const result = await parseYouTubeResponse(await res.json());
-          if (result) return result;
-        }
-      } catch (e) { /* continúa */ }
-    }
-
-    // Estrategia 2: llamada directa (producción / GitHub Pages)
-    try {
-      const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${ids}&key=${_YK}`;
-      const res = await fetch(url);
-      if (res.ok) {
-        const result = await parseYouTubeResponse(await res.json());
-        if (result) return result;
-      }
-    } catch (e) { /* continúa */ }
-
-    return STORE_PRODUCTS;
-  }
-
-  const loadedProducts = await fetchProductsData();
-
-  const mainGrid = document.createElement('div');
-  mainGrid.className = 'projects-grid'; 
-  mainGrid.style.justifyContent = 'center'; 
-
-  const moreGrid = document.createElement('div');
-  moreGrid.id = 'more-store';
-  moreGrid.className = 'projects-grid'; 
-  moreGrid.style.justifyContent = 'center'; 
-  moreGrid.style.display = 'none'; 
-  moreGrid.style.marginTop = '1.5rem';
-
-  // BOTÓN CLONADO IDÉNTICO AL DE JUEGOS
-  const expandBtn = document.createElement('button');
-  expandBtn.id = 'load-more-products';
-  expandBtn.className = 'expand-btn fade-in scroll-delay-2 visible';
-  // Usamos flex para que el texto interior se centre, y auto margin para centrar el botón entero
-  expandBtn.style.cssText = 'display: flex; margin: 1.5rem auto;'; 
-  expandBtn.textContent = '+';
-
-  function renderStoreUI() {
-    mainGrid.innerHTML = '';
-    moreGrid.innerHTML = '';
-
-    const moreInfoText = getT('store.moreInfo', 'Más Información');
-
-    loadedProducts.forEach((p, index) => {
-      const card = document.createElement('div');
-      card.className = `project-card fade-in scroll-delay-${(index % 5) + 1}`;
-      card.dataset.productData = JSON.stringify(p);
-
-      card.style.maxWidth = '450px';
-      card.style.width = '100%';
-      card.style.margin = '0 auto'; 
-
-      let descHtml = '';
-      if (p.desc && p.desc.trim() !== '') {
-        const LIMIT = 80; 
-        let truncated = p.desc.substring(0, LIMIT).trim();
-        if (p.desc.length > LIMIT) truncated += '...';
-        descHtml = `<p style="font-size: 0.9rem; margin-top: 5px; flex-grow: 1;">${truncated}</p>`;
-      }
-
-      card.style.cursor = 'pointer';
-      card.style.display = 'flex';
-      card.style.flexDirection = 'column';
-
-      card.innerHTML = `
-        <div class="media-wrapper">
-          <div class="yt-thumb" style="position: relative; width: 100%; aspect-ratio: 16/9;">
-            <img src="${p.thumb || 'img/MultiGameInc.webp'}" alt="${p.title}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 4px;" />
-            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; border-radius: 4px;">
-              <svg width="60" height="60" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.6));">
-                <path d="M8 5V19L19 12L8 5Z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-        <h3 style="margin-top: 10px; font-size: 1.1rem;">${p.title || 'Producto'}</h3>
-        ${descHtml}
-        
-        <div style="margin-top: auto; display: flex; flex-direction: column; gap: 8px; align-items: center; padding-top: 12px;">
-          <span style="color: var(--color-accent); font-weight: bold; font-size: 1.1rem;">${p.price}</span>
-          <button class="buy-btn" style="width: 100%; background-color: var(--color-accent); color: #fff; border: none; padding: .6rem 1rem; border-radius: 4px; cursor: pointer; font-weight: bold; transition: transform 0.2s;">
-            ${moreInfoText}
-          </button>
-        </div>
-      `;
-
-      if (index < 2) {
-        mainGrid.appendChild(card);
-      } else {
-        moreGrid.appendChild(card);
-      }
-      setTimeout(() => { card.classList.add('visible'); }, 50);
+  async function fetchVideoData() {
+    const ids = products.map((p) => p.youtubeId).filter((id) => YT_ID.test(id));
+    if (!ids.length) return null;
+    const KEY = 'yt_store_' + ids.join(',');
+    const hit = cache.get(KEY, 30 * 60_000);
+    if (hit) return hit;
+    const data = await fetchJSON(
+      `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${ids.join(',')}&key=${window.SITE.youtube.apiKey}`
+    );
+    if (!data?.items) return null;
+    const map = {};
+    data.items.forEach((item) => {
+      map[item.id] = {
+        title: item.snippet?.title || '',
+        desc: item.snippet?.description || '',
+        thumb: item.snippet?.thumbnails?.high?.url || item.snippet?.thumbnails?.default?.url || '',
+      };
     });
-
-    storeSection.appendChild(mainGrid);
-
-    if (loadedProducts.length > 2) {
-      storeSection.appendChild(expandBtn);
-      storeSection.appendChild(moreGrid);
-
-      expandBtn.addEventListener('click', () => {
-        if (moreGrid.style.display === 'none') {
-          moreGrid.style.display = 'grid'; 
-          expandBtn.textContent = '−';
-        } else {
-          moreGrid.style.display = 'none'; 
-          expandBtn.textContent = '+';
-        }
-      });
-    }
+    cache.set(KEY, map);
+    return map;
   }
 
-  renderStoreUI();
+  const titleOf = (p, i) => p.title || tf('store.productFallback', 'Product {n}', { n: i + 1 });
 
-  // ==========================================
-  // 3. MODAL DE COMPRA Y DETALLES
-  // ==========================================
-  function createStoreModal() {
-    if (document.getElementById('store-modal-overlay')) return;
-    const overlay = document.createElement('div');
-    overlay.id = 'store-modal-overlay';
-    overlay.style.display = 'none';
-    overlay.style.position = 'fixed';
-    overlay.style.inset = '0';
-    overlay.style.background = 'rgba(0,0,0,0.85)';
-    overlay.style.zIndex = '4000';
-    overlay.style.alignItems = 'center';
-    overlay.style.justifyContent = 'center';
-    overlay.style.padding = '20px';
+  function price(p) {
+    return el('span', { class: 'price' }, [p.price, ' ', el('span', { class: 'price__currency', text: p.currency })]);
+  }
 
-    overlay.innerHTML = `
-      <div style="background: var(--color-bg-dark); padding: 20px; border-radius: 12px; max-width: 800px; width: 90vw; max-height: 92vh; display: flex; flex-direction: column; text-align: left; box-shadow: 0 10px 40px rgba(0,0,0,0.9); position: relative;">
-        <button id="store-modal-close" style="position: absolute; top: 8px; right: 12px; background: transparent; border: none; color: #ff4b4b; font-size: 32px; cursor: pointer; z-index: 10;">&times;</button>
-        
-        <div id="store-modal-video" style="flex-shrink: 0; width: 100%; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin-top: 15px;">
-        </div>
-
-        <h2 id="store-modal-title" style="margin: 15px 0 10px 0; font-size: clamp(1.2rem, 4vw, 1.5rem); color: var(--color-text-dark); flex-shrink: 0;"></h2>
-        
-        <div id="store-modal-desc-container" style="background: rgba(0, 0, 0, 0.4); padding: 15px; border-radius: 8px; font-size: clamp(0.9rem, 3vw, 1rem); line-height: 1.5; color: rgba(255,255,255,0.9); overflow-y: auto; flex-grow: 1; max-height: 22vh; border: 1px solid rgba(255, 255, 255, 0.05);">
-        </div>
-
-        <div style="margin-top: 15px; text-align: center; flex-shrink: 0;">
-          <a id="store-modal-buy-btn" href="#" data-gumroad-overlay-checkout="true" class="button-primary" style="display: block; width: 100%; text-decoration: none; font-size: 1.15rem; font-weight: bold; padding: 14px; box-sizing: border-box; background-color: var(--color-accent-green); color: white; border-radius: 8px; transition: transform 0.2s;">
-          </a>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(overlay);
-
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) closeStoreModal();
+  function openProduct(p, i) {
+    const media = YT_ID.test(p.youtubeId)
+      ? el('iframe', {
+          src: `https://www.youtube-nocookie.com/embed/${p.youtubeId}?rel=0&autoplay=1`,
+          title: titleOf(p, i),
+          allow: 'autoplay; encrypted-media; picture-in-picture; fullscreen',
+          allowfullscreen: true,
+        })
+      : null;
+    const buy = el('a', {
+      class: 'btn btn--primary btn--block', href: p.gumroadUrl, target: '_blank', rel: 'noopener',
+      'data-gumroad-overlay-checkout': 'true',
+    }, [`${t('store.buy', 'Buy')} · ${p.price} ${p.currency}`]);
+    showMediaDialog({
+      media,
+      kicker: t('nav.store', 'Store'),
+      title: titleOf(p, i),
+      desc: p.desc || t('store.noDesc', 'No description.'),
+      actions: [buy],
     });
-    document.getElementById('store-modal-close').addEventListener('click', closeStoreModal);
   }
 
-  createStoreModal();
-
-  function openStoreModal(p) {
-    const overlay = document.getElementById('store-modal-overlay');
-    const videoContainer = document.getElementById('store-modal-video');
-    const titleEl = document.getElementById('store-modal-title');
-    const descContainer = document.getElementById('store-modal-desc-container');
-    const buyBtn = document.getElementById('store-modal-buy-btn');
-
-    const buyWord = getT('store.buy', 'Comprar');
-    const forWord = getT('store.for', 'por');
-
-    titleEl.textContent = p.title || 'Producto';
-    
-    if (p.youtubeId) {
-      videoContainer.innerHTML = `<iframe src="https://www.youtube.com/embed/${p.youtubeId}?autoplay=1&rel=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
-      videoContainer.style.display = 'block';
-    } else {
-      videoContainer.innerHTML = '';
-      videoContainer.style.display = 'none';
-    }
-
-    if (p.desc && p.desc.trim() !== '') {
-      descContainer.innerHTML = `
-        <strong style="display: block; margin-bottom: 8px; font-size: 1.1em; color: #ffffff;">${getT('projects.descLabel', 'Description:')}</strong>
-        <div style="white-space: pre-wrap; font-family: inherit;">${p.desc.trim()}</div>
-      `;
-    } else {
-      descContainer.innerHTML = '<span style="opacity:0.5;">Sin descripción.</span>';
-    }
-
-    buyBtn.href = p.gumroadUrl || '#';
-    buyBtn.textContent = `${buyWord} ${p.title || 'Artículo'} ${forWord} ${p.price}`;
-
-    overlay.style.display = 'flex';
-    document.body.classList.add('modal-open');
+  function card(p, i) {
+    const thumb = el('span', { class: 'product-card__thumb' + (p.thumb ? '' : ' is-placeholder') }, [
+      p.thumb ? el('img', { src: p.thumb, alt: '', loading: 'lazy' }) : null,
+      el('span', { class: 'play-badge' }, [icon(ICONS.play, { fill: true, size: 24 })]),
+    ]);
+    const more = el('button', { class: 'btn btn--primary', type: 'button', text: t('store.moreInfo', 'More info') });
+    const node = el('article', { class: 'product-card reveal' }, [
+      el('button', { class: 'product-card__media', type: 'button', 'aria-label': titleOf(p, i) }, [thumb]),
+      el('div', { class: 'product-card__body' }, [
+        el('h3', { class: 'product-card__title', text: titleOf(p, i) }),
+        el('div', { class: 'product-card__footer' }, [price(p), more]),
+      ]),
+    ]);
+    node.querySelector('.product-card__media').addEventListener('click', () => openProduct(p, i));
+    more.addEventListener('click', () => openProduct(p, i));
+    return node;
   }
 
-  function closeStoreModal() {
-    const overlay = document.getElementById('store-modal-overlay');
-    const videoContainer = document.getElementById('store-modal-video');
-    if (overlay) {
-      overlay.style.display = 'none';
-      videoContainer.innerHTML = ''; 
-      document.body.classList.remove('modal-open');
-    }
+  function render() {
+    const rerender = grid.children.length > 0;
+    const cards = products.map(card);
+    if (rerender) cards.forEach((c) => c.classList.add('is-visible'));
+    grid.replaceChildren(...cards);
+    window.observeReveal?.(grid);
   }
 
-  storeSection.addEventListener('click', (e) => {
-    const card = e.target.closest('.project-card');
-    if (!card) return;
-    const p = JSON.parse(card.dataset.productData);
-    
-    if (e.target.closest('button.buy-btn')) {}
-    openStoreModal(p);
+  render();
+  document.addEventListener('languageLoaded', render);
+  fetchVideoData().then((map) => {
+    if (!map) return;
+    products = products.map((p) => ({ ...p, ...(map[p.youtubeId] || {}) }));
+    render();
   });
-
-  document.addEventListener('languageLoaded', () => {
-    renderStoreUI();
-  });
-
-});
+})();
