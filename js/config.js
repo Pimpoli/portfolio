@@ -8,6 +8,7 @@ window.SITE = {
   // Juegos publicados en Roblox (placeId). El número de juegos que muestra la web
   // se calcula a partir de esta lista.
   games: [
+    { placeId: 78574260921198,  name: 'Press The Button', isNew: true },
     { placeId: 108138370693321, name: 'Avalanche of objects' },
     { placeId: 107848717127408, name: "Don't Let Celebrities Crush You" },
     { placeId: 16125269940,     name: 'Anime Color Block Run' },
