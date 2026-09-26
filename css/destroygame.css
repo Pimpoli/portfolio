@@ -1,5 +1,5 @@
 /* css/destroygame.css — Estilos del easter egg DestroyGame.
-   Lo carga js/destroygame.js al activarse, así funciona también en Game-1/ y Game-2/. */
+   Lo carga js/destroygame.js al activarse. */
 
 body.dg-active { cursor: none; user-select: none; -webkit-user-select: none; touch-action: none; }
 

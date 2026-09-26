@@ -5,7 +5,7 @@
 (function () {
   'use strict';
 
-  // Pages in subfolders (MultiGameInc/) declare <meta name="locale-base" content="../">
+  // Páginas en subcarpetas (MultiGameInc/…) declaran <meta name="locale-base" content="../">
   const base = document.querySelector('meta[name="locale-base"]')?.content || '';
 
   // ─── Traducciones ──────────────────────────────────────────────────────────
@@ -220,8 +220,8 @@
           el('h2', { class: 'modal__title', id: 'confirm-title' }),
           el('p', { class: 'modal__text' }),
           el('div', { class: 'modal__actions' }, [
-            el('button', { class: 'btn', value: 'cancel', type: 'submit' }),
-            el('button', { class: 'btn btn--solid', value: 'ok', type: 'submit' }),
+            el('button', { class: 'btn btn--outline', value: 'cancel', type: 'submit' }),
+            el('button', { class: 'btn btn--primary', value: 'ok', type: 'submit' }),
           ]),
         ]),
       ]);

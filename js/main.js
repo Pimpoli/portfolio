@@ -1,42 +1,45 @@
-// js/main.js — Shared UI: theme, mobile menu, active nav link, reveal-on-scroll,
-// and the live Roblox bits (avatar card, presence, follower counts).
+// js/main.js — Interfaz común: tema, menú, scroll, animaciones de entrada, avatar y estado de Roblox.
+// Se usa en la home y en MultiGameInc/; cada bloque comprueba que sus elementos existan.
 
 (function () {
   'use strict';
 
-  const { t, tf, store } = window.U;
+  const { t, tf, store, compact } = window.U;
   const USER_ID = window.SITE.robloxUserId;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // ── Reveal on scroll ──────────────────────────────────────────────────────
-  let observer = null;
+  /* ═══════════ Animaciones de entrada ═══════════ */
+  // Sin JS, o con "reducir movimiento", el contenido se ve directamente (ver .js .reveal en CSS).
+  let revealObserver = null;
   function observeReveal(root = document) {
     const nodes = root.querySelectorAll ? root.querySelectorAll('.reveal:not(.is-visible)') : [];
     if (reduceMotion || !('IntersectionObserver' in window)) {
       nodes.forEach((n) => n.classList.add('is-visible'));
       return;
     }
-    if (!observer) {
-      observer = new IntersectionObserver((entries) => {
+    if (!revealObserver) {
+      revealObserver = new IntersectionObserver((entries) => {
         entries.forEach((en) => {
           if (!en.isIntersecting) return;
           en.target.classList.add('is-visible');
-          observer.unobserve(en.target);
+          revealObserver.unobserve(en.target);
         });
-      }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+      }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
     }
-    nodes.forEach((n) => observer.observe(n));
+    nodes.forEach((n) => revealObserver.observe(n));
   }
   window.observeReveal = observeReveal;
 
-  // ── Theme ─────────────────────────────────────────────────────────────────
+  /* ═══════════ Tema claro / oscuro ═══════════ */
   function initTheme() {
     const btn = document.getElementById('theme-toggle');
     if (!btn) return;
     const root = document.documentElement;
     const label = () => {
       const light = root.getAttribute('data-theme') === 'light';
-      btn.setAttribute('aria-label', light ? t('a11y.themeDark', 'Switch to dark mode') : t('a11y.themeLight', 'Switch to light mode'));
+      btn.setAttribute('aria-label', light
+        ? t('a11y.themeDark', 'Switch to dark mode')
+        : t('a11y.themeLight', 'Switch to light mode'));
     };
     btn.addEventListener('click', () => {
       const light = root.getAttribute('data-theme') !== 'light';
@@ -49,148 +52,148 @@
     label();
   }
 
-  // ── Mobile menu ───────────────────────────────────────────────────────────
+  /* ═══════════ Menú móvil ═══════════ */
   function initMenu() {
     const btn = document.getElementById('menu-toggle');
     const nav = document.getElementById('site-nav');
     if (!btn || !nav) return;
-    const isOpen = () => document.body.classList.contains('nav-open');
+
     const setOpen = (open) => {
       document.body.classList.toggle('nav-open', open);
       btn.setAttribute('aria-expanded', String(open));
       btn.setAttribute('aria-label', open ? t('a11y.menuClose', 'Close menu') : t('a11y.menuOpen', 'Open menu'));
     };
-    btn.addEventListener('click', () => setOpen(!isOpen()));
+    btn.addEventListener('click', () => setOpen(!document.body.classList.contains('nav-open')));
     nav.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && isOpen()) { setOpen(false); btn.focus(); }
+      if (e.key === 'Escape' && document.body.classList.contains('nav-open')) { setOpen(false); btn.focus(); }
     });
     document.addEventListener('click', (e) => {
-      if (isOpen() && !nav.contains(e.target) && !btn.contains(e.target)) setOpen(false);
+      if (document.body.classList.contains('nav-open') && !nav.contains(e.target) && !btn.contains(e.target)) setOpen(false);
     });
-    window.matchMedia('(min-width: 981px)').addEventListener('change', (m) => { if (m.matches) setOpen(false); });
-    document.addEventListener('languageLoaded', () => setOpen(isOpen()));
+    window.matchMedia('(min-width: 1101px)').addEventListener('change', (m) => { if (m.matches) setOpen(false); });
+    document.addEventListener('languageLoaded', () => setOpen(document.body.classList.contains('nav-open')));
   }
 
-  // ── Active section in the nav ─────────────────────────────────────────────
-  function initActiveLink() {
-    const links = document.querySelectorAll('.nav a[href^="#"]');
-    if (!links.length || !('IntersectionObserver' in window)) return;
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach((en) => {
-        if (!en.isIntersecting) return;
-        links.forEach((a) => {
-          const active = a.getAttribute('href') === `#${en.target.id}`;
-          a.classList.toggle('is-active', active);
-          if (active) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+  /* ═══════════ Scroll: progreso, cabecera, enlace activo, volver arriba ═══════════ */
+  function initScrollUI() {
+    const bar = document.getElementById('scroll-progress');
+    const header = document.querySelector('.site-header');
+    const topBtn = document.getElementById('back-to-top');
+
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const y = window.scrollY;
+      if (bar) {
+        const total = document.documentElement.scrollHeight - window.innerHeight;
+        bar.style.transform = `scaleX(${total > 0 ? Math.min(1, y / total) : 0})`;
+      }
+      if (header) header.classList.toggle('is-scrolled', y > 8);
+      if (topBtn) topBtn.classList.toggle('is-visible', y > 600);
+    };
+    window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+    update();
+
+    if (topBtn) topBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' }));
+
+    const links = document.querySelectorAll('.nav-list a[href^="#"]');
+    if (links.length && 'IntersectionObserver' in window) {
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach((en) => {
+          if (!en.isIntersecting) return;
+          links.forEach((a) => {
+            const active = a.getAttribute('href') === `#${en.target.id}`;
+            a.classList.toggle('is-active', active);
+            if (active) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+          });
         });
-      });
-    }, { rootMargin: '-40% 0px -55% 0px' });
-    document.querySelectorAll('main section[id]').forEach((s) => obs.observe(s));
+      }, { rootMargin: '-45% 0px -50% 0px' });
+      document.querySelectorAll('main section[id]').forEach((s) => obs.observe(s));
+    }
   }
 
-  // ── Roblox: avatar, presence, counts ──────────────────────────────────────
+  /* ═══════════ Avatar y estado de Roblox ═══════════ */
   const PROFILE_URL = `https://www.roblox.com/users/${USER_ID}/profile`;
   const STATUS = ['offline', 'online', 'ingame', 'studio'];
   const PILL = {
     offline: ['presence.nowOffline', 'Offline right now'], online: ['presence.nowOnline', 'Online now'],
-    ingame: ['presence.nowIngame', 'Playing on Roblox now'], studio: ['presence.nowStudio', 'Coding in Studio now'],
+    ingame: ['presence.nowIngame', 'Playing now on Roblox'], studio: ['presence.nowStudio', 'In Studio now'],
   };
   const LABEL = {
-    offline: ['presence.offline', 'Offline'], online: ['presence.online', 'Online on Roblox'],
-    ingame: ['presence.ingame', 'Playing on Roblox'], studio: ['presence.instudio', 'Coding in Roblox Studio'],
+    offline: ['presence.offline', 'Offline'], online: ['presence.online', 'Online'],
+    ingame: ['presence.ingame', 'Playing now'], studio: ['presence.instudio', 'In Studio'],
   };
-  let lastPresence = null;
-  let iconPlace = null;
+  const TITLE = {
+    offline: ['presence.offlineText', 'Visit my Roblox profile'], online: ['presence.onlineText', 'Online on Roblox'],
+    studio: ['presence.studioText', 'Building something new in Roblox Studio'],
+  };
 
-  function renderPresence() {
-    if (!lastPresence) return;
-    const p = lastPresence;
-    const status = STATUS[p.type] || 'offline';
-    document.querySelectorAll('.hero [data-status]').forEach((n) => { n.dataset.status = status; });
-    document.querySelectorAll('.status-pill .presence-label').forEach((n) => {
-      n.removeAttribute('data-i18n');
-      n.textContent = t(...PILL[status]);
-    });
+  const setKey = (el, [key, fallback]) => { if (!el) return; el.setAttribute('data-i18n', key); el.textContent = t(key, fallback); };
+  let lastIconPlace = null;
+
+  function applyPresence(p) {
+    const status = STATUS[p?.type] || 'offline';
+    document.querySelectorAll('[data-status]').forEach((el) => { el.dataset.status = status; });
+    document.querySelectorAll('.status-pill .presence-label').forEach((el) => setKey(el, PILL[status]));
 
     const card = document.getElementById('now-card');
     if (!card) return;
-    const inGame = status === 'ingame' && p.game;
-    // The game name is set by its creator, so it only ever goes in as text
-    document.getElementById('now-status').textContent = inGame
-      ? tf('presence.playingTo', 'Playing {game}', { game: p.game })
-      : t(...LABEL[status]);
-    document.getElementById('now-status').removeAttribute('data-i18n');
-
-    const gameUrl = inGame && p.placeId ? `https://www.roblox.com/games/${p.placeId}` : null;
-    card.href = gameUrl || PROFILE_URL;
+    setKey(card.querySelector('.now-card__label'), LABEL[status]);
+    const title = document.getElementById('now-title');
     const cta = document.getElementById('now-cta');
-    cta.removeAttribute('data-i18n');
-    cta.textContent = gameUrl ? t('presence.viewGame', 'View game →') : t('presence.viewProfile', 'View profile →');
-
     const icon = document.getElementById('now-icon');
+
+    if (status === 'ingame' && p.game) {
+      // El nombre del juego lo pone su creador: se inserta como texto
+      title.removeAttribute('data-i18n');
+      title.textContent = p.game;
+    } else {
+      setKey(title, TITLE[status] || TITLE.online);
+    }
+    const gameUrl = status === 'ingame' && p.placeId ? `https://www.roblox.com/games/${p.placeId}` : null;
+    card.href = gameUrl || PROFILE_URL;
+    setKey(cta, gameUrl ? ['presence.viewGame', 'View game →'] : ['presence.viewProfile', 'View profile →']);
+
     const place = gameUrl ? p.placeId : null;
-    if (place === iconPlace) return;
-    iconPlace = place;
-    if (!place) { icon.src = window.U.asset('img/roblox.webp'); return; }
-    window.Roblox.placeIcon(place).then((url) => {
-      if (!url || iconPlace !== place) return;
-      const probe = new Image();
-      probe.onload = () => { if (iconPlace === place) icon.src = url; };
-      probe.src = url;
-    });
+    if (place !== lastIconPlace) {
+      lastIconPlace = place;
+      if (!place) {
+        icon.src = window.U.asset('img/roblox.webp');
+      } else {
+        // Se precarga y solo se cambia cuando el icono del juego ya está listo
+        window.Roblox.placeIcon(place).then((url) => {
+          if (!url || lastIconPlace !== place) return;
+          const probe = new Image();
+          probe.onload = () => { if (lastIconPlace === place) icon.src = url; };
+          probe.src = url;
+        });
+      }
+    }
   }
 
-  const counts = { followers: null, friends: null, members: null, created: null, visits: null };
-
+  const counts = { followers: null, friends: null };
   function renderCounts() {
+    const el = document.getElementById('followers-count');
+    if (!el) return;
     const lang = document.documentElement.lang || undefined;
-    const fmt = (n) => n.toLocaleString(lang);
-
-    const roblox = document.getElementById('roblox-counts');
-    if (roblox) {
-      roblox.textContent = counts.followers !== null && counts.friends !== null
-        ? tf('contact.robloxCounts', 'PimpoliDev · {followers} followers · {friends} friends', { followers: fmt(counts.followers), friends: fmt(counts.friends) })
-        : t('contact.roblox', 'PimpoliDev');
-    }
-    const social = document.getElementById('followers-count');
-    if (social && counts.followers !== null && counts.friends !== null) {
-      social.textContent = [
-        tf('presence.followers', '{n} followers', { n: fmt(counts.followers) }),
-        tf('presence.friends', '{n} friends', { n: fmt(counts.friends) }),
-      ].join(' · ');
-    }
-    const mgi = document.getElementById('mgi-counts');
-    if (mgi) {
-      mgi.textContent = counts.members !== null
-        ? tf('contact.mgiCounts', 'Roblox group · {n} members', { n: fmt(counts.members) })
-        : t('contact.mgi', 'Roblox group');
-    }
-    // Texts that mix in live numbers: data-i18n-vars="key" → {n}, {members}, {games}, {visits}
-    const vars = {
-      n: counts.members !== null ? fmt(counts.members) : '130',
-      members: counts.members !== null ? fmt(counts.members) : '130',
-      games: String(window.SITE.games.length),
-      visits: counts.visits !== null ? window.U.compact(counts.visits) : '44K+',
-    };
-    document.querySelectorAll('[data-i18n-vars]').forEach((node) => {
-      node.textContent = tf(node.dataset.i18nVars, node.textContent, vars);
-    });
-    const since = document.getElementById('roblox-since');
-    if (since && counts.created) {
-      since.textContent = new Intl.DateTimeFormat(lang, { month: 'long', year: 'numeric' }).format(new Date(counts.created));
-    }
-    document.querySelectorAll('[data-year]').forEach((node) => {
-      node.textContent = tf(node.dataset.year, '© {year}', { year: new Date().getFullYear() });
-    });
+    const parts = [];
+    if (counts.followers !== null) parts.push(tf('presence.followers', '{n} followers', { n: counts.followers.toLocaleString(lang) }));
+    if (counts.friends !== null) parts.push(tf('presence.friends', '{n} friends', { n: counts.friends.toLocaleString(lang) }));
+    if (parts.length) el.textContent = parts.join(' · ');
   }
 
   async function refreshPresence() {
-    const p = await window.Roblox.presence(USER_ID);
-    lastPresence = p || { type: 0 };
-    renderPresence();
+    const [pres, fol, fri] = await Promise.allSettled([
+      window.Roblox.presence(USER_ID), window.Roblox.followers(USER_ID), window.Roblox.friends(USER_ID),
+    ]);
+    applyPresence(pres.status === 'fulfilled' && pres.value ? pres.value : { type: 0 });
+    if (fol.status === 'fulfilled' && fol.value !== null) counts.followers = fol.value;
+    if (fri.status === 'fulfilled' && fri.value !== null) counts.friends = fri.value;
+    renderCounts();
   }
 
+  // Avatar de cuerpo entero (PNG transparente) desde Roblox; si falla se queda el logo
   async function loadAvatar() {
     const img = document.getElementById('roblox-avatar');
     if (!img) return;
@@ -201,27 +204,30 @@
     probe.src = url;
   }
 
+  // Nombre visible y fecha de creación de la cuenta
+  let accountCreated = null;
+  function renderSince() {
+    const el = document.getElementById('roblox-since');
+    if (!el || !accountCreated) return;
+    el.removeAttribute('data-i18n');
+    el.textContent = new Intl.DateTimeFormat(document.documentElement.lang || undefined, { month: 'long', year: 'numeric' })
+      .format(new Date(accountCreated));
+  }
   async function loadProfile() {
-    const [info, fol, fri, members] = await Promise.all([
-      window.Roblox.profile(USER_ID), window.Roblox.followers(USER_ID), window.Roblox.friends(USER_ID), window.Roblox.groupMembers(),
-    ]);
-    if (info?.displayName) document.querySelectorAll('.roblox-display-name').forEach((n) => { n.textContent = info.displayName; });
-    counts.created = info?.created || null;
-    counts.followers = fol;
-    counts.friends = fri;
-    counts.members = members;
-    renderCounts();
-    window.Roblox.getGames().then((games) => {
-      const known = games.filter((g) => g.visits !== null);
-      if (known.length) { counts.visits = known.reduce((sum, g) => sum + g.visits, 0); renderCounts(); }
-    });
+    const info = await window.Roblox.profile(USER_ID);
+    if (!info) return;
+    const nameEl = document.getElementById('roblox-display-name');
+    if (nameEl && info.displayName) nameEl.textContent = info.displayName;
+    accountCreated = info.created;
+    renderSince();
   }
 
-  function initRoblox() {
-    loadProfile();
-    if (!document.getElementById('presence')) return;
+  function initPresence() {
+    if (!document.getElementById('roblox-profile-container')) return;
     loadAvatar();
+    loadProfile();
     refreshPresence();
+
     let timer = null;
     const start = () => { if (!timer) timer = setInterval(refreshPresence, 60_000); };
     const stop = () => { clearInterval(timer); timer = null; };
@@ -229,40 +235,53 @@
       if (document.visibilityState === 'visible') { refreshPresence(); start(); } else stop();
     });
     start();
+    document.addEventListener('languageLoaded', () => { renderCounts(); renderSince(); });
   }
 
-  // ── Avatar card follows the pointer ───────────────────────────────────────
+  /* ═══════════ Inclinación 3D con el puntero ([data-tilt]) ═══════════ */
   function initTilt() {
     if (reduceMotion || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-    document.querySelectorAll('[data-tilt]').forEach((node) => {
-      let frame = 0;
-      node.addEventListener('pointermove', (e) => {
-        const r = node.getBoundingClientRect();
-        const x = (e.clientX - r.left) / r.width - 0.5;
-        const y = (e.clientY - r.top) / r.height - 0.5;
-        cancelAnimationFrame(frame);
-        frame = requestAnimationFrame(() => {
-          node.style.setProperty('--ry', `${(x * 22).toFixed(2)}deg`);
-          node.style.setProperty('--rx', `${(-y * 18).toFixed(2)}deg`);
-          node.classList.add('is-tilting');
-        });
-      });
-      node.addEventListener('pointerleave', () => {
-        cancelAnimationFrame(frame);
-        node.style.removeProperty('--ry');
-        node.style.removeProperty('--rx');
-        node.classList.remove('is-tilting');
+    document.querySelectorAll('[data-tilt]').forEach(bindTilt);
+  }
+  function bindTilt(el) {
+    if (el._tilt) return;
+    el._tilt = true;
+    const max = el.classList.contains('avatar-stage') ? 10 : 6;
+    let frame = 0;
+    el.addEventListener('pointermove', (e) => {
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        el.style.setProperty('--ry', `${(x * max * 2).toFixed(2)}deg`);
+        el.style.setProperty('--rx', `${(-y * max * 2).toFixed(2)}deg`);
+        el.classList.add('is-tilting');
       });
     });
+    el.addEventListener('pointerleave', () => {
+      cancelAnimationFrame(frame);
+      el.style.removeProperty('--ry');
+      el.style.removeProperty('--rx');
+      el.classList.remove('is-tilting');
+    });
   }
+  window.bindTilt = (root = document) => {
+    if (reduceMotion || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    root.querySelectorAll('[data-tilt]').forEach(bindTilt);
+  };
 
-  document.addEventListener('languageLoaded', () => { renderPresence(); renderCounts(); });
+  /* ═══════════ Inicio ═══════════ */
+  const year = document.getElementById('year');
+  if (year) year.textContent = new Date().getFullYear();
 
   initTheme();
   initMenu();
-  initActiveLink();
-  initRoblox();
+  initScrollUI();
+  initPresence();
   initTilt();
-  renderCounts();
   observeReveal();
+
+  // Exportado para MultiGameInc (misma lógica de formato)
+  window.formatCompact = compact;
 })();
