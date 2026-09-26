@@ -65,14 +65,15 @@
       kicker: t('nav.store', 'Store'),
       title: titleOf(p, i),
       desc: p.desc || t('store.noDesc', 'No description.'),
-      actions: [buyLink(p, 'btn btn--solid')],
+      actions: [buyLink(p, 'btn btn--solid', true)],
     });
   }
 
-  function buyLink(p, cls) {
+  function buyLink(p, cls, withPrice = false) {
+    const label = t('store.buy', 'Buy on Gumroad');
     const a = el('a', {
       class: cls, href: p.gumroadUrl, target: '_blank', rel: 'noopener', 'data-gumroad-overlay-checkout': 'true',
-    }, [`${t('store.buy', 'Buy on Gumroad')} · ${p.price} ${p.currency}`]);
+    }, [withPrice ? `${label} · ${p.price} ${p.currency}` : label]);
     a.addEventListener('pointerenter', loadGumroad, { once: true });
     a.addEventListener('focus', loadGumroad, { once: true });
     return a;
