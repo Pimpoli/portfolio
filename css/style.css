@@ -155,9 +155,7 @@ body::before { will-change: transform; }
 }
 @keyframes bg-left  { to { transform: translate3d(-1000px, 0, 0); } }
 @keyframes bg-right { to { transform: translate3d(1000px, 0, 0); } }
-/* Mientras se hace scroll el fondo se detiene: así el cristal no tiene que redibujarse dos veces */
-.is-scrolling body::before, .is-scrolling body::after, html.is-scrolling::before { animation-play-state: paused; }
-/* ...y los efectos hover no se disparan cuando las tarjetas pasan bajo el ratón */
+/* Mientras se hace scroll los efectos hover no se disparan cuando las tarjetas pasan bajo el ratón */
 @media (hover: hover) { .is-scrolling main { pointer-events: none; } }
 
 img, svg, iframe { display: block; max-width: 100%; }
