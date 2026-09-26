@@ -1,4 +1,8 @@
 {
-  "userPresenceType": 3,
-  "updatedAt": "2026-09-26T00:38:26.000Z"
+  "userPresenceType": 2,
+  "updatedAt": "2026-09-26T05:28:58.000Z",
+  "lastLocation": "Presiona el botón",
+  "placeId": 78574260921198,
+  "rootPlaceId": 78574260921198,
+  "universeId": 10767660355
 }
