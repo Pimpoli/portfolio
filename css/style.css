@@ -48,6 +48,7 @@
   /* Liquid glass */
   --glass-fill: linear-gradient(145deg, rgba(255, 255, 255, 0.11) 0%, rgba(255, 255, 255, 0.035) 100%);
   --glass-fill-strong: linear-gradient(145deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+  --glass-frost: rgba(20, 17, 32, 0.6);
   --glass-sheen: radial-gradient(120% 70% at 0% 0%, rgba(255, 255, 255, 0.14) 0%, transparent 55%);
   --glass-border: rgba(255, 255, 255, 0.15);
   --glass-border-strong: rgba(255, 255, 255, 0.24);
@@ -88,6 +89,7 @@
 
   --glass-fill: linear-gradient(145deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.46) 100%);
   --glass-fill-strong: linear-gradient(145deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.6) 100%);
+  --glass-frost: rgba(250, 248, 255, 0.4);
   --glass-sheen: radial-gradient(120% 70% at 0% 0%, rgba(255, 255, 255, 0.7) 0%, transparent 55%);
   --glass-border: rgba(255, 255, 255, 0.75);
   --glass-border-strong: rgba(255, 255, 255, 0.9);
@@ -155,6 +157,8 @@ body::before { will-change: transform; }
 @keyframes bg-right { to { transform: translate3d(1000px, 0, 0); } }
 /* Mientras se hace scroll el fondo se detiene: así el cristal no tiene que redibujarse dos veces */
 .is-scrolling body::before, .is-scrolling body::after, html.is-scrolling::before { animation-play-state: paused; }
+/* ...y los efectos hover no se disparan cuando las tarjetas pasan bajo el ratón */
+@media (hover: hover) { .is-scrolling main { pointer-events: none; } }
 
 img, svg, iframe { display: block; max-width: 100%; }
 img { height: auto; }
@@ -597,6 +601,13 @@ ul { padding: 0; list-style: none; }
   border-color: var(--glass-border);
   box-shadow: var(--glass-edge), var(--glass-drop);
   -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+}
+/* Las tarjetas que se repiten llevan un tinte esmerilado en vez de desenfoque real:
+   se ven casi igual y el navegador no tiene que desenfocar el fondo de cada una en
+   cada fotograma del scroll. El desenfoque real queda en la cabecera, el avatar y las ventanas. */
+.stat-card, .info-card, .founder-card, .media-card, .game-card, .product-card, .contact-card {
+  background: var(--glass-sheen), var(--glass-fill), var(--glass-frost);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
 }
 .now-card, .avatar-stage__card { border-color: var(--glass-border-strong); }
 .media-card:hover, .game-card:hover, .contact-card:hover, .founder-card:hover, .now-card:hover {
