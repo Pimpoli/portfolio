@@ -635,13 +635,12 @@ ul { padding: 0; list-style: none; }
 .section--alt { background: transparent; border-block-color: transparent; }
 .site-footer { border-top-color: var(--glass-border); }
 
-.modal__panel { background: var(--glass-sheen), linear-gradient(145deg, rgba(40, 36, 62, 0.96) 0%, rgba(18, 16, 28, 0.95) 100%); border-color: var(--glass-border-strong); }
-:root[data-theme="light"] .modal__panel { background: var(--glass-sheen), linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(246, 244, 252, 0.97) 100%); }
-/* Sin desenfoque en el fondo ni en el panel: con el fondo animado detrás, el navegador tendría que
-   desenfocar toda la pantalla en cada fotograma y el scroll de la descripción iría a tirones */
-.modal::backdrop { background: rgba(6, 5, 12, 0.72); -webkit-backdrop-filter: none; backdrop-filter: none; }
-.modal .modal__panel { -webkit-backdrop-filter: none; backdrop-filter: none; }
-.modal__desc { background: color-mix(in srgb, var(--text) 6%, transparent); border: 1px solid var(--glass-border); }
+.modal__panel { background: var(--glass-sheen), linear-gradient(145deg, rgba(40, 36, 62, 0.8) 0%, rgba(18, 16, 28, 0.74) 100%); border-color: var(--glass-border-strong); }
+:root[data-theme="light"] .modal__panel { background: var(--glass-sheen), linear-gradient(145deg, rgba(255, 255, 255, 0.92) 0%, rgba(246, 244, 252, 0.86) 100%); }
+.modal::backdrop { background: rgba(6, 5, 12, 0.5); -webkit-backdrop-filter: blur(10px) saturate(140%); backdrop-filter: blur(10px) saturate(140%); }
+/* La caja de la descripción es opaca: al desplazar el texto no hay que mezclarlo con el cristal de detrás */
+.modal__desc { background: #1e1b2c; border: 1px solid var(--glass-border); }
+:root[data-theme="light"] .modal__desc { background: #f2f0f8; }
 .modal__stats { background: transparent; gap: 0; border-top: 1px solid var(--glass-border); }
 .modal__stat { background: transparent; }
 .modal__stat + .modal__stat { border-left: 1px solid var(--glass-border); }
