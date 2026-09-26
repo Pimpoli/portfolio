@@ -92,7 +92,7 @@
       if (header) header.classList.toggle('is-scrolled', y > 8);
       if (topBtn) topBtn.classList.toggle('is-visible', y > 600);
     };
-    // Mientras hay scroll se pausa el fondo animado (ver .is-scrolling en style.css)
+    // Mientras hay scroll se desactivan los hover de las tarjetas (ver .is-scrolling en style.css)
     const root = document.documentElement;
     let idle = 0;
     window.addEventListener('scroll', () => {
