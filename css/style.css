@@ -138,19 +138,23 @@ body::before {
 /* Fondo animado con logos de Roblox, como en la web original: dos capas que se mueven
    en sentidos opuestos (40 s y 60 s), ahora encima de los orbes de color del cristal */
 html::before, body::after {
-  content: ''; position: fixed; inset: 0; pointer-events: none;
+  content: ''; position: fixed; top: 0; bottom: 0; width: calc(100% + 1000px); pointer-events: none;
   background-image: url("../img/FondoRepetido.webp");
   background-repeat: repeat; background-size: 1000px 1000px;
+  will-change: transform; backface-visibility: hidden;
 }
-html::before { z-index: -3; opacity: var(--pattern-back); background-position: 500px 500px; }
-body::after { z-index: -1; opacity: var(--pattern-front); }
+html::before { z-index: -3; left: -1000px; opacity: var(--pattern-back); background-position: 500px 500px; }
+body::after { z-index: -1; left: 0; opacity: var(--pattern-front); }
+body::before { will-change: transform; }
 :root[data-theme="light"]::before, :root[data-theme="light"] body::after { filter: invert(1); }
 @media (prefers-reduced-motion: no-preference) {
   body::after { animation: bg-left 40s linear infinite; }
   html::before { animation: bg-right 60s linear infinite; }
 }
-@keyframes bg-left  { from { background-position: 0 0; }         to { background-position: -1000px 0; } }
-@keyframes bg-right { from { background-position: 500px 500px; } to { background-position: 1500px 500px; } }
+@keyframes bg-left  { to { transform: translate3d(-1000px, 0, 0); } }
+@keyframes bg-right { to { transform: translate3d(1000px, 0, 0); } }
+/* Mientras se hace scroll el fondo se detiene: así el cristal no tiene que redibujarse dos veces */
+.is-scrolling body::before, .is-scrolling body::after, html.is-scrolling::before { animation-play-state: paused; }
 
 img, svg, iframe { display: block; max-width: 100%; }
 img { height: auto; }
@@ -286,7 +290,7 @@ ul { padding: 0; list-style: none; }
 
 .hero::after {
   content: ''; position: absolute; z-index: -1; right: 8%; top: 6%; width: 560px; height: 560px; border-radius: 50%;
-  background: var(--accent-glow); filter: blur(70px); pointer-events: none;
+  background: radial-gradient(closest-side, var(--accent-glow), transparent); pointer-events: none;
 }
 
 /* Avatar de Roblox en una tarjeta con inclinación 3D */
@@ -306,7 +310,7 @@ ul { padding: 0; list-style: none; }
 }
 .avatar-stage__card::before {
   content: ''; position: absolute; left: 50%; bottom: 24px; width: 320px; height: 90px; margin-left: -160px; border-radius: 50%;
-  background: var(--accent-glow); filter: blur(24px);
+  background: radial-gradient(closest-side, var(--accent-glow), transparent);
 }
 .avatar-stage__img {
   position: absolute; left: 50%; bottom: 58px; width: 380px; height: 380px; margin-left: -190px; object-fit: contain;
@@ -601,10 +605,9 @@ ul { padding: 0; list-style: none; }
 }
 
 .icon-btn, .social-btn, .lang-select, .btn--ghost, .btn--outline, .chip, .status-pill, .now-card__cta, .avatar-stage__name {
-  background: var(--glass-sheen), var(--glass-fill);
+  background: var(--glass-sheen), var(--glass-fill-strong);
   border-color: var(--glass-border);
   box-shadow: var(--glass-edge);
-  -webkit-backdrop-filter: blur(14px) saturate(160%); backdrop-filter: blur(14px) saturate(160%);
 }
 .lang-select option { background: var(--surface); color: var(--text); }
 .btn--primary {

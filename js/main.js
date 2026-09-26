@@ -92,7 +92,15 @@
       if (header) header.classList.toggle('is-scrolled', y > 8);
       if (topBtn) topBtn.classList.toggle('is-visible', y > 600);
     };
-    window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+    // Mientras hay scroll se pausa el fondo animado (ver .is-scrolling en style.css)
+    const root = document.documentElement;
+    let idle = 0;
+    window.addEventListener('scroll', () => {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+      if (!root.classList.contains('is-scrolling')) root.classList.add('is-scrolling');
+      clearTimeout(idle);
+      idle = setTimeout(() => root.classList.remove('is-scrolling'), 180);
+    }, { passive: true });
     update();
 
     if (topBtn) topBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' }));

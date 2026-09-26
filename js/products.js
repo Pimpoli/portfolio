@@ -39,7 +39,19 @@
     return el('span', { class: 'price' }, [p.price, ' ', el('span', { class: 'price__currency', text: p.currency })]);
   }
 
+  // gumroad.js (the checkout overlay) only loads once someone opens a product
+  let gumroadLoaded = false;
+  function loadGumroad() {
+    if (gumroadLoaded) return;
+    gumroadLoaded = true;
+    const s = document.createElement('script');
+    s.src = 'https://gumroad.com/js/gumroad.js';
+    s.async = true;
+    document.head.append(s);
+  }
+
   function openProduct(p, i) {
+    loadGumroad();
     const media = YT_ID.test(p.youtubeId)
       ? el('iframe', {
           src: `https://www.youtube-nocookie.com/embed/${p.youtubeId}?rel=0&autoplay=1`,
