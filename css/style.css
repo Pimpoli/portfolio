@@ -133,7 +133,10 @@ body::before {
     radial-gradient(32vmax 32vmax at 86% 92%, var(--orb-4) 0%, transparent 70%);
 }
 @media (prefers-reduced-motion: no-preference) {
-  body::before { animation: orbs-drift 38s ease-in-out infinite alternate; }
+  /* steps(): el fondo avanza unas 20 veces por segundo (a saltos de ~1 px) en vez de 60. Se mueve
+     tan despacio que se ve igual de continuo, pero el desenfoque del cristal que hay encima se
+     redibuja un tercio de las veces. Las tres capas usan el mismo ritmo para saltar a la vez. */
+  body::before { animation: orbs-drift 38s steps(760) infinite alternate; }
 }
 @keyframes orbs-drift { to { transform: translate3d(3vmax, -2vmax, 0) rotate(8deg) scale(1.06); } }
 
@@ -150,8 +153,8 @@ body::after { z-index: -1; left: 0; opacity: var(--pattern-front); }
 body::before { will-change: transform; }
 :root[data-theme="light"]::before, :root[data-theme="light"] body::after { filter: invert(1); }
 @media (prefers-reduced-motion: no-preference) {
-  body::after { animation: bg-left 40s linear infinite; }
-  html::before { animation: bg-right 60s linear infinite; }
+  body::after { animation: bg-left 40s steps(800) infinite; }
+  html::before { animation: bg-right 60s steps(1200) infinite; }
 }
 @keyframes bg-left  { to { transform: translate3d(-1000px, 0, 0); } }
 @keyframes bg-right { to { transform: translate3d(1000px, 0, 0); } }
