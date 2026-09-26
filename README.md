@@ -20,7 +20,7 @@ Es un sitio estático: HTML, CSS y JavaScript sin frameworks ni paso de compilac
 | `js/i18n.js` | Idiomas: usa el idioma guardado, si no el del navegador, y si no inglés. |
 | `js/main.js` | Tema, menú móvil, enlace activo, animaciones de entrada, avatar, estado de Roblox y contadores. |
 | `js/stats.js` | La fila de cifras (años, juegos, visitas, miembros). |
-| `js/games.js` | Juego destacado, tabla de juegos, franja «En portada / Nuevo» y la ventana de detalle. |
+| `js/games.js` | Juego destacado, tarjetas de juegos (con insignia «Nuevo» o «jugando ahora») y la ventana de detalle. |
 | `js/projects.js`, `js/products.js` | Demo del Sistema de Nodos y últimos vídeos; tienda de Gumroad. |
 | `js/destroygame.js` | Easter egg: añade `#destroygame` a la URL (o ve a `/destroygame`). |
 | `locales/*.json` | Textos en `es`, `en` y `pt`. |
@@ -32,7 +32,7 @@ Es un sitio estático: HTML, CSS y JavaScript sin frameworks ni paso de compilac
 ## Cómo cambiar el contenido
 
 - **Añadir un juego de Roblox:** agrega su `placeId` y nombre a `games` en `js/config.js` (`isNew: true` lo marca como «Nuevo» hasta que le quites la marca; sin ella, se considera nuevo durante 90 días desde su fecha de creación en Roblox). El contador de juegos y la franja bajo la presentación se actualizan solos. El juego destacado es el que tiene gente jugando en ese momento o, si no, el más visitado.
-- **Completar el «Sobre mí»:** los textos entre corchetes (`[Ciudad / país]`, `[Qué estoy haciendo ahora]`, `[Herramientas: Blender, Figma…]`, `[Disponible para encargos: sí / no]`) están en `locales/*.json` dentro de `about`. Sustitúyelos por tu información en los tres idiomas; si alguno no lo quieres, borra ese `<div>` de `index.html`.
+- **Editar el «Sobre mí»:** los textos de las tarjetas están en `locales/*.json`, dentro de `about`; cambia los tres idiomas a la vez.
 - **Añadir un producto:** agrega `{ youtubeId, gumroadUrl, price, currency }` a `store` en `js/config.js`. El título y la miniatura salen del vídeo de YouTube.
 - **Cambiar textos:** edita `locales/es.json`, `locales/en.json` y `locales/pt.json`. Cada elemento con `data-i18n="clave"` toma su texto de ahí.
 - **Imágenes nuevas:** ponlas en `img/` y ejecuta `npm install && npm run images` para convertirlas a WebP.

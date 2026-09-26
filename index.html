@@ -76,15 +76,16 @@
   <main id="main">
     <section id="top" class="hero wrap">
       <div class="hero__text">
-        <p class="hero__kicker" data-i18n="hero.kicker">Anthony · PimpoliDev · desarrollador de videojuegos</p>
-        <h1 class="hero__title" data-i18n="hero.title">Empecé en Roblox en 2022 por curiosidad.</h1>
-        <p class="hero__lead" data-i18n="hero.lead">Hoy tengo seis juegos publicados, un grupo de Roblox con 130 miembros y un motor de vóxeles propio a medio hacer. Casi todo lo escribo en Luau; el resto, en GDScript y C++.</p>
-        <p class="hero__now" id="presence" data-status="offline" aria-live="polite">
-          <span class="dot" aria-hidden="true"></span>
-          <span class="muted" data-i18n="hero.nowLabel">Ahora mismo en Roblox:</span>
-          <img id="presence-icon" src="img/roblox.webp" alt="" width="28" height="28" hidden referrerpolicy="no-referrer">
-          <span id="presence-text" data-i18n="presence.loading">consultando estado…</span>
+        <p class="status-pill" data-status="offline" aria-live="polite">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span class="presence-label" data-i18n="presence.loading">Consultando estado…</span>
         </p>
+        <h1 class="hero__title"><span data-i18n="hero.greeting">Hola, soy</span> <span class="hero__accent">PimpoliDev</span></h1>
+        <p class="hero__lead" data-i18n="hero.lead">Desarrollador de videojuegos con más de 4 años de experiencia en Roblox Studio, Godot Engine y mi propio Voxel Engine. Programo en Luau, GDScript y C++. Fundador de Multi Game Inc.</p>
+        <div class="hero__cta">
+          <a class="btn btn--solid" href="#proyectos" data-i18n="hero.ctaProjects">Ver proyectos</a>
+          <a class="btn" href="#juegos" data-i18n="hero.ctaGames">Mis juegos</a>
+        </div>
         <ul class="hero__links">
           <li><a href="https://discord.gg/SgjguUvTwE" target="_blank" rel="noopener"><img src="img/discord.webp" alt="" width="22" height="22">Discord</a></li>
           <li><a href="https://twitter.com/PimpoliDev" target="_blank" rel="noopener"><img src="img/twitter.webp" alt="" width="22" height="22">X</a></li>
@@ -93,18 +94,27 @@
         </ul>
       </div>
 
-      <figure class="hero__figure">
-        <img id="roblox-avatar" class="is-fallback" src="img/PimpoliDev.webp" alt="Avatar de Roblox de PimpoliDev" data-i18n="presence.avatarAlt" data-i18n-attr="alt" width="458" height="458" fetchpriority="high" referrerpolicy="no-referrer">
-        <figcaption>
-          <span><img src="img/roblox.webp" alt="" width="16" height="16"><span data-i18n="hero.avatarCaption">Avatar de Roblox</span></span>
-          <a href="https://www.roblox.com/users/3404416545/profile" target="_blank" rel="noopener">@<span class="roblox-display-name">PimpoliDev</span></a>
-        </figcaption>
-      </figure>
+      <div class="hero__profile" id="presence">
+        <div class="avatar-stage" data-tilt>
+          <div class="avatar-stage__card" data-status="offline">
+            <span class="avatar-stage__floor" aria-hidden="true"></span>
+            <img id="roblox-avatar" class="avatar-stage__img is-fallback" src="img/PimpoliDev.webp" alt="Avatar de Roblox de PimpoliDev" data-i18n="presence.avatarAlt" data-i18n-attr="alt" width="420" height="420" fetchpriority="high" referrerpolicy="no-referrer">
+          </div>
+        </div>
+        <a class="now-card" id="now-card" data-status="offline" href="https://www.roblox.com/users/3404416545/profile" target="_blank" rel="noopener">
+          <span class="now-card__icon"><img id="now-icon" src="img/roblox.webp" alt="" width="52" height="52" referrerpolicy="no-referrer"></span>
+          <span class="now-card__text">
+            <span class="now-card__name roblox-display-name">PimpoliDev</span>
+            <span class="now-card__status"><span class="status-dot" aria-hidden="true"></span><span id="now-status" data-i18n="presence.loading">Consultando estado…</span></span>
+            <span class="now-card__meta" id="followers-count">@PimpoliDev</span>
+          </span>
+          <span class="now-card__cta" id="now-cta" data-i18n="presence.viewProfile">Ver perfil</span>
+        </a>
+      </div>
     </section>
 
-
     <section class="stats wrap" aria-label="Cifras" data-i18n="stats.label" data-i18n-attr="aria-label">
-      <div class="stat"><span class="stat__n" data-stat="years">4+</span><span class="stat__l" data-i18n="stats.years">años haciendo juegos</span></div>
+      <div class="stat stat--accent"><span class="stat__n" data-stat="years">4+</span><span class="stat__l" data-i18n="stats.years">años haciendo juegos</span></div>
       <div class="stat"><span class="stat__n" data-stat="games">6</span><span class="stat__l" data-i18n="stats.games">juegos publicados en Roblox</span></div>
       <div class="stat"><span class="stat__n" data-stat="visits">—</span><span class="stat__l" data-i18n="stats.visits">visitas en total</span></div>
       <div class="stat"><span class="stat__n" data-stat="members">—</span><span class="stat__l" data-i18n="stats.members">miembros en Multi Game Inc</span></div>
@@ -113,36 +123,47 @@
     <section id="sobre-mi" class="section wrap">
       <header class="section__head reveal">
         <h2 data-i18n="about.title">Sobre mí</h2>
-        <p data-i18n="about.note">Quién soy, cómo empecé y en qué ando ahora.</p>
+        <p data-i18n="about.note">Quién soy y con qué trabajo.</p>
       </header>
-      <p class="about__intro reveal" data-i18n="about.intro">Me llamo Anthony. Aprendí Luau a base de romper cosas en Roblox Studio hasta que salió mi primer juego, y desde entonces no he parado.</p>
       <div class="about reveal">
-        <div class="about__text">
-          <p data-i18n="about.p1">En 2023 fundé Multi Game Inc, el grupo bajo el que publico todo lo que hago. Hoy somos 130 miembros, hay seis juegos publicados y cerca de 44.000 visitas repartidas entre ellos. No es un estudio grande; es el sitio donde pruebo ideas rápido y las lanzo.</p>
-          <p data-i18n="about.p2">Fuera de Roblox trabajo con Godot y GDScript, y desde hace un tiempo estoy escribiendo un motor propio de vóxeles en C++. Es el proyecto donde más aprendo: chunks, mallas, iluminación, todo lo que un motor comercial te esconde. También hago herramientas para otros desarrolladores, como un editor de nodos dentro de Studio y sistemas listos para usar que vendo en Gumroad.</p>
-          <p data-i18n="about.p3">Grabo devlogs y demos para YouTube y suelo estar en el Discord del estudio. Si me buscas, casi seguro que estoy en Studio.</p>
+        <div class="about__intro">
+          <h3 class="about__heading" data-i18n="about.heading">Hago juegos que se sienten bien al jugarlos</h3>
+          <p class="about__lead" data-i18n="about.intro">Soy Anthony, programador de videojuegos desde hace más de 4 años: Luau en Roblox, GDScript en Godot y C++ en mi propio motor de vóxeles. Me enfoco en interfaces con animaciones fluidas y en sistemas modulares que se reutilizan de un juego a otro.</p>
+          <div class="chips">
+            <h4 class="chips__title" data-i18n="about.langsTitle">Lenguajes</h4>
+            <ul class="chips__list">
+              <li class="chip"><span class="chip__dot" style="--dot:#38d0f5" aria-hidden="true"></span>Luau</li>
+              <li class="chip"><span class="chip__dot" style="--dot:#478cbf" aria-hidden="true"></span>GDScript</li>
+              <li class="chip"><span class="chip__dot" style="--dot:#f34b7d" aria-hidden="true"></span>C++</li>
+            </ul>
+          </div>
+          <div class="chips">
+            <h4 class="chips__title" data-i18n="about.enginesTitle">Motores</h4>
+            <ul class="chips__list">
+              <li class="chip"><span class="chip__dot" style="--dot:#b39cff" aria-hidden="true"></span>Roblox Studio</li>
+              <li class="chip"><span class="chip__dot" style="--dot:#6fa8dc" aria-hidden="true"></span>Godot Engine</li>
+              <li class="chip"><span class="chip__dot" style="--dot:#3ddc84" aria-hidden="true"></span>Voxel Engine <span class="chip__tag" data-i18n="about.ownEngine">propio</span></li>
+            </ul>
+          </div>
         </div>
-        <dl class="facts">
-          <div><dt data-i18n="about.facts.now">Ahora mismo</dt><dd class="placeholder" data-i18n="about.facts.nowValue">[Qué estoy haciendo ahora]</dd></div>
-          <div><dt data-i18n="about.facts.name">Nombre</dt><dd data-i18n="about.facts.nameValue">Anthony · PimpoliDev</dd></div>
-          <div><dt data-i18n="about.facts.location">Ubicación</dt><dd class="placeholder" data-i18n="about.facts.locationValue">[Ciudad / país]</dd></div>
-          <div><dt data-i18n="about.facts.since">En Roblox desde</dt><dd id="roblox-since">marzo de 2022</dd></div>
-          <div><dt data-i18n="about.facts.languages">Lenguajes</dt><dd data-i18n="about.facts.languagesValue">Luau, GDScript, C++</dd></div>
-          <div><dt data-i18n="about.facts.engines">Motores</dt><dd data-i18n="about.facts.enginesValue">Roblox Studio, Godot Engine y Voxel Engine, un motor propio de vóxeles en C++</dd></div>
-          <div><dt data-i18n="about.facts.tools">Herramientas</dt><dd class="placeholder" data-i18n="about.facts.toolsValue">[Blender, Figma…]</dd></div>
-          <div><dt data-i18n="about.facts.studio">Estudio</dt><dd><a class="link" href="https://www.roblox.com/communities/17387910/Multi-Game-Inc" target="_blank" rel="noopener">Multi Game Inc</a> · <span data-i18n="about.facts.studioValue">fundado en 2023</span></dd></div>
-          <div><dt data-i18n="about.facts.commissions">Encargos</dt><dd class="placeholder" data-i18n="about.facts.commissionsValue">[Disponible para encargos: sí / no]</dd></div>
-        </dl>
-      </div>
-      <div class="timeline reveal">
-        <h3 data-i18n="about.timeline.title">Trayectoria</h3>
-        <ol>
-          <li><span class="timeline__year" data-i18n="about.timeline.y2022">2022</span><span data-i18n="about.timeline.t2022">Empiezo en Roblox y aprendo Luau.</span></li>
-          <li><span class="timeline__year" data-i18n="about.timeline.y2023">2023</span><span data-i18n="about.timeline.t2023">Fundo Multi Game Inc, el grupo bajo el que publico todo.</span></li>
-          <li><span class="timeline__year" data-i18n="about.timeline.y2024">2024</span><span data-i18n="about.timeline.t2024">Anime Color Block Run, mi primer juego con público.</span></li>
-          <li><span class="timeline__year" data-i18n="about.timeline.y2025">2025 – 2026</span><span data-i18n="about.timeline.t2025">67 Red Light Green Light, Avalanche of objects, Don't Let Celebrities Crush You y Bloxidextro.</span></li>
-          <li class="is-now"><span class="timeline__year" data-i18n="about.timeline.y2026">Septiembre de 2026</span><span data-i18n="about.timeline.t2026">Press The Button, recién lanzado.</span></li>
-        </ol>
+        <div class="about__side">
+          <dl class="info-grid">
+            <div class="info-card"><dt data-i18n="about.facts.name">Mi nombre</dt><dd data-i18n="about.facts.nameValue">Anthony · alias PimpoliDev</dd></div>
+            <div class="info-card"><dt data-i18n="about.facts.since">En Roblox desde</dt><dd id="roblox-since">marzo de 2022</dd></div>
+            <div class="info-card"><dt data-i18n="about.facts.exp">Experiencia</dt><dd data-i18n="about.facts.expValue">Más de 4 años programando juegos</dd></div>
+            <div class="info-card"><dt data-i18n="about.facts.ui">UIs y animaciones</dt><dd data-i18n="about.facts.uiValue">Interfaces fluidas para juegos</dd></div>
+            <div class="info-card"><dt data-i18n="about.facts.systems">Sistemas propios</dt><dd data-i18n="about.facts.systemsValue">Frameworks modulares reutilizables</dd></div>
+            <div class="info-card"><dt data-i18n="about.facts.tools">Herramientas</dt><dd data-i18n="about.facts.toolsValue">Editor de nodos para Roblox Studio</dd></div>
+          </dl>
+          <a class="founder-card" href="https://www.roblox.com/communities/17387910/Multi-Game-Inc" target="_blank" rel="noopener">
+            <img src="img/MultiGameInc.webp" alt="" width="52" height="52" loading="lazy">
+            <span class="founder-card__text">
+              <span class="founder-card__label" data-i18n="about.founderLabel">Fundador de</span>
+              <span class="founder-card__name">Multi Game Inc</span>
+            </span>
+            <span class="founder-card__cta" data-i18n="about.groupCta">Ver grupo →</span>
+          </a>
+        </div>
       </div>
     </section>
 
@@ -179,21 +200,7 @@
         <p id="games-note">Seis juegos publicados bajo Multi Game Inc.</p>
       </header>
       <article id="featured-game" class="featured reveal"></article>
-      <table id="games-table" class="games reveal">
-        <thead>
-          <tr>
-            <th scope="col" data-i18n="games.table.cover">Portada</th>
-            <th scope="col" data-i18n="games.table.game">Juego</th>
-            <th scope="col" data-i18n="games.table.visits">Visitas</th>
-            <th scope="col" data-i18n="games.table.likes">Me gusta</th>
-            <th scope="col" data-i18n="games.table.favorites">Favoritos</th>
-            <th scope="col" class="game-row__opt" data-i18n="games.table.maxPlayers">Máx. jugadores</th>
-            <th scope="col" class="game-row__opt" data-i18n="games.table.updated">Actualizado</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <p class="games__foot muted" data-i18n="games.footnote">Pulsa cualquier juego para ver su galería, la descripción, las estadísticas y el botón para jugar en Roblox.</p>
+      <ul id="games-grid" class="game-grid" aria-label="Juegos" data-i18n="games.title" data-i18n-attr="aria-label"></ul>
     </section>
 
     <section id="tienda" class="section wrap">
@@ -207,10 +214,8 @@
     <section id="contacto" class="section wrap">
       <header class="section__head reveal">
         <h2 data-i18n="contact.title">Contacto</h2>
-        <p data-i18n="contact.note">Por Discord contesto antes.</p>
       </header>
       <div class="contact reveal">
-        <p class="contact__text" data-i18n="contact.text">Si quieres proponerme un encargo, colaborar en un juego o enseñarme lo que estás haciendo, escríbeme por Discord: es donde contesto antes.</p>
         <ul class="contact__list">
           <li><a href="https://discord.gg/SgjguUvTwE" target="_blank" rel="noopener"><img src="img/discord.webp" alt="" width="28" height="28" loading="lazy"><span class="contact__name">Discord</span><span class="contact__detail" data-i18n="contact.discord">discord.gg/SgjguUvTwE</span></a></li>
           <li><a href="https://twitter.com/PimpoliDev" target="_blank" rel="noopener"><img src="img/twitter.webp" alt="" width="28" height="28" loading="lazy"><span class="contact__name">X</span><span class="contact__detail">@PimpoliDev</span></a></li>
