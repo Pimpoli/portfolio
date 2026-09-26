@@ -23,7 +23,7 @@
 
   const TARGETS_SEL = [
     'h1', 'h2', 'h3', 'p', 'dt', 'dd', 'li',
-    '.featured', '.game-row', '.product', '.video', '.stat', '.nav a', '.brand', '.hero__figure',
+    '.featured', '.game-card', '.product', '.video', '.stat', '.info-card', '.chip', '.nav a', '.brand', '.avatar-stage', '.now-card',
   ].join(',');
 
   let session = null; // partida activa (para poder salir o reiniciar desde fuera)

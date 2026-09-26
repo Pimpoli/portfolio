@@ -1,12 +1,12 @@
-// js/games.js — Roblox games: featured game, catalog table and the detail dialog.
+// js/games.js — Roblox games: featured game, card grid and the detail dialog.
 // Used by the home and by MultiGameInc/. Data comes from js/roblox.js.
 
 (function () {
   'use strict';
 
-  const table = document.getElementById('games-table');
+  const grid = document.getElementById('games-grid');
   const featuredEl = document.getElementById('featured-game');
-  if (!table && !featuredEl) return;
+  if (!grid && !featuredEl) return;
 
   const { t, tf, el, icon, ICONS, asset, isRateLimited, showMediaDialog, confirmAction, compact } = window.U;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -78,41 +78,51 @@
     );
   }
 
-  // ── Catalog table ────────────────────────────────────────────────────────
-  function row(g) {
+  // ── Card grid ─────────────────────────────────────────────────────────────
+  function card(g) {
     const fresh = isNew(g);
-    let subline = g.genre || '';
-    if (fresh) subline = has(g.visits) ? tf('games.new', 'New · {date}', { date: monthYear(g.created || '2026-09-01') }) : t('games.newNoData', 'Just released · no data yet');
-    else if (g.playing > 0) subline = tf('games.playingNow', '{n} playing now', { n: num(g.playing) });
+    const live = g.playing > 0;
+    let badge = null;
+    if (live) badge = el('span', { class: 'game-card__badge is-live', text: tf('games.playingNow', '{n} playing now', { n: num(g.playing) }) });
+    else if (fresh) badge = el('span', { class: 'game-card__badge is-new', text: t('games.badgeNew', 'New') });
 
-    const open = el('button', { class: 'game-row__open', type: 'button' }, [g.name]);
-    open.addEventListener('click', () => openGame(g));
-    const cell = (value, cls) => el('td', { class: cls, text: has(value) && value !== '' ? value : '—' });
-
-    const tr = el('tr', { class: 'game-row' + (fresh ? ' is-new' : '') + (g.playing > 0 ? ' is-live' : '') }, [
-      el('td', { class: 'game-row__cover' }, [coverImg(g, 'game-row__img', [120, 68])]),
-      el('td', { class: 'game-row__name' }, [
-        iconImg(g, 36),
-        el('span', { class: 'game-row__text' }, [open, el('span', { class: 'game-row__sub', text: subline })]),
-      ]),
-      cell(has(g.visits) ? num(g.visits) : null, 'game-row__num'),
-      cell(has(g.likes) ? `${g.likes} %` : null, 'game-row__num'),
-      cell(has(g.favorites) ? num(g.favorites) : null, 'game-row__num'),
-      cell(g.maxPlayers, 'game-row__num game-row__opt'),
-      cell(g.updated ? monthYear(g.updated) : null, 'game-row__date game-row__opt'),
+    const cover = el('button', { class: 'game-card__cover', type: 'button', tabindex: '-1', 'aria-hidden': 'true' }, [
+      coverImg(g, 'game-card__img', [480, 270]), badge,
     ]);
-    // The whole row opens the game; the button inside keeps it reachable by keyboard.
-    tr.addEventListener('click', (e) => { if (!e.target.closest('button')) openGame(g); });
-    return tr;
+    const open = el('button', { class: 'game-card__open', type: 'button' }, [g.name]);
+
+    const stat = (value, label) => el('li', {}, [el('strong', { text: value }), ' ', label]);
+    const stats = has(g.visits)
+      ? el('ul', { class: 'game-card__stats' }, [
+          stat(num(g.visits), t('games.visits', 'visits')),
+          has(g.likes) ? stat(`${g.likes} %`, t('games.likes', 'likes')) : null,
+          has(g.favorites) ? stat(num(g.favorites), t('games.favorites', 'favorites')) : null,
+        ])
+      : el('p', { class: 'game-card__stats', text: t('games.newNoData', 'Just released · no data yet') });
+
+    const li = el('li', { class: 'game-card' + (fresh ? ' is-new' : '') + (live ? ' is-live' : '') }, [
+      cover,
+      el('div', { class: 'game-card__body' }, [
+        iconImg(g, 44),
+        el('div', { class: 'game-card__text' }, [
+          el('h3', { class: 'game-card__title' }, [open]),
+          stats,
+          g.updated ? el('p', { class: 'game-card__date', text: tf('games.updated', 'Updated {date}', { date: monthYear(g.updated) }) }) : null,
+        ]),
+      ]),
+    ]);
+    // The whole card opens the game; the name button keeps it reachable by keyboard
+    li.addEventListener('click', () => openGame(g));
+    return li;
   }
 
   function render() {
     const featured = pickFeatured(games);
     renderFeatured(featured);
-    if (table) {
+    if (grid) {
       const rest = games.filter((g) => g !== featured)
         .sort((a, b) => Number(isNew(b)) - Number(isNew(a)) || (b.visits || 0) - (a.visits || 0));
-      table.querySelector('tbody').replaceChildren(...rest.map(row));
+      grid.replaceChildren(...rest.map(card));
     }
     const note = document.getElementById('games-note');
     if (note) {

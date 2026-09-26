@@ -21,24 +21,27 @@
     "next": "Imagen siguiente"
   },
   "hero": {
-    "kicker": "Anthony · PimpoliDev · desarrollador de videojuegos",
-    "title": "Empecé en Roblox en 2022 por curiosidad.",
-    "lead": "Hoy tengo seis juegos publicados, un grupo de Roblox con 130 miembros y un motor de vóxeles propio a medio hacer. Casi todo lo escribo en Luau; el resto, en GDScript y C++.",
-    "nowLabel": "Ahora mismo en Roblox:",
-    "avatarCaption": "Avatar de Roblox"
+    "lead": "Desarrollador de videojuegos con más de 4 años de experiencia en Roblox Studio, Godot Engine y mi propio Voxel Engine. Programo en Luau, GDScript y C++. Fundador de Multi Game Inc.",
+    "greeting": "Hola, soy",
+    "ctaProjects": "Ver proyectos",
+    "ctaGames": "Mis juegos"
   },
   "presence": {
-    "loading": "consultando estado…",
-    "online": "en línea",
-    "ingame": "jugando",
-    "instudio": "en Roblox Studio",
-    "offline": "desconectado",
-    "playingTo": "jugando a {game}",
+    "loading": "Consultando estado…",
+    "online": "Conectado en Roblox",
+    "ingame": "Jugando en Roblox",
+    "instudio": "Programando en Roblox Studio",
+    "offline": "Desconectado",
+    "playingTo": "Jugando a {game}",
     "followers": "{n} seguidores",
     "friends": "{n} amigos",
-    "viewGame": "Ver el juego",
-    "viewProfile": "Ver perfil",
-    "avatarAlt": "Avatar de Roblox de PimpoliDev"
+    "viewGame": "Ver juego →",
+    "viewProfile": "Ver perfil →",
+    "avatarAlt": "Avatar de Roblox de PimpoliDev",
+    "nowOffline": "Desconectado ahora",
+    "nowOnline": "En línea ahora",
+    "nowIngame": "Jugando ahora en Roblox",
+    "nowStudio": "Programando en Studio ahora"
   },
   "stats": {
     "label": "Cifras",
@@ -49,43 +52,27 @@
   },
   "about": {
     "title": "Sobre mí",
-    "note": "Quién soy, cómo empecé y en qué ando ahora.",
-    "intro": "Me llamo Anthony. Aprendí Luau a base de romper cosas en Roblox Studio hasta que salió mi primer juego, y desde entonces no he parado.",
-    "p1": "En 2023 fundé Multi Game Inc, el grupo bajo el que publico todo lo que hago. Hoy somos 130 miembros, hay seis juegos publicados y cerca de 44.000 visitas repartidas entre ellos. No es un estudio grande; es el sitio donde pruebo ideas rápido y las lanzo.",
-    "p2": "Fuera de Roblox trabajo con Godot y GDScript, y desde hace un tiempo estoy escribiendo un motor propio de vóxeles en C++. Es el proyecto donde más aprendo: chunks, mallas, iluminación, todo lo que un motor comercial te esconde. También hago herramientas para otros desarrolladores, como un editor de nodos dentro de Studio y sistemas listos para usar que vendo en Gumroad.",
-    "p3": "Grabo devlogs y demos para YouTube y suelo estar en el Discord del estudio. Si me buscas, casi seguro que estoy en Studio.",
+    "note": "Quién soy y con qué trabajo.",
+    "intro": "Soy Anthony, programador de videojuegos desde hace más de 4 años: Luau en Roblox, GDScript en Godot y C++ en mi propio motor de vóxeles. Me enfoco en interfaces con animaciones fluidas y en sistemas modulares que se reutilizan de un juego a otro.",
     "facts": {
-      "now": "Ahora mismo",
-      "nowValue": "[Qué estoy haciendo ahora]",
-      "name": "Nombre",
-      "nameValue": "Anthony · PimpoliDev",
-      "location": "Ubicación",
-      "locationValue": "[Ciudad / país]",
+      "name": "Mi nombre",
+      "nameValue": "Anthony · alias PimpoliDev",
       "since": "En Roblox desde",
-      "languages": "Lenguajes",
-      "languagesValue": "Luau, GDScript, C++",
-      "engines": "Motores",
-      "enginesValue": "Roblox Studio, Godot Engine y Voxel Engine, un motor propio de vóxeles en C++",
-      "studio": "Estudio",
-      "studioValue": "fundado en 2023",
-      "commissions": "Encargos",
-      "commissionsValue": "[Disponible para encargos: sí / no]",
       "tools": "Herramientas",
-      "toolsValue": "[Blender, Figma…]"
+      "toolsValue": "Editor de nodos para Roblox Studio",
+      "exp": "Experiencia",
+      "expValue": "Más de 4 años programando juegos",
+      "ui": "UIs y animaciones",
+      "uiValue": "Interfaces fluidas para juegos",
+      "systems": "Sistemas propios",
+      "systemsValue": "Frameworks modulares reutilizables"
     },
-    "timeline": {
-      "title": "Trayectoria",
-      "y2022": "2022",
-      "t2022": "Empiezo en Roblox y aprendo Luau.",
-      "y2023": "2023",
-      "t2023": "Fundo Multi Game Inc, el grupo bajo el que publico todo.",
-      "y2024": "2024",
-      "t2024": "Anime Color Block Run, mi primer juego con público.",
-      "y2025": "2025 – 2026",
-      "t2025": "67 Red Light Green Light, Avalanche of objects, Don't Let Celebrities Crush You y Bloxidextro.",
-      "y2026": "Septiembre de 2026",
-      "t2026": "Press The Button, recién lanzado."
-    }
+    "heading": "Hago juegos que se sienten bien al jugarlos",
+    "langsTitle": "Lenguajes",
+    "enginesTitle": "Motores",
+    "ownEngine": "propio",
+    "groupCta": "Ver grupo →",
+    "founderLabel": "Fundador de"
   },
   "projects": {
     "title": "Proyectos",
@@ -117,19 +104,9 @@
     "favorites": "favoritos",
     "play": "Jugar en Roblox",
     "gallery": "Galería y detalles",
-    "table": {
-      "cover": "Portada",
-      "game": "Juego",
-      "visits": "Visitas",
-      "likes": "Me gusta",
-      "favorites": "Favoritos",
-      "maxPlayers": "Máx. jugadores",
-      "updated": "Actualizado"
-    },
     "new": "Nuevo · {date}",
     "newNoData": "Recién lanzado · sin datos aún",
     "upTo": "hasta {n} jugadores",
-    "footnote": "Pulsa cualquier juego para ver su galería, la descripción, las estadísticas y el botón para jugar en Roblox.",
     "modal": {
       "play": "Jugar en Roblox",
       "page": "Ver página en Roblox",
@@ -144,7 +121,9 @@
       "likes": "Me gusta",
       "maxPlayers": "Hasta {n} jugadores",
       "updated": "Actualizado {date}"
-    }
+    },
+    "updated": "Actualizado {date}",
+    "badgeNew": "Nuevo"
   },
   "store": {
     "title": "Tienda",
@@ -157,14 +136,12 @@
   },
   "contact": {
     "title": "Contacto",
-    "text": "Si quieres proponerme un encargo, colaborar en un juego o enseñarme lo que estás haciendo, escríbeme por Discord: es donde contesto antes.",
     "discord": "discord.gg/SgjguUvTwE",
     "roblox": "PimpoliDev",
     "robloxCounts": "PimpoliDev · {followers} seguidores · {friends} amigos",
     "mgi": "Grupo de Roblox",
     "mgiCounts": "Grupo de Roblox · {n} miembros",
     "youtube": "@PimpoliDev · devlogs y demos",
-    "note": "Por Discord contesto antes.",
     "x": "X"
   },
   "footer": {
@@ -207,14 +184,12 @@
     "bannerTitle": "¿Quieres estar al tanto de lo nuevo?",
     "bannerText": "Síguenos en el grupo de Roblox. Cada lanzamiento y cada actualización se anuncian ahí primero.",
     "contactTitle": "Contacto",
-    "contactText": "Si quieres proponer una idea, probar un juego antes de que salga o contarnos qué te ha parecido, escríbenos. Estos son todos los sitios donde estamos.",
     "copy": "© {year} Multi Game Inc · PimpoliDev",
     "aboutIntro": "Somos un grupo pequeño de Roblox: probamos ideas rápido, las publicamos y dejamos que los jugadores decidan cuál merece seguir.",
     "aboutP3": "Seis juegos y más de 44.000 visitas después seguimos con la misma rutina: lanzar, mirar los datos y mejorar lo que funciona. Todo lo que publicamos está en este grupo, y el grupo está abierto a quien quiera entrar.",
     "founderVal": "PimpoliDev · Anthony",
     "platformVal": "Roblox · grupo público",
     "goGroup": "Ir al grupo en Roblox",
-    "contactNote": "Para cosas del grupo, mejor por Discord.",
     "siteRow": "pimpolidev.com · la web del fundador"
   }
 }

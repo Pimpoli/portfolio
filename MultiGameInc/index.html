@@ -98,20 +98,20 @@
         <h2 data-i18n="mgi.aboutTitle">Sobre el estudio</h2>
         <p data-i18n="mgi.aboutNote">Quiénes somos y cómo hacemos los juegos.</p>
       </header>
-      <p class="about__intro reveal" data-i18n="mgi.aboutIntro">Somos un grupo pequeño de Roblox: probamos ideas rápido, las publicamos y dejamos que los jugadores decidan cuál merece seguir.</p>
       <div class="about reveal">
-        <div class="about__text">
-          <p data-i18n="mgi.aboutP1">Multi Game Inc nació en 2023 como el grupo bajo el que PimpoliDev publica sus juegos. No es un estudio grande ni pretende serlo: hoy somos 130 miembros entre jugadores, gente que prueba las versiones nuevas y quien simplemente quiere enterarse antes de cada lanzamiento.</p>
-          <p data-i18n="mgi.aboutP2">Hacemos juegos de partidas cortas: esquivar lo que cae del cielo, sobrevivir a famosos gigantes, correr por bloques de colores. Casi todo está escrito en Luau dentro de Roblox Studio, y cada juego sale primero en alfa o beta para ver cómo lo juega gente de verdad antes de darlo por terminado.</p>
-          <p data-i18n="mgi.aboutP3">Seis juegos y más de 44.000 visitas después seguimos con la misma rutina: lanzar, mirar los datos y mejorar lo que funciona. Todo lo que publicamos está en este grupo, y el grupo está abierto a quien quiera entrar.</p>
+        <div class="about__intro">
+          <p class="about__big" data-i18n="mgi.aboutIntro">Somos un grupo pequeño de Roblox: probamos ideas rápido, las publicamos y dejamos que los jugadores decidan cuál merece seguir.</p>
+          <p class="about__lead" data-i18n="mgi.aboutP1">Multi Game Inc nació en 2023 como el grupo bajo el que PimpoliDev publica sus juegos. No es un estudio grande ni pretende serlo: hoy somos 130 miembros entre jugadores, gente que prueba las versiones nuevas y quien simplemente quiere enterarse antes de cada lanzamiento.</p>
+          <p class="about__lead" data-i18n="mgi.aboutP2">Hacemos juegos de partidas cortas: esquivar lo que cae del cielo, sobrevivir a famosos gigantes, correr por bloques de colores. Casi todo está escrito en Luau dentro de Roblox Studio, y cada juego sale primero en alfa o beta para ver cómo lo juega gente de verdad antes de darlo por terminado.</p>
+          <p class="about__lead" data-i18n="mgi.aboutP3">Seis juegos y más de 44.000 visitas después seguimos con la misma rutina: lanzar, mirar los datos y mejorar lo que funciona. Todo lo que publicamos está en este grupo, y el grupo está abierto a quien quiera entrar.</p>
         </div>
-        <dl class="facts">
-          <div><dt data-i18n="mgi.nameRow">Nombre</dt><dd>Multi Game Inc</dd></div>
-          <div><dt data-i18n="mgi.founderRow">Fundador</dt><dd><a class="link" href="../">PimpoliDev</a> · Anthony</dd></div>
-          <div><dt data-i18n="mgi.foundedRow">Fundado en</dt><dd>2023</dd></div>
-          <div><dt data-i18n="mgi.platformRow">Plataforma</dt><dd data-i18n="mgi.platformVal">Roblox · grupo público</dd></div>
-          <div><dt data-i18n="mgi.specialtyRow">Especialidad</dt><dd data-i18n="mgi.specialtyVal">Juegos de partidas cortas: esquivar, sobrevivir, correr</dd></div>
-          <div><dt data-i18n="mgi.langRow">Lenguajes</dt><dd data-i18n="mgi.langVal">Luau, en Roblox Studio</dd></div>
+        <dl class="info-grid">
+          <div class="info-card"><dt data-i18n="mgi.nameRow">Nombre</dt><dd>Multi Game Inc</dd></div>
+          <div class="info-card"><dt data-i18n="mgi.founderRow">Fundador</dt><dd><a class="link" href="../">PimpoliDev</a> · Anthony</dd></div>
+          <div class="info-card"><dt data-i18n="mgi.foundedRow">Fundado en</dt><dd>2023</dd></div>
+          <div class="info-card"><dt data-i18n="mgi.platformRow">Plataforma</dt><dd data-i18n="mgi.platformVal">Roblox · grupo público</dd></div>
+          <div class="info-card"><dt data-i18n="mgi.specialtyRow">Especialidad</dt><dd data-i18n="mgi.specialtyVal">Juegos de partidas cortas: esquivar, sobrevivir, correr</dd></div>
+          <div class="info-card"><dt data-i18n="mgi.langRow">Lenguajes</dt><dd data-i18n="mgi.langVal">Luau, en Roblox Studio</dd></div>
         </dl>
       </div>
     </section>
@@ -122,21 +122,7 @@
         <p id="games-note">Los seis juegos publicados en el grupo.</p>
       </header>
       <article id="featured-game" class="featured reveal"></article>
-      <table id="games-table" class="games reveal">
-        <thead>
-          <tr>
-            <th scope="col" data-i18n="games.table.cover">Portada</th>
-            <th scope="col" data-i18n="games.table.game">Juego</th>
-            <th scope="col" data-i18n="games.table.visits">Visitas</th>
-            <th scope="col" data-i18n="games.table.likes">Me gusta</th>
-            <th scope="col" data-i18n="games.table.favorites">Favoritos</th>
-            <th scope="col" class="game-row__opt" data-i18n="games.table.maxPlayers">Máx. jugadores</th>
-            <th scope="col" class="game-row__opt" data-i18n="games.table.updated">Actualizado</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <p class="games__foot muted" data-i18n="games.footnote">Pulsa cualquier juego para ver su galería, la descripción, las estadísticas y el botón para jugar en Roblox.</p>
+      <ul id="games-grid" class="game-grid" aria-label="Juegos" data-i18n="games.title" data-i18n-attr="aria-label"></ul>
       <div class="banner reveal">
         <div class="banner__text">
           <strong data-i18n="mgi.bannerTitle">¿Quieres estar al tanto de lo nuevo?</strong>
@@ -149,10 +135,8 @@
     <section id="contacto" class="section wrap">
       <header class="section__head reveal">
         <h2 data-i18n="mgi.contactTitle">Contacto</h2>
-        <p data-i18n="mgi.contactNote">Para cosas del grupo, mejor por Discord.</p>
       </header>
       <div class="contact reveal">
-        <p class="contact__text" data-i18n="mgi.contactText">Si quieres proponer una idea, probar un juego antes de que salga o contarnos qué te ha parecido, escríbenos. Estos son todos los sitios donde estamos.</p>
         <ul class="contact__list">
           <li><a href="https://discord.gg/SgjguUvTwE" target="_blank" rel="noopener"><img src="../img/discord.webp" alt="" width="28" height="28" loading="lazy"><span class="contact__name">Discord</span><span class="contact__detail" data-i18n="contact.discord">discord.gg/SgjguUvTwE</span></a></li>
           <li><a href="https://twitter.com/PimpoliDev" target="_blank" rel="noopener"><img src="../img/twitter.webp" alt="" width="28" height="28" loading="lazy"><span class="contact__name">X</span><span class="contact__detail">@PimpoliDev</span></a></li>

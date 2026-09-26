@@ -1,5 +1,5 @@
 // js/main.js — Shared UI: theme, mobile menu, active nav link, reveal-on-scroll,
-// and the live Roblox bits (avatar, presence line, follower counts).
+// and the live Roblox bits (avatar card, presence, follower counts).
 
 (function () {
   'use strict';
@@ -92,45 +92,53 @@
   // ── Roblox: avatar, presence, counts ──────────────────────────────────────
   const PROFILE_URL = `https://www.roblox.com/users/${USER_ID}/profile`;
   const STATUS = ['offline', 'online', 'ingame', 'studio'];
-  const LABEL = {
-    offline: ['presence.offline', 'offline'], online: ['presence.online', 'online'],
-    ingame: ['presence.ingame', 'playing'], studio: ['presence.instudio', 'in Roblox Studio'],
+  const PILL = {
+    offline: ['presence.nowOffline', 'Offline right now'], online: ['presence.nowOnline', 'Online now'],
+    ingame: ['presence.nowIngame', 'Playing on Roblox now'], studio: ['presence.nowStudio', 'Coding in Studio now'],
   };
-  let lastPresence = { type: 0 };
+  const LABEL = {
+    offline: ['presence.offline', 'Offline'], online: ['presence.online', 'Online on Roblox'],
+    ingame: ['presence.ingame', 'Playing on Roblox'], studio: ['presence.instudio', 'Coding in Roblox Studio'],
+  };
+  let lastPresence = null;
+  let iconPlace = null;
 
   function renderPresence() {
-    const box = document.getElementById('presence');
-    if (!box) return;
+    if (!lastPresence) return;
     const p = lastPresence;
     const status = STATUS[p.type] || 'offline';
-    box.dataset.status = status;
-    const text = document.getElementById('presence-text');
-    text.replaceChildren();
+    document.querySelectorAll('.hero [data-status]').forEach((n) => { n.dataset.status = status; });
+    document.querySelectorAll('.status-pill .presence-label').forEach((n) => {
+      n.removeAttribute('data-i18n');
+      n.textContent = t(...PILL[status]);
+    });
 
-    if (status === 'ingame' && p.game) {
-      // "playing {game}" with the game name as a link; the name is text set by its creator
-      const [before, after] = t('presence.playingTo', 'playing {game}').split('{game}');
-      const link = document.createElement('a');
-      link.href = p.placeId ? `https://www.roblox.com/games/${p.placeId}` : PROFILE_URL;
-      link.target = '_blank';
-      link.rel = 'noopener';
-      link.textContent = p.game;
-      text.append(before, link, after || '');
-      const img = document.getElementById('presence-icon');
-      if (img && p.placeId) {
-        window.Roblox.placeIcon(p.placeId).then((url) => {
-          if (!url || lastPresence.placeId !== p.placeId) return;
-          const probe = new Image();
-          probe.onload = () => { img.src = url; img.hidden = false; };
-          probe.src = url;
-        });
-      }
-    } else {
-      const icon = document.getElementById('presence-icon');
-      if (icon) icon.hidden = true;
-      const [key, fallback] = LABEL[status];
-      text.textContent = t(key, fallback);
-    }
+    const card = document.getElementById('now-card');
+    if (!card) return;
+    const inGame = status === 'ingame' && p.game;
+    // The game name is set by its creator, so it only ever goes in as text
+    document.getElementById('now-status').textContent = inGame
+      ? tf('presence.playingTo', 'Playing {game}', { game: p.game })
+      : t(...LABEL[status]);
+    document.getElementById('now-status').removeAttribute('data-i18n');
+
+    const gameUrl = inGame && p.placeId ? `https://www.roblox.com/games/${p.placeId}` : null;
+    card.href = gameUrl || PROFILE_URL;
+    const cta = document.getElementById('now-cta');
+    cta.removeAttribute('data-i18n');
+    cta.textContent = gameUrl ? t('presence.viewGame', 'View game →') : t('presence.viewProfile', 'View profile →');
+
+    const icon = document.getElementById('now-icon');
+    const place = gameUrl ? p.placeId : null;
+    if (place === iconPlace) return;
+    iconPlace = place;
+    if (!place) { icon.src = window.U.asset('img/roblox.webp'); return; }
+    window.Roblox.placeIcon(place).then((url) => {
+      if (!url || iconPlace !== place) return;
+      const probe = new Image();
+      probe.onload = () => { if (iconPlace === place) icon.src = url; };
+      probe.src = url;
+    });
   }
 
   const counts = { followers: null, friends: null, members: null, created: null, visits: null };
@@ -144,6 +152,13 @@
       roblox.textContent = counts.followers !== null && counts.friends !== null
         ? tf('contact.robloxCounts', 'PimpoliDev · {followers} followers · {friends} friends', { followers: fmt(counts.followers), friends: fmt(counts.friends) })
         : t('contact.roblox', 'PimpoliDev');
+    }
+    const social = document.getElementById('followers-count');
+    if (social && counts.followers !== null && counts.friends !== null) {
+      social.textContent = [
+        tf('presence.followers', '{n} followers', { n: fmt(counts.followers) }),
+        tf('presence.friends', '{n} friends', { n: fmt(counts.friends) }),
+      ].join(' · ');
     }
     const mgi = document.getElementById('mgi-counts');
     if (mgi) {
@@ -216,12 +231,38 @@
     start();
   }
 
+  // ── Avatar card follows the pointer ───────────────────────────────────────
+  function initTilt() {
+    if (reduceMotion || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    document.querySelectorAll('[data-tilt]').forEach((node) => {
+      let frame = 0;
+      node.addEventListener('pointermove', (e) => {
+        const r = node.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5;
+        const y = (e.clientY - r.top) / r.height - 0.5;
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(() => {
+          node.style.setProperty('--ry', `${(x * 22).toFixed(2)}deg`);
+          node.style.setProperty('--rx', `${(-y * 18).toFixed(2)}deg`);
+          node.classList.add('is-tilting');
+        });
+      });
+      node.addEventListener('pointerleave', () => {
+        cancelAnimationFrame(frame);
+        node.style.removeProperty('--ry');
+        node.style.removeProperty('--rx');
+        node.classList.remove('is-tilting');
+      });
+    });
+  }
+
   document.addEventListener('languageLoaded', () => { renderPresence(); renderCounts(); });
 
   initTheme();
   initMenu();
   initActiveLink();
   initRoblox();
+  initTilt();
   renderCounts();
   observeReveal();
 })();

@@ -21,24 +21,27 @@
     "next": "Next image"
   },
   "hero": {
-    "kicker": "Anthony · PimpoliDev · game developer",
-    "title": "I started on Roblox in 2022 out of curiosity.",
-    "lead": "Today I have six published games, a Roblox group with 130 members and a half-built voxel engine of my own. I write almost everything in Luau; the rest, in GDScript and C++.",
-    "nowLabel": "Right now on Roblox:",
-    "avatarCaption": "Roblox avatar"
+    "lead": "Game developer with 4+ years of experience in Roblox Studio, Godot Engine and my own Voxel Engine. I code in Luau, GDScript and C++. Founder of Multi Game Inc.",
+    "greeting": "Hi, I'm",
+    "ctaProjects": "View projects",
+    "ctaGames": "My games"
   },
   "presence": {
-    "loading": "checking status…",
-    "online": "online",
-    "ingame": "playing",
-    "instudio": "in Roblox Studio",
-    "offline": "offline",
-    "playingTo": "playing {game}",
+    "loading": "Checking status…",
+    "online": "Online on Roblox",
+    "ingame": "Playing on Roblox",
+    "instudio": "Coding in Roblox Studio",
+    "offline": "Offline",
+    "playingTo": "Playing {game}",
     "followers": "{n} followers",
     "friends": "{n} friends",
-    "viewGame": "See the game",
-    "viewProfile": "View profile",
-    "avatarAlt": "PimpoliDev's Roblox avatar"
+    "viewGame": "View game →",
+    "viewProfile": "View profile →",
+    "avatarAlt": "PimpoliDev's Roblox avatar",
+    "nowOffline": "Offline right now",
+    "nowOnline": "Online now",
+    "nowIngame": "Playing on Roblox now",
+    "nowStudio": "Coding in Studio now"
   },
   "stats": {
     "label": "Numbers",
@@ -49,43 +52,27 @@
   },
   "about": {
     "title": "About me",
-    "note": "Who I am, how I started and what I'm up to now.",
-    "intro": "My name is Anthony. I learned Luau by breaking things in Roblox Studio until my first game came out, and I haven't stopped since.",
-    "p1": "In 2023 I founded Multi Game Inc, the group I publish everything under. Today we're 130 members, with six published games and close to 44,000 visits spread across them. It's not a big studio; it's the place where I test ideas quickly and ship them.",
-    "p2": "Outside Roblox I work with Godot and GDScript, and for a while now I've been writing my own voxel engine in C++. It's the project I learn the most from: chunks, meshes, lighting, everything a commercial engine hides from you. I also build tools for other developers, like a node editor inside Studio and ready-to-use systems I sell on Gumroad.",
-    "p3": "I record devlogs and demos for YouTube and I'm usually around the studio's Discord. If you're looking for me, I'm almost certainly in Studio.",
+    "note": "Who I am and what I work with.",
+    "intro": "I'm Anthony, a game programmer for more than 4 years: Luau on Roblox, GDScript on Godot and C++ on my own voxel engine. I focus on interfaces with smooth animations and on modular systems that carry over from one game to the next.",
     "facts": {
-      "now": "Right now",
-      "nowValue": "[What I'm working on now]",
-      "name": "Name",
-      "nameValue": "Anthony · PimpoliDev",
-      "location": "Location",
-      "locationValue": "[City / country]",
+      "name": "My name",
+      "nameValue": "Anthony · aka PimpoliDev",
       "since": "On Roblox since",
-      "languages": "Languages",
-      "languagesValue": "Luau, GDScript, C++",
-      "engines": "Engines",
-      "enginesValue": "Roblox Studio, Godot Engine and Voxel Engine, my own voxel engine in C++",
-      "studio": "Studio",
-      "studioValue": "founded in 2023",
-      "commissions": "Commissions",
-      "commissionsValue": "[Available for commissions: yes / no]",
       "tools": "Tools",
-      "toolsValue": "[Blender, Figma…]"
+      "toolsValue": "Node editor for Roblox Studio",
+      "exp": "Experience",
+      "expValue": "4+ years programming games",
+      "ui": "UIs and animations",
+      "uiValue": "Smooth interfaces for games",
+      "systems": "Custom systems",
+      "systemsValue": "Reusable modular frameworks"
     },
-    "timeline": {
-      "title": "Timeline",
-      "y2022": "2022",
-      "t2022": "I start on Roblox and learn Luau.",
-      "y2023": "2023",
-      "t2023": "I found Multi Game Inc, the group I publish everything under.",
-      "y2024": "2024",
-      "t2024": "Anime Color Block Run, my first game with an audience.",
-      "y2025": "2025 – 2026",
-      "t2025": "67 Red Light Green Light, Avalanche of objects, Don't Let Celebrities Crush You and Bloxidextro.",
-      "y2026": "September 2026",
-      "t2026": "Press The Button, just released."
-    }
+    "heading": "I make games that feel good to play",
+    "langsTitle": "Languages",
+    "enginesTitle": "Engines",
+    "ownEngine": "custom",
+    "groupCta": "View group →",
+    "founderLabel": "Founder of"
   },
   "projects": {
     "title": "Projects",
@@ -117,19 +104,9 @@
     "favorites": "favorites",
     "play": "Play on Roblox",
     "gallery": "Gallery and details",
-    "table": {
-      "cover": "Cover",
-      "game": "Game",
-      "visits": "Visits",
-      "likes": "Likes",
-      "favorites": "Favorites",
-      "maxPlayers": "Max players",
-      "updated": "Updated"
-    },
     "new": "New · {date}",
     "newNoData": "Just released · no data yet",
     "upTo": "up to {n} players",
-    "footnote": "Click any game to see its gallery, description, stats and the button to play it on Roblox.",
     "modal": {
       "play": "Play on Roblox",
       "page": "See page on Roblox",
@@ -144,7 +121,9 @@
       "likes": "Likes",
       "maxPlayers": "Up to {n} players",
       "updated": "Updated {date}"
-    }
+    },
+    "updated": "Updated {date}",
+    "badgeNew": "New"
   },
   "store": {
     "title": "Store",
@@ -157,14 +136,12 @@
   },
   "contact": {
     "title": "Contact",
-    "text": "If you want to propose a commission, collaborate on a game or show me what you're building, message me on Discord: it's where I reply first.",
     "discord": "discord.gg/SgjguUvTwE",
     "roblox": "PimpoliDev",
     "robloxCounts": "PimpoliDev · {followers} followers · {friends} friends",
     "mgi": "Roblox group",
     "mgiCounts": "Roblox group · {n} members",
     "youtube": "@PimpoliDev · devlogs and demos",
-    "note": "Discord is where I reply first.",
     "x": "X"
   },
   "footer": {
@@ -207,14 +184,12 @@
     "bannerTitle": "Want to keep up with what's new?",
     "bannerText": "Follow the Roblox group. Every release and every update is announced there first.",
     "contactTitle": "Contact",
-    "contactText": "If you want to pitch an idea, try a game before it's out or tell us what you thought, write to us. These are all the places where we are.",
     "copy": "© {year} Multi Game Inc · PimpoliDev",
     "aboutIntro": "We are a small Roblox group: we test ideas fast, publish them and let the players decide which one deserves to go on.",
     "aboutP3": "Six games and more than 44,000 visits later we keep the same routine: launch, look at the numbers and improve what works. Everything we publish lives in this group, and the group is open to anyone who wants in.",
     "founderVal": "PimpoliDev · Anthony",
     "platformVal": "Roblox · public group",
     "goGroup": "Go to the group on Roblox",
-    "contactNote": "For group matters, Discord is best.",
     "siteRow": "pimpolidev.com · the founder's site"
   }
 }
