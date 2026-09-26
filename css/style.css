@@ -635,8 +635,9 @@ ul { padding: 0; list-style: none; }
 .section--alt { background: transparent; border-block-color: transparent; }
 .site-footer { border-top-color: var(--glass-border); }
 
-.modal__panel { background: var(--glass-sheen), linear-gradient(145deg, rgba(40, 36, 62, 0.8) 0%, rgba(18, 16, 28, 0.74) 100%); border-color: var(--glass-border-strong); }
-:root[data-theme="light"] .modal__panel { background: var(--glass-sheen), linear-gradient(145deg, rgba(255, 255, 255, 0.92) 0%, rgba(246, 244, 252, 0.86) 100%); }
+/* La ventana es opaca (sin cristal); el desenfoque queda solo fuera, en ::backdrop */
+.modal .modal__panel { background: linear-gradient(145deg, #28243e 0%, #121019 100%); border-color: var(--glass-border-strong); -webkit-backdrop-filter: none; backdrop-filter: none; }
+:root[data-theme="light"] .modal .modal__panel { background: linear-gradient(145deg, #ffffff 0%, #f4f2fb 100%); }
 .modal::backdrop { background: rgba(6, 5, 12, 0.5); -webkit-backdrop-filter: blur(10px) saturate(140%); backdrop-filter: blur(10px) saturate(140%); }
 /* La caja de la descripción es opaca: al desplazar el texto no hay que mezclarlo con el cristal de detrás */
 .modal__desc { background: #1e1b2c; border: 1px solid var(--glass-border); }
