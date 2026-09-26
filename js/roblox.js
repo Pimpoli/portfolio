@@ -42,7 +42,7 @@
   function blank(g) {
     return {
       placeId: g.placeId, universeId: null, name: g.name, description: '', creator: '',
-      visits: null, playing: null, favorites: null, maxPlayers: null, genre: '', updated: null,
+      visits: null, playing: null, favorites: null, maxPlayers: null, genre: '', created: null, updated: null,
       likes: null, icon: null, thumbnails: [], videos: null, live: false,
     };
   }
@@ -58,6 +58,7 @@
       creator: typeof s.creator === 'string' ? s.creator : '',
       visits: num(s.visits), playing: num(s.playing), favorites: num(s.favorites),
       maxPlayers: num(s.maxPlayers), genre: typeof s.genre === 'string' ? s.genre : '',
+      created: typeof s.created === 'string' ? s.created : null,
       updated: typeof s.updated === 'string' ? s.updated : null, likes: num(s.likes),
       icon: httpsUrl(s.icon),
       thumbnails: Array.isArray(s.thumbnails) ? s.thumbnails.map(httpsUrl).filter(Boolean) : [],
@@ -127,6 +128,7 @@
         favorites: num(d?.favoritedCount),
         maxPlayers: num(d?.maxPlayers),
         genre: d?.genre && d.genre !== 'All' ? d.genre : '',
+        created: d?.created || null,
         updated: d?.updated || null,
         likes: totalVotes ? Math.round((vt.upVotes / totalVotes) * 100) : null,
         icon: (uid && icons[uid]) || null,
@@ -274,7 +276,13 @@
     return null;
   }
 
+  // When data/roblox.json was generated (for the "data as of" note)
+  async function updatedAt() {
+    const snap = await snapshot();
+    return typeof snap?.updatedAt === 'string' ? snap.updatedAt : null;
+  }
+
   window.Roblox = {
-    getGames, refreshGames, gameVideos, groupMembers, followers, friends, profile, avatarUrl, placeIcon, presence,
+    getGames, refreshGames, gameVideos, groupMembers, followers, friends, profile, avatarUrl, placeIcon, presence, updatedAt,
   };
 })();

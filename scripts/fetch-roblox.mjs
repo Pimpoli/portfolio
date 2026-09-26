@@ -113,6 +113,7 @@ export async function collect(site, previous = {}, fetchImpl = globalThis.fetch)
       favorites: num(d?.favoritedCount) ?? num(prev.favorites),
       maxPlayers: num(d?.maxPlayers) ?? num(prev.maxPlayers),
       genre: d ? (d.genre && d.genre !== 'All' ? d.genre : '') : (prev.genre || ''),
+      created: d?.created || prev.created || null,
       updated: d?.updated || prev.updated || null,
       likes: total ? Math.round((vt.upVotes / total) * 100) : num(prev.likes),
       icon: (uid && icons[uid]) || https(prev.icon),

@@ -22,9 +22,8 @@
   const saveBest = (v) => { try { localStorage.setItem('dg_hs', String(v)); } catch { /* sin almacenamiento */ } };
 
   const TARGETS_SEL = [
-    'h1', 'h2', 'h3', 'p',
-    '.media-card', '.game-card', '.product-card', '.info-card', '.founder-card', '.stat-card',
-    '.contact-card', '.minigame-card', '.chip', '.nav-link', '.brand-name', '.social-btn',
+    'h1', 'h2', 'h3', 'p', 'dt', 'dd', 'li',
+    '.featured', '.game-row', '.product', '.video', '.stat', '.nav a', '.brand', '.hero__figure',
   ].join(',');
 
   let session = null; // partida activa (para poder salir o reiniciar desde fuera)
