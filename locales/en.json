@@ -89,7 +89,8 @@
     "kicker": {
       "system": "System",
       "demo": "Demo",
-      "video": "Video"
+      "video": "Video",
+      "openSource": "Open source"
     },
     "nodes": {
       "title": "Nodes System",
@@ -98,7 +99,12 @@
     "nodesDemo": {
       "title": "Nodes System Demo",
       "desc": "Visual connection between nodes."
-    }
+    },
+    "godotluau": {
+      "title": "GodotLuau",
+      "desc": "A C++ GDExtension for Godot 4 that embeds Luau and recreates the Roblox architecture: services, scripts, Humanoid, GUI and real multiplayer. Open source (MIT)."
+    },
+    "viewGithub": "View on GitHub"
   },
   "games": {
     "title": "Games I've made",
