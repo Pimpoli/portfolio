@@ -1,4 +1,8 @@
 {
-  "userPresenceType": 0,
-  "updatedAt": "2026-10-03T01:12:12.000Z"
+  "userPresenceType": 2,
+  "updatedAt": "2026-10-03T06:35:00.000Z",
+  "lastLocation": "Build A Mountain",
+  "placeId": 96742508095887,
+  "rootPlaceId": 96742508095887,
+  "universeId": 10768918584
 }
