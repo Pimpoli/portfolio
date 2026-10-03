@@ -12,6 +12,9 @@
   const YT_ID = /^[\w-]{11}$/;
 
   const staticProjects = [
+    { type: 'img', src: 'img/GodotLuau.webp', kickerKey: 'projects.kicker.openSource', kicker: 'Open source',
+      titleKey: 'projects.godotluau.title', title: 'GodotLuau', descKey: 'projects.godotluau.desc', desc: '',
+      link: 'https://github.com/Pimpoli/GodotLuau', linkKey: 'projects.viewGithub', linkText: 'View on GitHub' },
     { type: 'img', src: 'img/Nodos.webp', kickerKey: 'projects.kicker.system', kicker: 'System',
       titleKey: 'projects.nodes.title', title: 'Nodes System', descKey: 'projects.nodes.desc', desc: '' },
     { type: 'img', src: 'img/NodosDemostracion.webp', kickerKey: 'projects.kicker.demo', kicker: 'Demo',
@@ -56,9 +59,13 @@
   }
 
   function openProject(p) {
-    const actions = p.type === 'youtube'
-      ? [el('a', { class: 'btn btn--outline', href: `https://www.youtube.com/watch?v=${p.id}`, target: '_blank', rel: 'noopener', text: t('projects.watchOnYoutube', 'Watch on YouTube') })]
-      : [];
+    const actions = [];
+    if (p.type === 'youtube') {
+      actions.push(el('a', { class: 'btn btn--outline', href: `https://www.youtube.com/watch?v=${p.id}`, target: '_blank', rel: 'noopener', text: t('projects.watchOnYoutube', 'Watch on YouTube') }));
+    }
+    if (p.link) {
+      actions.push(el('a', { class: 'btn btn--primary', href: p.link, target: '_blank', rel: 'noopener', text: t(p.linkKey, p.linkText) }));
+    }
     showMediaDialog({
       media: mediaFor(p, { autoplay: true }),
       kicker: field(p, 'kicker'),
