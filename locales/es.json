@@ -23,7 +23,7 @@
   },
   "home": {
     "greeting": "Hola, soy",
-    "subtitle": "Desarrollador de videojuegos con más de 4 años de experiencia en Roblox Studio, Godot Engine y mi propio Voxel Engine. Programo en Luau, GDScript y C++. Fundador de Multi Game Inc.",
+    "subtitle": "Desarrollador de videojuegos con más de 4 años de experiencia en Roblox Studio, Godot Engine y mi propio Voxel Engine. Programo en Luau, GDScript y C++. Fundador de Rocket Meteor.",
     "cta": {
       "projects": "Ver proyectos",
       "games": "Mis juegos"
@@ -53,7 +53,7 @@
     "years": "Años de experiencia",
     "games": "Juegos publicados",
     "visits": "Visitas totales",
-    "members": "Miembros en Multi Game Inc"
+    "members": "Miembros en Rocket Meteor"
   },
   "about": {
     "title": "Sobre mí",
@@ -142,7 +142,7 @@
     "text": "No dudes en contactarme a través de cualquiera de estas plataformas.",
     "discord": "Únete al servidor",
     "roblox": "Ver perfil",
-    "mgi": "Grupo en Roblox"
+    "studio": "Grupo en Roblox"
   },
   "destroy": {
     "exit": "SALIR",
@@ -150,8 +150,8 @@
     "best": "MEJOR",
     "again": "VOLVER A JUGAR"
   },
-  "mgi": {
-    "title": "Multi Game Inc — PimpoliDev",
+  "studio": {
+    "title": "Rocket Meteor — PimpoliDev",
     "badge": "Estudio independiente",
     "desc": "Estudio de desarrollo de juegos fundado por PimpoliDev. Creamos experiencias en Roblox y más plataformas.",
     "foundedLabel": "Año de fundación",
@@ -167,7 +167,7 @@
     "langRow": "Lenguajes",
     "langVal": "Luau, GDScript y C++",
     "gamesTitle": "Juegos del estudio",
-    "gamesSubtitle": "Todos los juegos publicados bajo Multi Game Inc en Roblox.",
+    "gamesSubtitle": "Todos los juegos publicados bajo Rocket Meteor en Roblox.",
     "contactTitle": "Contacto",
     "contactText": "Puedes contactarnos a través de las mismas redes sociales de PimpoliDev.",
     "navStudio": "Estudio",

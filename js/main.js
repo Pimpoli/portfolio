@@ -1,5 +1,5 @@
 // js/main.js — Interfaz común: tema, menú, scroll, animaciones de entrada, avatar y estado de Roblox.
-// Se usa en la home y en MultiGameInc/; cada bloque comprueba que sus elementos existan.
+// Se usa en la home y en RocketMeteor/; cada bloque comprueba que sus elementos existan.
 
 (function () {
   'use strict';
@@ -290,6 +290,6 @@
   initTilt();
   observeReveal();
 
-  // Exportado para MultiGameInc (misma lógica de formato)
+  // Exportado para RocketMeteor (misma lógica de formato)
   window.formatCompact = compact;
 })();

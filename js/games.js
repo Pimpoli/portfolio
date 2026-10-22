@@ -1,4 +1,4 @@
-// js/games.js — Juegos de Roblox (home y MultiGameInc/). Los datos vienen de js/roblox.js.
+// js/games.js — Juegos de Roblox (home y RocketMeteor/). Los datos vienen de js/roblox.js.
 
 (function () {
   'use strict';
@@ -10,7 +10,7 @@
   const moreBtn = document.getElementById('load-more-games');
   const VISIBLE = 3;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const FALLBACK_IMG = asset('img/MultiGameInc.webp');
+  const FALLBACK_IMG = asset('img/RocketMeteor.webp');
 
   // Primero se pintan con los nombres de config.js y después con los datos reales
   let games = window.SITE.games.map((g) => ({
@@ -186,7 +186,7 @@
       layout: 'split',
       media: c.root,
       icon: g.icon,
-      kicker: `${g.creator || 'Multi Game Inc'} · Roblox`,
+      kicker: `${g.creator || 'Rocket Meteor'} · Roblox`,
       title: g.name,
       desc: g.description,
       chips,

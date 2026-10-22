@@ -23,7 +23,7 @@
   },
   "home": {
     "greeting": "Hi, I'm",
-    "subtitle": "Game developer with 4+ years of experience in Roblox Studio, Godot Engine and my own Voxel Engine. I code in Luau, GDScript and C++. Founder of Multi Game Inc.",
+    "subtitle": "Game developer with 4+ years of experience in Roblox Studio, Godot Engine and my own Voxel Engine. I code in Luau, GDScript and C++. Founder of Rocket Meteor.",
     "cta": {
       "projects": "View projects",
       "games": "My games"
@@ -53,7 +53,7 @@
     "years": "Years of experience",
     "games": "Published games",
     "visits": "Total visits",
-    "members": "Multi Game Inc members"
+    "members": "Rocket Meteor members"
   },
   "about": {
     "title": "About me",
@@ -142,7 +142,7 @@
     "text": "Feel free to reach out on any of these platforms.",
     "discord": "Join the server",
     "roblox": "View profile",
-    "mgi": "Roblox group"
+    "studio": "Roblox group"
   },
   "destroy": {
     "exit": "EXIT",
@@ -150,8 +150,8 @@
     "best": "BEST",
     "again": "PLAY AGAIN"
   },
-  "mgi": {
-    "title": "Multi Game Inc — PimpoliDev",
+  "studio": {
+    "title": "Rocket Meteor — PimpoliDev",
     "badge": "Independent studio",
     "desc": "Game development studio founded by PimpoliDev. We create experiences on Roblox and more platforms.",
     "foundedLabel": "Founded",
@@ -167,7 +167,7 @@
     "langRow": "Languages",
     "langVal": "Luau, GDScript and C++",
     "gamesTitle": "Studio games",
-    "gamesSubtitle": "All games published under Multi Game Inc on Roblox.",
+    "gamesSubtitle": "All games published under Rocket Meteor on Roblox.",
     "contactTitle": "Contact",
     "contactText": "You can reach us through PimpoliDev's social media.",
     "navStudio": "Studio",

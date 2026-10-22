@@ -13,7 +13,7 @@ const sharp = require('sharp');
 const DIR = path.join(__dirname, '..', 'img');
 const MAX_WIDTH = 1600;
 const QUALITY = 82;
-const KEEP_AS_IS = new Set(['PimpoliDev.png']); // imagen para redes sociales (Open Graph)
+const KEEP_AS_IS = new Set(['PimpoliDev.png', 'RocketMeteor.png']); // imágenes para redes sociales (Open Graph)
 
 (async () => {
   for (const name of fs.readdirSync(DIR)) {

@@ -5,7 +5,7 @@
 (function () {
   'use strict';
 
-  // Páginas en subcarpetas (MultiGameInc/…) declaran <meta name="locale-base" content="../">
+  // Páginas en subcarpetas (RocketMeteor/…) declaran <meta name="locale-base" content="../">
   const base = document.querySelector('meta[name="locale-base"]')?.content || '';
 
   // ─── Traducciones ──────────────────────────────────────────────────────────

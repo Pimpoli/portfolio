@@ -12,8 +12,8 @@
   var path = window.location.pathname.toLowerCase().replace(/\/+$/, '');
   var redirect = null;
 
-  if (/\/(multigameinc|mgi|multi[-_]game[-_]?inc)$/i.test(path))
-    redirect = '/MultiGameInc/';
+  if (/\/(rocket[-_]?meteor|rm)$/i.test(path))
+    redirect = '/RocketMeteor/';
   else if (/\/destroy[-_]?game$/i.test(path))
     redirect = '/#destroygame';
 

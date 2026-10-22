@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="locale-base" content="../" />
-  <title data-i18n="mgi.title">Multi Game Inc — PimpoliDev</title>
-  <meta name="description" content="Multi Game Inc — game development studio founded by PimpoliDev. Roblox games and more." />
+  <title data-i18n="studio.title">Rocket Meteor — PimpoliDev</title>
+  <meta name="description" content="Rocket Meteor — game development studio founded by PimpoliDev. Roblox games and more." />
   <meta property="og:type"        content="website" />
-  <meta property="og:url"         content="https://pimpolidev.com/MultiGameInc/" />
-  <meta property="og:title"       content="Multi Game Inc — PimpoliDev" />
+  <meta property="og:url"         content="https://pimpolidev.com/RocketMeteor/" />
+  <meta property="og:title"       content="Rocket Meteor — PimpoliDev" />
   <meta property="og:description" content="Game development studio founded by PimpoliDev. Roblox games and more." />
-  <meta property="og:image"       content="https://pimpolidev.com/img/PimpoliDev.png" />
+  <meta property="og:image"       content="https://pimpolidev.com/img/RocketMeteor.png" />
   <meta name="twitter:card"       content="summary" />
   <meta name="theme-color"        content="#0e0d14" />
 
@@ -22,29 +22,29 @@
     })();
   </script>
 
-  <link rel="icon" href="../img/MultiGameInc.webp" type="image/webp" />
+  <link rel="icon" href="../img/RocketMeteor.webp" type="image/webp" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/style.css" />
   <style>
     /* Estilos propios de la página del estudio (el resto viene de css/style.css) */
-    .mgi-hero { text-align: center; padding-bottom: 96px; }
-    .mgi-hero .hero-text { align-items: center; max-width: 720px; margin-inline: auto; }
-    .mgi-hero::after { left: 50%; right: auto; margin-left: -280px; top: 0; }
-    .mgi-logo {
+    .studio-hero { text-align: center; padding-bottom: 96px; }
+    .studio-hero .hero-text { align-items: center; max-width: 720px; margin-inline: auto; }
+    .studio-hero::after { left: 50%; right: auto; margin-left: -280px; top: 0; }
+    .studio-logo {
       width: 132px; height: 132px; border-radius: 30px;
       box-shadow: 0 0 0 8px var(--accent-glow), 0 24px 60px rgba(0, 0, 0, 0.5);
       transform: perspective(600px) rotateX(8deg) rotateY(-10deg);
     }
-    .mgi-badge {
+    .studio-badge {
       display: inline-flex; align-items: center; min-height: 32px; padding: 0 14px; border-radius: 999px;
       background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent-text);
       font-size: 13px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
     }
-    .mgi-hero .hero-lead { max-width: 600px; }
-    .mgi-hero .hero-cta { justify-content: center; }
-    .mgi-stats { width: 100%; max-width: 720px; margin: 48px auto 0; grid-template-columns: repeat(3, minmax(0, 1fr)); text-align: left; }
+    .studio-hero .hero-lead { max-width: 600px; }
+    .studio-hero .hero-cta { justify-content: center; }
+    .studio-stats { width: 100%; max-width: 720px; margin: 48px auto 0; grid-template-columns: repeat(3, minmax(0, 1fr)); text-align: left; }
     .brand-back { color: var(--muted); font-weight: 600; margin-right: 2px; }
     .info-card dd a { color: var(--accent-text); }
     .info-card dd a:hover { text-decoration: underline; }
@@ -55,13 +55,13 @@
     }
     @media (max-width: 600px) { .founder-card--banner .founder-card__cta { padding: 0 14px; min-height: 40px; } }
     @media (max-width: 900px) {
-      .mgi-hero { padding-bottom: 64px; }
-      .mgi-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 32px; }
-      .mgi-stats .stat-card { padding: 16px; }
-      .mgi-stats .stat-number { font-size: 28px; }
+      .studio-hero { padding-bottom: 64px; }
+      .studio-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 32px; }
+      .studio-stats .stat-card { padding: 16px; }
+      .studio-stats .stat-number { font-size: 28px; }
     }
     @media (max-width: 480px) {
-      .mgi-stats { grid-template-columns: 1fr; }
+      .studio-stats { grid-template-columns: 1fr; }
       .contact-grid--4 { grid-template-columns: 1fr; }
     }
     @media (min-width: 1101px) { .contact-grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
@@ -81,9 +81,9 @@
 
       <nav class="site-nav" id="site-nav" aria-label="Main">
         <ul class="nav-list">
-          <li><a href="#about"   class="nav-link" data-i18n="mgi.navStudio">Studio</a></li>
-          <li><a href="#games"   class="nav-link" data-i18n="mgi.navGames">Games</a></li>
-          <li><a href="#contact" class="nav-link" data-i18n="mgi.navContact">Contact</a></li>
+          <li><a href="#about"   class="nav-link" data-i18n="studio.navStudio">Studio</a></li>
+          <li><a href="#games"   class="nav-link" data-i18n="studio.navGames">Games</a></li>
+          <li><a href="#contact" class="nav-link" data-i18n="studio.navContact">Contact</a></li>
           <li class="nav-lang">
             <select class="lang-select" data-lang-switch aria-label="Language" data-i18n="a11y.language" data-i18n-attr="aria-label">
               <option value="es">Español</option>
@@ -113,30 +113,30 @@
 
   <main id="main">
     <!-- ═══════ HERO ═══════ -->
-    <section class="hero mgi-hero">
+    <section class="hero studio-hero">
       <div class="container">
         <div class="hero-text">
-          <span class="mgi-logo-wrap reveal"><img class="mgi-logo" src="../img/MultiGameInc.webp" alt="" width="128" height="128" /></span>
-          <p class="mgi-badge reveal" data-i18n="mgi.badge">Independent studio</p>
-          <h1 class="hero-title reveal">Multi Game Inc</h1>
-          <p class="hero-lead reveal" data-i18n="mgi.desc">Game development studio founded by PimpoliDev. We create experiences on Roblox and more platforms.</p>
+          <span class="studio-logo-wrap reveal"><img class="studio-logo" src="../img/RocketMeteor.webp" alt="" width="128" height="128" /></span>
+          <p class="studio-badge reveal" data-i18n="studio.badge">Independent studio</p>
+          <h1 class="hero-title reveal">Rocket Meteor</h1>
+          <p class="hero-lead reveal" data-i18n="studio.desc">Game development studio founded by PimpoliDev. We create experiences on Roblox and more platforms.</p>
           <div class="hero-cta reveal">
-            <a href="#games" class="btn btn--primary" data-i18n="mgi.navGames">Games</a>
-            <a href="#about" class="btn btn--ghost" data-i18n="mgi.navStudio">Studio</a>
+            <a href="#games" class="btn btn--primary" data-i18n="studio.navGames">Games</a>
+            <a href="#about" class="btn btn--ghost" data-i18n="studio.navStudio">Studio</a>
           </div>
         </div>
-        <div class="stats-grid mgi-stats">
+        <div class="stats-grid studio-stats">
           <div class="stat-card reveal">
             <span class="stat-number stat-number--accent">2023</span>
-            <span class="stat-label" data-i18n="mgi.foundedLabel">Founded</span>
+            <span class="stat-label" data-i18n="studio.foundedLabel">Founded</span>
           </div>
           <div class="stat-card reveal">
             <span class="stat-number" data-stat="members">—</span>
-            <span class="stat-label" data-i18n="mgi.membersLabel">Group members</span>
+            <span class="stat-label" data-i18n="studio.membersLabel">Group members</span>
           </div>
           <div class="stat-card reveal">
             <span class="stat-number" data-stat="games">7</span>
-            <span class="stat-label" data-i18n="mgi.gamesPublished">Published games</span>
+            <span class="stat-label" data-i18n="studio.gamesPublished">Published games</span>
           </div>
         </div>
       </div>
@@ -146,26 +146,26 @@
     <section id="about" class="section section--alt">
       <div class="container about-grid">
         <div class="about-intro reveal">
-          <p class="eyebrow" data-i18n="mgi.navStudio">Studio</p>
-          <h2 class="section-title" data-i18n="mgi.aboutTitle">About the studio</h2>
-          <p class="section-lead" data-i18n="mgi.desc">Game development studio founded by PimpoliDev. We create experiences on Roblox and more platforms.</p>
+          <p class="eyebrow" data-i18n="studio.navStudio">Studio</p>
+          <h2 class="section-title" data-i18n="studio.aboutTitle">About the studio</h2>
+          <p class="section-lead" data-i18n="studio.desc">Game development studio founded by PimpoliDev. We create experiences on Roblox and more platforms.</p>
         </div>
         <div class="about-details reveal">
           <dl class="info-grid">
-            <div class="info-card"><dt data-i18n="mgi.nameRow">Name</dt><dd>Multi Game Inc</dd></div>
-            <div class="info-card"><dt data-i18n="mgi.founderRow">Founder</dt><dd><a href="../">PimpoliDev</a></dd></div>
-            <div class="info-card"><dt data-i18n="mgi.foundedRow">Founded in</dt><dd>2023</dd></div>
-            <div class="info-card"><dt data-i18n="mgi.platformRow">Main platform</dt><dd>Roblox Studio</dd></div>
-            <div class="info-card"><dt data-i18n="mgi.specialtyRow">Specialty</dt><dd data-i18n="mgi.specialtyVal">Multiplayer games, gameplay systems and UIs</dd></div>
-            <div class="info-card"><dt data-i18n="mgi.langRow">Languages</dt><dd data-i18n="mgi.langVal">Luau, GDScript and C++</dd></div>
+            <div class="info-card"><dt data-i18n="studio.nameRow">Name</dt><dd>Rocket Meteor</dd></div>
+            <div class="info-card"><dt data-i18n="studio.founderRow">Founder</dt><dd><a href="../">PimpoliDev</a></dd></div>
+            <div class="info-card"><dt data-i18n="studio.foundedRow">Founded in</dt><dd>2023</dd></div>
+            <div class="info-card"><dt data-i18n="studio.platformRow">Main platform</dt><dd>Roblox Studio</dd></div>
+            <div class="info-card"><dt data-i18n="studio.specialtyRow">Specialty</dt><dd data-i18n="studio.specialtyVal">Multiplayer games, gameplay systems and UIs</dd></div>
+            <div class="info-card"><dt data-i18n="studio.langRow">Languages</dt><dd data-i18n="studio.langVal">Luau, GDScript and C++</dd></div>
           </dl>
-          <a class="founder-card" href="https://www.roblox.com/communities/17387910/Multi-Game-Inc" target="_blank" rel="noopener">
-            <img src="../img/MultiGameInc.webp" alt="" width="52" height="52" loading="lazy" />
+          <a class="founder-card" href="https://www.roblox.com/communities/17387910/Rocket-Meteor" target="_blank" rel="noopener">
+            <img src="../img/RocketMeteor.webp" alt="" width="52" height="52" loading="lazy" />
             <span class="founder-card__text">
               <span class="founder-card__label">Roblox</span>
-              <span class="founder-card__name">Multi Game Inc</span>
+              <span class="founder-card__name">Rocket Meteor</span>
             </span>
-            <span class="founder-card__cta" data-i18n="mgi.viewGroup">View group on Roblox</span>
+            <span class="founder-card__cta" data-i18n="studio.viewGroup">View group on Roblox</span>
           </a>
         </div>
       </div>
@@ -175,22 +175,22 @@
     <section id="games" class="section">
       <div class="container">
         <div class="section-head reveal">
-          <p class="eyebrow" data-i18n="mgi.navGames">Games</p>
-          <h2 class="section-title" data-i18n="mgi.gamesTitle">Studio games</h2>
-          <p class="section-lead" data-i18n="mgi.gamesSubtitle">All games published under Multi Game Inc on Roblox.</p>
+          <p class="eyebrow" data-i18n="studio.navGames">Games</p>
+          <h2 class="section-title" data-i18n="studio.gamesTitle">Studio games</h2>
+          <p class="section-lead" data-i18n="studio.gamesSubtitle">All games published under Rocket Meteor on Roblox.</p>
         </div>
         <div class="card-grid" id="games-container" data-expanded="false"></div>
         <div class="more-row">
           <button class="btn btn--outline" id="load-more-games" type="button" aria-controls="games-container" aria-expanded="false" hidden>View all games</button>
         </div>
 
-        <a class="founder-card founder-card--banner reveal" href="https://www.roblox.com/communities/17387910/Multi-Game-Inc" target="_blank" rel="noopener">
-          <img src="../img/MultiGameInc.webp" alt="" width="52" height="52" loading="lazy" />
+        <a class="founder-card founder-card--banner reveal" href="https://www.roblox.com/communities/17387910/Rocket-Meteor" target="_blank" rel="noopener">
+          <img src="../img/RocketMeteor.webp" alt="" width="52" height="52" loading="lazy" />
           <span class="founder-card__text">
-            <span class="founder-card__name" data-i18n="mgi.bannerTitle">Want to stay up to date?</span>
-            <span class="founder-card__label" data-i18n="mgi.bannerText">Follow us on the official Roblox group.</span>
+            <span class="founder-card__name" data-i18n="studio.bannerTitle">Want to stay up to date?</span>
+            <span class="founder-card__label" data-i18n="studio.bannerText">Follow us on the official Roblox group.</span>
           </span>
-          <span class="founder-card__cta" data-i18n="mgi.joinGroup">Join the group</span>
+          <span class="founder-card__cta" data-i18n="studio.joinGroup">Join the group</span>
         </a>
       </div>
     </section>
@@ -199,9 +199,9 @@
     <section id="contact" class="section section--alt">
       <div class="container">
         <div class="section-head reveal">
-          <p class="eyebrow" data-i18n="mgi.navContact">Contact</p>
-          <h2 class="section-title" data-i18n="mgi.contactTitle">Contact</h2>
-          <p class="section-lead" data-i18n="mgi.contactText">You can reach us through PimpoliDev's social media.</p>
+          <p class="eyebrow" data-i18n="studio.navContact">Contact</p>
+          <h2 class="section-title" data-i18n="studio.contactTitle">Contact</h2>
+          <p class="section-lead" data-i18n="studio.contactText">You can reach us through PimpoliDev's social media.</p>
         </div>
         <ul class="contact-grid contact-grid--4">
           <li><a href="https://discord.gg/SgjguUvTwE" class="contact-card reveal" target="_blank" rel="noopener">
@@ -212,9 +212,9 @@
             <img src="../img/twitter.webp" alt="" width="36" height="36" loading="lazy" />
             <span class="contact-card__text"><span class="contact-card__name">Twitter / X</span><span class="contact-card__handle">@PimpoliDev</span></span>
           </a></li>
-          <li><a href="https://www.roblox.com/communities/17387910/Multi-Game-Inc" class="contact-card reveal" target="_blank" rel="noopener">
-            <img src="../img/MultiGameInc.webp" alt="" width="36" height="36" loading="lazy" />
-            <span class="contact-card__text"><span class="contact-card__name">Multi Game Inc</span><span class="contact-card__handle" data-i18n="contact.mgi">Roblox group</span></span>
+          <li><a href="https://www.roblox.com/communities/17387910/Rocket-Meteor" class="contact-card reveal" target="_blank" rel="noopener">
+            <img src="../img/RocketMeteor.webp" alt="" width="36" height="36" loading="lazy" />
+            <span class="contact-card__text"><span class="contact-card__name">Rocket Meteor</span><span class="contact-card__handle" data-i18n="contact.studio">Roblox group</span></span>
           </a></li>
           <li><a href="https://www.youtube.com/@PimpoliDev" class="contact-card reveal" target="_blank" rel="noopener">
             <img src="../img/youtube.webp" alt="" width="36" height="36" loading="lazy" />
@@ -227,7 +227,7 @@
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <p>© <span id="year">2026</span> Multi Game Inc · PimpoliDev</p>
+      <p>© <span id="year">2026</span> Rocket Meteor · PimpoliDev</p>
       <a class="text-link" href="#main" data-i18n="a11y.backToTop">Back to top ↑</a>
     </div>
   </footer>

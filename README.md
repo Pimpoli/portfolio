@@ -1,6 +1,6 @@
 # PimpoliDev — Portafolio web
 
-Portafolio de **PimpoliDev** (desarrollador de Roblox y fundador de **Multi Game Inc**), publicado en GitHub Pages en [pimpolidev.com](https://pimpolidev.com).
+Portafolio de **PimpoliDev** (desarrollador de Roblox y fundador de **Rocket Meteor**), publicado en GitHub Pages en [pimpolidev.com](https://pimpolidev.com).
 
 Es un sitio estático: HTML, CSS y JavaScript sin frameworks ni paso de compilación. Tiene tema oscuro y claro, está en español, inglés y portugués, y muestra datos en vivo de Roblox y YouTube.
 
@@ -9,8 +9,8 @@ Es un sitio estático: HTML, CSS y JavaScript sin frameworks ni paso de compilac
 | Ruta | Qué es |
 | --- | --- |
 | `index.html` | Página principal: inicio, estadísticas, sobre mí, proyectos, juegos, tienda y contacto. |
-| `MultiGameInc/` | Página del estudio Multi Game Inc. |
-| `404.html` | Redirige rutas antiguas o mal escritas (`/game1`, `/mgi`, `/destroygame`…). |
+| `RocketMeteor/` | Página del estudio Rocket Meteor. |
+| `404.html` | Redirige rutas antiguas o mal escritas (`/rocket-meteor`, `/rm`, `/destroygame`…). |
 | `css/style.css` | Todos los estilos del sitio. Los colores están como variables en `:root` y el tema claro en `:root[data-theme="light"]`. |
 | `css/destroygame.css` | Estilos del easter egg *DestroyGame* (se cargan solo al activarlo). |
 | `js/config.js` | **Configuración central**: IDs de Roblox, lista de juegos, clave de YouTube y productos de la tienda. |
