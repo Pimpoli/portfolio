@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CatCular para Android</title>
+  <meta name="description" content="Descarga CatCular para Android." />
+  <meta name="robots" content="noindex" />
+  <meta name="theme-color" content="#0b0a12" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://pimpolidev.com/catcular/" />
+  <meta property="og:title" content="CatCular" />
+  <meta property="og:description" content="Descarga el juego para Android" />
+  <meta property="og:image" content="https://pimpolidev.com/catcular/icono.png" />
+  <link rel="icon" type="image/png" href="icono.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600&family=Figtree:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+      background: #0b0a12;
+      color: #f3f1fa;
+      font-family: "Figtree", system-ui, sans-serif;
+      line-height: 1.5;
+    }
+    main {
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+    }
+    .icono {
+      width: 112px;
+      height: 112px;
+      border-radius: 26px;
+    }
+    h1 {
+      margin: 16px 0 4px;
+      font-family: "Fredoka", sans-serif;
+      font-size: 2.4rem;
+    }
+    .sub {
+      margin: 0 0 24px;
+      color: #a9a5bd;
+    }
+    .boton {
+      display: block;
+      padding: 16px;
+      border-radius: 14px;
+      background: #7c4dff;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .boton:hover { background: #8f66ff; }
+    .aviso {
+      margin: 12px 0 0;
+      color: #a9a5bd;
+      font-size: 0.9rem;
+    }
+    ol {
+      margin: 28px 0 0;
+      padding: 20px 20px 20px 40px;
+      border-radius: 14px;
+      background: #17161f;
+      text-align: left;
+    }
+    li + li { margin-top: 10px; }
+    .nota {
+      margin: 16px 0 0;
+      color: #a9a5bd;
+      font-size: 0.9rem;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <img class="icono" src="icono.png" alt="CatCular" />
+    <h1>CatCular</h1>
+    <p class="sub">Versión 0.9.7 para Android · 161 MB</p>
+    <a class="boton" id="Boton" href="https://140-82-29-142.sslip.io/play/descargas/CatCular-0.9.7.apk">Descargar</a>
+    <p class="aviso" id="Aviso"></p>
+    <ol>
+      <li>Si Chrome pregunta, toca <b>Descargar de todos modos</b>.</li>
+      <li>Cuando termine, abre <b>CatCular-0.9.7.apk</b> desde la notificación o desde Descargas.</li>
+      <li>Si el teléfono dice que no puede instalar apps de esta fuente, toca <b>Configuración</b>, activa <b>Permitir desde esta fuente</b> y vuelve atrás.</li>
+      <li>Toca <b>Instalar</b>. Si Play Protect avisa, toca <b>Más detalles</b> y luego <b>Instalar de todas formas</b>.</li>
+    </ol>
+    <p class="nota">Si ya tienes CatCular de Google Play, desinstálalo primero: Android no deja instalar este encima.</p>
+  </main>
+  <script>
+    var Aviso = document.getElementById("Aviso");
+
+    // En Android la descarga empieza sola
+    if (/Android/i.test(navigator.userAgent)) {
+      Aviso.textContent = "La descarga empieza sola. Si no, toca Descargar.";
+      setTimeout(function () {
+        location.href = document.getElementById("Boton").href;
+      }, 800);
+    } else {
+      Aviso.textContent = "Este archivo es para móviles Android.";
+    }
+  </script>
+</body>
+</html>

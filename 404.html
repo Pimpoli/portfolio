@@ -16,6 +16,8 @@
     redirect = '/RocketMeteor/';
   else if (/\/destroy[-_]?game$/i.test(path))
     redirect = '/#destroygame';
+  else if (/\/catcular$/i.test(path))
+    redirect = '/catcular/';
 
   if (redirect === '/#destroygame') {
     window.location.replace(redirect);
