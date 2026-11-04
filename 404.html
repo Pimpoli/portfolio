@@ -18,6 +18,10 @@
     redirect = '/#destroygame';
   else if (/\/catcular$/i.test(path))
     redirect = '/catcular/';
+  else if (/\/rome([-_]?engine|%20engine)?$/i.test(path))
+    redirect = '/ROME-Engine/';
+  else if (/\/godot([-_]|%20)?luau$/i.test(path))
+    redirect = '/GodotLuau/';
 
   if (redirect === '/#destroygame') {
     window.location.replace(redirect);

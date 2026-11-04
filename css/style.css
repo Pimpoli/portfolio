@@ -475,6 +475,10 @@ ul { padding: 0; list-style: none; }
    Tienda
    ═══════════════════════════════════════════════ */
 .product-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+
+/* Tarjetas de Descargas (ROME Engine y GodotLuau) en la portada */
+.tool-card__logo { position: absolute; left: 50%; top: 50%; width: 46%; transform: translate(-50%, -50%); filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.5)); }
+.tool-card__cta { margin-top: 6px; font-size: 15px; font-weight: 700; color: var(--accent-text); }
 .product-card {
   display: flex; flex-direction: column; overflow: hidden;
   border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--line);
@@ -687,6 +691,11 @@ ul { padding: 0; list-style: none; }
 /* ═══════════════════════════════════════════════
    Responsive
    ═══════════════════════════════════════════════ */
+/* Justo antes del menú desplegable los enlaces se juntan un poco para que quepan */
+@media (min-width: 1101px) and (max-width: 1260px) {
+  .nav-list, .product-page .nav-list { gap: 18px; }
+}
+
 @media (max-width: 1100px) {
   /* Menú desplegable desde tablets en horizontal: los enlaces ya no caben en una línea */
   .menu-toggle { display: inline-flex; }

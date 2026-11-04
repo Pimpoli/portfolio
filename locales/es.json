@@ -4,6 +4,7 @@
     "home": "Inicio",
     "about": "Sobre mí",
     "projects": "Proyectos",
+    "tools": "Descargas",
     "games": "Juegos",
     "store": "Tienda",
     "contact": "Contacto"
@@ -105,6 +106,19 @@
       "desc": "Extensión de Godot 4 en C++ que integra Luau y recrea la arquitectura de Roblox: servicios, scripts, Humanoid, GUI y multijugador real. Código abierto (MIT)."
     },
     "viewGithub": "Ver en GitHub"
+  },
+  "tools": {
+    "title": "Mis motores y herramientas",
+    "lead": "Gratis y de código abierto. Descárgalos, mira qué cambió en cada versión y qué no pueden hacer todavía.",
+    "rome": {
+      "kicker": "Motor de juegos · Alfa",
+      "desc": "Motor basado en Godot con un editor al estilo de Roblox Studio y Luau. Un solo .exe para Windows."
+    },
+    "gl": {
+      "kicker": "Extensión de Godot · Código abierto",
+      "desc": "Escribe juegos al estilo Roblox en Luau y ejecútalos en Godot 4. Para Windows y Linux."
+    },
+    "cta": "Descargar y ver detalles →"
   },
   "games": {
     "title": "Juegos que he creado",

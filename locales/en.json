@@ -4,6 +4,7 @@
     "home": "Home",
     "about": "About",
     "projects": "Projects",
+    "tools": "Downloads",
     "games": "Games",
     "store": "Store",
     "contact": "Contact"
@@ -105,6 +106,19 @@
       "desc": "A C++ GDExtension for Godot 4 that embeds Luau and recreates the Roblox architecture: services, scripts, Humanoid, GUI and real multiplayer. Open source (MIT)."
     },
     "viewGithub": "View on GitHub"
+  },
+  "tools": {
+    "title": "My engines and tools",
+    "lead": "Free and open source. Download them, see what every version changed and what they can't do yet.",
+    "rome": {
+      "kicker": "Game engine · Alpha",
+      "desc": "Godot-based engine with a Roblox Studio-style editor and Luau. A single .exe for Windows."
+    },
+    "gl": {
+      "kicker": "Godot extension · Open source",
+      "desc": "Write Roblox-style games in Luau and run them on Godot 4. For Windows and Linux."
+    },
+    "cta": "Download and details →"
   },
   "games": {
     "title": "Games I've made",

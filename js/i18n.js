@@ -21,11 +21,17 @@
   let current = detectLanguage();
   window.translations = window.translations || {};
 
+  // Páginas con textos propios (ROME-Engine/, GodotLuau/): <meta name="page-locale" content="rome">
+  // Su HTML ya está en inglés, así que solo tienen locales/<pagina>/es.json y pt.json
+  const page = document.querySelector('meta[name="page-locale"]')?.content;
+
   function apply(root = document) {
     root.querySelectorAll('[data-i18n]').forEach((el) => {
-      const text = window.U.t(el.getAttribute('data-i18n'), null);
-      if (text === null) return;
       const attr = el.getAttribute('data-i18n-attr');
+      // Guardamos el texto del HTML para volver a él si a un idioma le falta la clave
+      if (el._i18nBase === undefined) el._i18nBase = attr ? el.getAttribute(attr) : el.textContent;
+      const text = window.U.t(el.getAttribute('data-i18n'), el._i18nBase);
+      if (text === null) return;
       if (attr) el.setAttribute(attr, text);
       else el.textContent = text;
     });
@@ -33,9 +39,14 @@
 
   async function load(lang) {
     try {
-      const res = await fetch(`${window.U.base}locales/${lang}.json`);
+      const [res, pageRes] = await Promise.all([
+        fetch(`${window.U.base}locales/${lang}.json`),
+        page && lang !== 'en' ? fetch(`${window.U.base}locales/${page}/${lang}.json`) : null,
+      ]);
       if (!res.ok) throw new Error(`No locale file for ${lang}`);
-      window.translations = await res.json();
+      const data = await res.json();
+      if (pageRes && pageRes.ok) Object.assign(data, await pageRes.json());
+      window.translations = data;
       document.documentElement.lang = lang;
       apply();
       document.dispatchEvent(new CustomEvent('languageLoaded', { detail: { lang } }));

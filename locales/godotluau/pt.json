@@ -1,0 +1,261 @@
+{
+  "gl": {
+    "meta": {
+      "title": "GodotLuau — Baixar | PimpoliDev"
+    },
+    "nav": {
+      "about": "Visão geral",
+      "features": "Recursos",
+      "download": "Baixar",
+      "updates": "Novidades",
+      "limits": "Limites"
+    },
+    "hero": {
+      "badge": "Código aberto · MIT",
+      "lead": "Escreva jogos no estilo Roblox em Luau e rode no Godot 4. Uma extensão em C++ que traz game, os serviços, os scripts, Humanoid, RemoteEvents e multiplayer de verdade para o Godot.",
+      "downloadWin": "Baixar para Windows",
+      "downloadLinux": "Baixar para Linux",
+      "github": "Ver no GitHub",
+      "version": "Versão",
+      "macNote": "Ainda não há binários pré-compilados para macOS: num Mac você precisa compilar a partir do código-fonte.",
+      "mobileNote": "GodotLuau é uma extensão para o editor do Godot: baixe pelo seu computador."
+    },
+    "stats": {
+      "version": "Última versão",
+      "godot": "Versão do Godot",
+      "platforms": "Sistemas com binários",
+      "license": "Licença de código aberto"
+    },
+    "about": {
+      "eyebrow": "O que é o GodotLuau?",
+      "title": "A API do Roblox, em cima do Godot",
+      "lead1": "GodotLuau é uma GDExtension em C++ que embute o interpretador oficial do Luau no Godot e reconstrói por cima a arquitetura do Roblox: game, os serviços (Workspace, Players, Lighting, ReplicatedStorage…), LocalScript, ServerScript e ModuleScript, Humanoid, o avatar R6, os RemoteEvents, a biblioteca task e a GUI no estilo Roblox.",
+      "lead2": "Você escreve a lógica do jogo do jeito que já faz, com PlayerAdded, Touched, FireServer ou task.wait, e o Godot cuida da renderização, da física, da exportação e das plataformas.",
+      "builtWith": "Feito com",
+      "isTitle": "O que é",
+      "is1": "Uma reimplementação independente da API mais usada do Roblox, em cima de duas tecnologias abertas: Godot e Luau.",
+      "is2": "Um jeito de levar o que você sabe de Luau e seus scripts para uma engine livre que exporta para muitas plataformas.",
+      "is3": "Código aberto sob a licença MIT, com todas as licenças incluídas dentro do pacote.",
+      "notTitle": "O que não é",
+      "not1": "Um emulador ou cliente do Roblox: ele nunca se conecta aos servidores do Roblox.",
+      "not2": "Um jeito de rodar seu jogo do Roblox do jeito que está: a API é grande, mas não é completa.",
+      "not3": "Um jeito de baixar assets do Roblox: malhas, texturas e sons ficam nos servidores do Roblox, não dentro do arquivo .rbxl."
+    },
+    "feat": {
+      "title": "Tudo o que vem nele",
+      "lead": "As peças do Roblox Studio que você usa todo dia, reconstruídas no Godot.",
+      "f1t": "Estrutura do Roblox",
+      "f1d": "Um nó raiz RobloxGame3D ou RobloxGame2D monta toda a árvore de serviços na primeira vez que você abre a cena: Workspace com seu Baseplate, Players, Lighting, ServerScriptService, StarterPlayer e o resto.",
+      "f2t": "Scripts como no Studio",
+      "f2d": "Os nós LocalScript, ServerScript e ModuleScript criam o próprio arquivo .lua, que você edita dentro do Godot com as cores do Roblox Studio. Aperte F5 e eles rodam de cima para baixo.",
+      "f3t": "Personagens e física",
+      "f3d": "Avatar R6 com animações clássicas, StarterCharacter, Humanoid, constraints e BodyMovers, com Jolt Physics ajustada à escala do Roblox.",
+      "f4t": "GUI no estilo Roblox",
+      "f4d": "ScreenGui, Frame, TextLabel, TextButton, ImageButton, ScrollingFrame, BillboardGui e SurfaceGui, com UICorner, UIListLayout, UIStroke e UIGradient.",
+      "f5t": "Importar places .rbxl",
+      "f5d": "Traga um place salvo no Studio: a árvore completa, propriedades, CFrames, cores, GUI, o código de cada script, tags e atributos. Nada fica de fora.",
+      "f6t": "Multiplayer de verdade",
+      "f6d": "Servidor dedicado, Direct Connect, RemoteEvents pela rede e replicação com servidor autoritativo, além de um coordenador que abre mundos como o Roblox faz.",
+      "f7t": "Iluminação",
+      "f7d": "ClockTime, TimeOfDay, neblina, ciclo automático de dia e noite, presets e Technology ligada à qualidade gráfica real do Godot.",
+      "f8t": "Autocompletar e IA",
+      "f8d": "Sugestões que conhecem sua cena (workspace. lista seus filhos reais), erros de sintaxe na própria linha e os modelos opcionais de autocompletar LuauIA.",
+      "f9t": "Atualizador e configurações",
+      "f9d": "O painel GodotLuau Config (em inglês, espanhol e português) consulta o GitHub, baixa o pacote, verifica o SHA-256 e reinicia o editor. No jogo, Esc abre o menu no estilo Roblox."
+    },
+    "online": {
+      "title": "Quatro jeitos de jogar juntos",
+      "m1t": "Teste local",
+      "m1d": "Abra de 1 a 8 janelas pelo editor, mais uma janela Server View, como o modo de teste do Studio.",
+      "m2t": "Servidor dedicado",
+      "m2d": "Inicie um servidor na sua LAN ou na Internet e conecte os clientes por IP com Direct Connect.",
+      "m3t": "Coordenador e mundos",
+      "m3d": "Matchmaking no estilo Roblox: os jogadores entram sem digitar IP e os mundos novos abrem sozinhos.",
+      "m4t": "Listen server a partir do Luau",
+      "m4d": "Um jogador hospeda a partida por um script e os outros entram nela."
+    },
+    "works": {
+      "title": "O que funciona hoje",
+      "r1": "Interpretador oficial do Luau, compilado dentro da extensão",
+      "ok": "Funciona",
+      "r2": "Árvore de serviços, LocalScript, ServerScript, ModuleScript e require",
+      "r3": "Biblioteca task, RunService.Heartbeat e sinais (:Connect, :Wait)",
+      "r4": "Tipos de dados: Vector3, CFrame, Color3, UDim2, BrickColor, Enum…",
+      "r5": "Mensagens de erro idênticas às do Roblox",
+      "r6": "Avatar R6, StarterCharacter, Humanoid, constraints e BodyMovers",
+      "r7": "GUI no estilo Roblox, BillboardGui, SurfaceGui e o menu de configurações dentro do jogo",
+      "r8": "Importação de places .rbxl (formato binário)",
+      "r8n": "Assets referenciados por id não podem ser baixados",
+      "r9": "Teste de multiplayer local com várias janelas e Server View",
+      "r10": "Servidor dedicado, Direct Connect, RemoteEvents pela rede e replicação",
+      "r11": "HttpService com HTTP e HTTPS reais",
+      "r12": "Coordenador com mundos automáticos",
+      "r12n": "Só em uma única máquina",
+      "part": "Parcial",
+      "r13n": "Arquivos JSON locais, ainda sem nuvem",
+      "r14": "Autenticação do servidor, anti-cheat e contas",
+      "no": "Ainda não",
+      "r15": "Binários para macOS",
+      "r15n": "Compile a partir do código-fonte"
+    },
+    "dl": {
+      "title": "Baixe o GodotLuau",
+      "lead": "Baixe o pacote do seu sistema e descompacte na raiz do seu projeto Godot. Daí em diante, o atualizador embutido traz as versões novas sozinho.",
+      "ready": "Disponível",
+      "winText": "DLLs de 64 bits (debug e release), a extensão, ícones, assets, scripts padrão e o plugin atualizador.",
+      "button": "Baixar .zip",
+      "linuxText": "O mesmo pacote com as bibliotecas .so para x86_64, compiladas automaticamente a cada versão.",
+      "reqTitle": "Requisitos",
+      "req1": "Godot 4.3 ou mais novo (é desenvolvido no Godot 4.6 e 4.7).",
+      "req2": "Windows x86_64 ou Linux x86_64.",
+      "req3": "Python 3, só se você quiser usar o assistente de projeto novo em tools/.",
+      "macTitle": "macOS e outros sistemas",
+      "macText": "Ainda não há binários pré-compilados para macOS. Você pode compilar a partir do código-fonte com SCons; os passos estão no README.",
+      "macLink": "Compilar a partir do código-fonte →",
+      "stepsTitle": "Adicione ao seu projeto",
+      "s1t": "Baixe e descompacte",
+      "s1d": "Descompacte o pacote na raiz do seu projeto. Ele traz godot_luau.gdextension, a pasta GodotLuau (binários, ícones, assets, shaders e scripts padrão) e addons/GodotLuauUpdater.",
+      "s2t": "Abra o projeto",
+      "s2d": "O Godot carrega a extensão ao iniciar. Se o projeto já estava aberto, reinicie o Godot uma vez.",
+      "s3t": "Ative o plugin",
+      "s3d": "Ative o GodotLuau Config em Projeto › Configurações do Projeto › Plugins, se ainda não estiver ativo.",
+      "s4t": "Adicione o nó raiz",
+      "s4d": "Adicione um nó RobloxGame3D (ou RobloxGame2D) como raiz da cena e salve. Toda a estrutura do Roblox aparece sozinha.",
+      "s5t": "Escreva seu primeiro script",
+      "s5d": "Clique com o botão direito em ServerScriptService › Adicionar Nó Filho › ServerScript, escreva Luau e aperte F5. No jogo, Esc abre o menu com os jogadores e o ping deles, qualidade gráfica, FPS máximo, volume e sensibilidade da câmera.",
+      "wizTitle": "Vai começar um jogo do zero?",
+      "wizText": "Clone o repositório e rode o assistente. Ele pede um nome, 3D ou 2D e uma pasta, e escreve um projeto Godot completo com a extensão, os ícones, o plugin já ativado e uma cena raiz RobloxGame.",
+      "copied": "Copiado"
+    },
+    "up": {
+      "title": "Histórico de mudanças",
+      "lead": "O GodotLuau se atualiza sozinho pelo painel GodotLuau Config dentro do Godot: ele compara versões com o GitHub, baixa o pacote, verifica o SHA-256 e reinicia o editor. Se uma atualização der errado, você pode voltar para a versão anterior."
+    },
+    "log": {
+      "latest": "Mais recente",
+      "v1612": {
+        "sum": "Fixes Bugs Fast: FPS sem limite e gráficos que finalmente ficam certos.",
+        "p1": "V-Sync agora é uma opção do jogador e vem desligada. O Godot a entrega ligada, o que travava o FPS na taxa de atualização do monitor ou na metade dela (o \"limite de 30 FPS\").",
+        "p2": "A lista de FPS máximo vai até 300, 360, 480 e Ilimitado, e lembra a sua escolha.",
+        "p3": "A qualidade automática não age mais como teto de FPS: ela mira em 60 e nunca cai abaixo do nível 5, então não tira mais as sombras nem corta a resolução pela metade.",
+        "p4": "O seletor de Modo Gráfico funciona e ganha Personalizado: escala de renderização, upscaler, nitidez, sombras, distância de visão, SSAO, glow, neblina, oclusão e batching, um por um.",
+        "p5": "A qualidade gráfica aparece em 10 segmentos clicáveis, como no Roblox.",
+        "s1": "Os scripts Luau padrão agora ficam em GodotLuau/DefaultScripts, então você pode editá-los sem recompilar.",
+        "s2": "README reescrito em inglês e espanhol, com um guia de verdade para o modo online."
+      },
+      "perf": "Desempenho e gráficos",
+      "scripts": "Scripts e documentação",
+      "github": "Versão no GitHub →",
+      "v1608": {
+        "sum": "Interface e desempenho: places importados ficam e rodam muito melhor.",
+        "p1": "Malhas e formas de colisão são compartilhadas por tamanho, e um bug que duplicava malhas e colisores foi corrigido (+44% de desempenho).",
+        "p2": "Física adaptativa (+21%), LOD por tamanho e modos de qualidade Automático, Manual e Personalizado com FSR.",
+        "p3": "Occlusion culling configurável, desligado por padrão.",
+        "r1": "Iluminação fiel ao Roblox: seus padrões reais, sem efeitos inventados e um céu de dia e de noite. Technology não sobrescreve mais o bloom e ShadowSoftness é real.",
+        "r2": "Layout de UI 1:1 (UDim2 convertido em âncoras nativas), um ImageButton que funciona, cores de UIGradient legíveis e a vida e o nome acima dos personagens.",
+        "r3": "As propriedades de GUI importadas são aplicadas ao carregar, sem precisar importar de novo.",
+        "r4": "Sombras seletivas, partes invisíveis e transparência por pixel."
+      },
+      "fidelity": "Mais perto do Roblox",
+      "v116": {
+        "sum": "Start RBX: importação de places do Roblox em fases, com progresso.",
+        "i1": "A importação de .rbxl roda em fases com uma janela de progresso e se mescla com a estrutura do Roblox que já está na sua cena, sem duplicar serviços.",
+        "i2": "Corrigida a GUI duplicada e as caixas brancas ao apertar Play em um place importado: Visible é aplicado e o StarterGui só é desenhado como modelo no editor.",
+        "i3": "Os jogadores nascem no mapa importado e a propriedade Enabled dos efeitos de Lighting é respeitada.",
+        "i4": "O mundo 3D cinza que ficava no Workspace sumiu e o HUD do StarterGui foi corrigido.",
+        "i5": "Painel de configurações mais largo, um botão de busca de atualizações e um menu de versões legível."
+      },
+      "v115": {
+        "sum": "Personagens, times e configurações no estilo Roblox.",
+        "i1": "Correções de execução, personagens e times, morte no vazio, visibilidade e modificadores de layout de UI.",
+        "i2": "Um novo sistema de qualidade gráfica, e as sombras feias foram corrigidas.",
+        "i3": "Configurações no estilo Roblox com 10 níveis de qualidade, trava de câmera e suporte a celular.",
+        "i4": "Correções do menu na 1.15.1."
+      },
+      "v114": {
+        "sum": "A atualização do multiplayer.",
+        "i1": "RemoteEvent e UnreliableRemoteEvent com paridade total, e conexão por IP com ENet e Direct Connect.",
+        "i2": "Um objeto Player de verdade (o Player não é o Character) e hospedagem no estilo Minecraft com servidor dedicado e lista de servidores.",
+        "i3": "Um coordenador e matchmaker com instâncias de mundo no estilo Roblox, e serviços compartilhados entre servidores.",
+        "i4": "Replicação automática com servidor autoritativo: personagens remotos, animações e previsão de física.",
+        "i5": "require pode ceder, os erros de RemoteFunction chegam a quem chamou e time() fica sincronizado.",
+        "i6": "Materials, identidade de script, PlayerAdded, BindToClose, objetos de valor e Terrain."
+      },
+      "v113": {
+        "sum": "Multiplayer em rede e um HttpService de verdade.",
+        "i1": "Os RemoteEvents viajam pela rede com ENet: FireServer, FireClient, FireAllClients e seus handlers agora funcionam entre instâncias do jogo.",
+        "i2": "Os argumentos dos eventos são serializados: números, strings, tabelas, Vector3, Color3, CFrame, UDim2 e Instances.",
+        "i3": "HttpService faz requisições HTTP e HTTPS reais."
+      },
+      "v112": {
+        "sum": "Física na escala do Roblox, a licença MIT e Linux.",
+        "i1": "Limites maiores do Jolt Physics: testado com 262.000 corpos colidindo.",
+        "i2": "O projeto passa para a licença MIT e o pacote traz binários de Windows e Linux.",
+        "i3": "Corrigida a comparação de versões do atualizador e o limite de descritores do D3D12; as partes compartilham seus materiais."
+      },
+      "v111": {
+        "sum": "O avatar R6 e uma área de trabalho como a do Studio.",
+        "i1": "Avatar R6 padrão com animações clássicas, mouse e câmera do Roblox, e StarterCharacter.",
+        "i2": "Uma área de trabalho como a do Studio, cores de sintaxe do Luau e shaders editáveis.",
+        "i3": "Os scripts ganham uma caixa Enabled como no Roblox, e os erros usam as mensagens exatas do Roblox.",
+        "i4": "Funciona com frameworks reais: Players, Enum.Material, CFrame.new(Vector3) e HumanoidRootPart."
+      },
+      "v109": {
+        "sum": "A base do multiplayer e o menu de configurações.",
+        "i1": "NetworkService com ENet, e uma barra de ferramentas para testar com 1 a 8 janelas locais mais uma janela Server View.",
+        "i2": "Seletor de dispositivo PC, Mobile, Console e VR, chat em rede e uma animação de caminhada.",
+        "i3": "Menu de configurações no estilo Roblox salvo por jogador, com abas e a lista de jogadores com ping.",
+        "i4": "Dezenas de classes novas como UICorner, UIListLayout, UIStroke, LinearVelocity, AlignPosition, ParticleEmitter, Fire e Smoke, além de áudio espacial 3D."
+      },
+      "v108": {
+        "sum": "Movimento em todos os dispositivos e iluminação no estilo Roblox.",
+        "i1": "O primeiro importador de .rbxl: lê o formato binário do Roblox e extrai todos os scripts.",
+        "i2": "Movimento e câmera com teclado, controle e toque, e um UserInputService em tempo real.",
+        "i3": "Giro do personagem mais suave e uma câmera mais calma.",
+        "i4": "Iluminação e materiais no estilo Roblox: tonemapping ACES, bloom para o Neon brilhar, SSAO e sombras suaves do sol."
+      },
+      "v107": {
+        "sum": "Um atualizador seguro e o personagem R15.",
+        "i1": "Um atualizador à prova de falhas: verifica o pacote antes de mexer em qualquer coisa, faz backup do que substitui e deixa você voltar para a versão anterior.",
+        "i2": "Personagem R15 por padrão com movimento no estilo Roblox: aceleração e frenagem suaves.",
+        "i3": "O repositório compila direto de um clone novo, com os submódulos incluídos."
+      },
+      "v105": {
+        "sum": "Uma grande rodada de correções e o autocompletar com IA.",
+        "i1": "21 correções: print fica visível, a sintaxe é validada e o atualizador verifica o SHA-256.",
+        "i2": "Um painel redesenhado, IDs de script persistentes e uma lixeira para recuperar scripts apagados.",
+        "i3": "Autocompletar que conhece sua cena e a família de modelos LuauIA: Mini, Medium, High e HighPRO.",
+        "i4": "Lighting.Technology liga os efeitos reais do Godot."
+      },
+      "v100": {
+        "sum": "Onde tudo começou.",
+        "i1": "Luau rodando dentro do Godot 4 com classes e ícones no estilo Roblox: DataModel, LocalScript, Workspace e mais."
+      },
+      "new": "Novo",
+      "more": "Mostrar todas as versões",
+      "less": "Mostrar menos versões"
+    },
+    "lim": {
+      "title": "O que ele ainda não faz",
+      "lead": "A API é grande, mas não é todo o Roblox. Estes são os limites conhecidos antes de você começar um projeto com ele.",
+      "knownTitle": "Limitações conhecidas",
+      "k1": "Uma VM por script: um ModuleScript chamado com require por dois scripts não compartilha estado entre eles.",
+      "k2": "DataStoreService salva em arquivos JSON locais, não na nuvem.",
+      "k3": "Quantidades muito grandes de partes (dezenas de milhares) funcionam, mas ainda não são agrupadas em lotes.",
+      "k4": "Places XML (.rbxlx) não podem ser lidos, e o conteúdo rbxassetid:// não pode ser baixado.",
+      "k5": "Binários pré-compilados só para Windows e Linux x86_64; o macOS precisa de compilação a partir do código-fonte.",
+      "netTitle": "Modo online e segurança",
+      "n1": "Só rede auto-hospedada: sem relay, sem NAT traversal, sem contas e sem lista oficial de servidores.",
+      "n2": "Ainda não há autenticação do servidor nem anti-cheat.",
+      "n3": "O coordenador e seus mundos precisam rodar na mesma máquina, e a porta de cada mundo tem que estar acessível.",
+      "security": "Leia o guia de segurança antes de publicar →",
+      "disclaimer": "GodotLuau é um projeto independente. Não é afiliado, endossado nem patrocinado pela Roblox Corporation nem pela Godot Foundation. \"Roblox\" é uma marca registrada da Roblox Corporation e só é mencionada para descrever a compatibilidade da API. GodotLuau não se conecta aos servidores do Roblox e não inclui assets do Roblox.",
+      "credits": "Feito com Luau (MIT, Roblox Corporation), godot-cpp (MIT) e Godot Engine (MIT). O pacote inclui uma cópia de cada licença."
+    },
+    "cta": {
+      "title": "Quer tudo pronto para usar?",
+      "text": "O GodotLuau já vem embutido no ROME Engine, o editor da Rocket Meteor inspirado no Roblox Studio.",
+      "rome": "Ver o ROME Engine"
+    }
+  }
+}

@@ -1,0 +1,182 @@
+{
+  "rome": {
+    "meta": {
+      "title": "ROME Engine — Baixar | PimpoliDev"
+    },
+    "nav": {
+      "about": "Visão geral",
+      "features": "Recursos",
+      "download": "Baixar",
+      "updates": "Atualizações",
+      "limits": "Limites"
+    },
+    "hero": {
+      "badge": "Alpha · Pré-lançamento",
+      "lead": "Rocket Meteor Engine: uma engine de jogos de código aberto baseada no Godot, com um editor inspirado no Roblox Studio e scripts em Luau por meio do GodotLuau.",
+      "download": "Baixar para Windows",
+      "github": "Ver no GitHub",
+      "version": "Versão",
+      "base": "Baseado em",
+      "osNote": "Por enquanto o ROME só roda no Windows. As versões para Linux, macOS e Android estão a caminho.",
+      "tag": "Uma engine da Rocket Meteor"
+    },
+    "stats": {
+      "version": "Versão atual",
+      "size": "Um único .exe, sem instalador",
+      "templates": "Modelos iniciais",
+      "license": "Licença de código aberto"
+    },
+    "about": {
+      "eyebrow": "O que é o ROME?",
+      "title": "A engine do Godot, o fluxo de trabalho do Roblox Studio",
+      "lead1": "O ROME mantém o núcleo do Godot e suas cenas reutilizáveis, e constrói por cima sua própria interface, sua organização de recursos e suas ferramentas de criação. Se você já usou o Roblox Studio, vai se sentir em casa: Explorer, Propriedades, a barra de ferramentas, Inserir objeto e os mesmos atalhos.",
+      "lead2": "Você programa em Luau graças ao GodotLuau, que vem dentro do ROME e é atualizado junto com ele: game, os serviços, LocalScript, ServerScript e ModuleScript funcionam do jeito que você já conhece.",
+      "nameRow": "Nome completo",
+      "typeRow": "O que é",
+      "typeVal": "Engine de jogos e editor",
+      "baseRow": "Base da engine",
+      "langRow": "Scripts",
+      "langVal": "Luau via GodotLuau",
+      "platformRow": "Testado em",
+      "studioRow": "Feito por",
+      "repoLabel": "Código-fonte no GitHub",
+      "repoCta": "Ver repositório →"
+    },
+    "feat": {
+      "title": "O que vem na alpha",
+      "lead": "Tudo desta lista já está na 0.1.0-alpha.4 e foi testado no Windows.",
+      "f1t": "Tela inicial de experiências",
+      "f1d": "Crie uma experiência a partir dos modelos Baseplate, Em branco ou Classic Obby. A cena principal mantém seu próprio nome, separado do nome do jogo.",
+      "f2t": "Barra de ferramentas estilo Studio",
+      "f2d": "Abas Início, Avatar, UI, Script, Modelo e Plugins. Peça, Script, GUI, Material, Cor, Grupo, Bloquear e Ancorar têm seu próprio menu suspenso, e o botão + cria suas próprias abas.",
+      "f3t": "Atalhos do Studio",
+      "f3d": "Ctrl+1 a Ctrl+5, Ctrl+L, Ctrl+G, Ctrl+Alt+G e Ctrl+U, caixas de ajuste para mover e girar, e o grupo Testar com F5, F6 e Shift+F5.",
+      "f4t": "Explorer e Inserir objeto",
+      "f4d": "Serviços fixos na cena principal e um botão + em cada linha. Inserir objeto tem busca, categorias e itens recentes, e as peças novas aparecem na frente da câmera.",
+      "f5t": "Propriedades por seção",
+      "f5d": "Dados, Aparência, Colisão, Comportamento e mais, além de Atributos que você adiciona e remove direto do painel.",
+      "f6t": "Abas compartilhadas",
+      "f6d": "Cenas e scripts compartilham a barra de abas. Cada script mostra seu nome e o ícone do seu tipo, o clique do meio fecha uma aba e um menu fecha várias de uma vez.",
+      "f7t": "Recursos organizados",
+      "f7d": "Pastas para seus assets, scripts separados em Scripts/LocalScript, Scripts/ServerScript e Scripts/ModuleScript, e o navegador de arquivos completo a um clique.",
+      "f8t": "Atualiza sozinho",
+      "f8d": "Ao iniciar, o ROME consulta o GitHub, baixa em segundo plano, confere o SHA-256 e instala quando você o fecha. Se algo falhar, a versão anterior volta.",
+      "f9t": "Luau integrado",
+      "f9d": "O GodotLuau vai dentro do ROME: game, os serviços, sinais no estilo Roblox, RemoteEvents e a biblioteca task sem nenhuma configuração extra."
+    },
+    "obby": {
+      "alt": "Modelo Classic Obby visto de cima",
+      "eyebrow": "Modelo",
+      "title": "Classic Obby, pronto para jogar",
+      "lead": "Um percurso de obstáculos de seis fases para ver como um jogo completo é montado no ROME e para começar o seu a partir dele.",
+      "c1": "Plataformas móveis que levam o jogador junto.",
+      "c2": "Blocos que matam, checkpoints e renascimento.",
+      "c3": "Um HUD que mostra a fase atual.",
+      "c4": "O movimento e o deslocamento sobre as plataformas rodam em um LocalScript; o dano, o progresso e o renascimento são decididos pelo servidor.",
+      "glLabel": "Os scripts rodam em",
+      "glCta": "Veja o que ele pode fazer →"
+    },
+    "dl": {
+      "title": "Baixe o ROME Engine",
+      "lead": "Um único .exe que você abre com duplo clique. Ele já inclui o runtime do ROME e o GodotLuau: você não precisa instalar o Godot nem colocar nenhuma pasta ao lado dele.",
+      "ready": "Disponível",
+      "winText": "Executável independente de 64 bits, sem instalador. É a versão que compilamos e testamos a cada lançamento.",
+      "button": "Baixar .exe",
+      "copy": "Copiar",
+      "release": "Todos os arquivos desta versão no GitHub →",
+      "otherTitle": "Outras plataformas",
+      "linuxNote": "Compilado por CI; será anexado quando o workflow passar",
+      "inProgress": "Em andamento",
+      "macNote": "Ainda não há uma versão do ROME validada",
+      "planned": "Planejado",
+      "androidNote": "Ainda não há um APK do ROME validado",
+      "otherText": "O Godot consegue exportar para muitas outras plataformas, mas elas ainda não foram testadas especificamente com o ROME.",
+      "stepsTitle": "Como abrir",
+      "s1t": "Baixe o .exe",
+      "s1d": "Use o botão acima ou a seção Assets da versão no GitHub.",
+      "s2t": "Abra com duplo clique",
+      "s2d": "Se o Windows SmartScreen avisar sobre um aplicativo não reconhecido, clique em Mais informações e depois em Executar assim mesmo.",
+      "s3t": "Dê um instante à primeira inicialização",
+      "s3d": "Na primeira vez, o ROME extrai seus componentes para um cache por usuário ligado à versão. As próximas inicializações reutilizam essa cópia.",
+      "s4t": "Crie sua experiência",
+      "s4d": "Escolha um modelo, salve suas cenas e recursos dentro da experiência e aperte F5 para testar o jogo.",
+      "copied": "Copiado"
+    },
+    "up": {
+      "title": "Sempre atualizado",
+      "lead": "Desde a 0.1.0-alpha.2 você não precisa voltar aqui a cada versão: o ROME se atualiza sozinho, e suas experiências também.",
+      "m1t": "Confere ao iniciar",
+      "m1d": "O ROME olha as versões publicadas e baixa em segundo plano o executável da sua plataforma.",
+      "m2t": "Verifica o arquivo",
+      "m2d": "Cada download é conferido com o seu SHA-256 antes de ser instalado. Se não bater, nada muda.",
+      "m3t": "Instala ao fechar",
+      "m3d": "Ou na hora, em Ajuda › Atualizações do ROME › Atualizar e reiniciar, que reabre a mesma experiência. Se algo falhar, a versão anterior volta.",
+      "m4t": "Retoma downloads",
+      "m4d": "Se a conexão cair ou travar por um minuto, o download continua de onde parou, até mesmo na próxima vez que você abrir o ROME.",
+      "expTitle": "Suas experiências também se atualizam",
+      "expText": "Quando você abre uma experiência feita com outra versão, o ROME substitui a cópia dela do ROMEStudio e do GodotLuau antes de carregá-la. Ele nunca mexe nas cenas, nos assets, nas suas pastas de scripts nem no logo do jogo, respeita os scripts padrão que você editou e guarda o que substituiu em .rome/backup-… dentro da experiência.",
+      "oldTitle": "Vindo de uma alpha mais antiga?",
+      "old1": "A 0.1.0-alpha.1 não tinha atualizador: baixe a versão atual manualmente uma vez.",
+      "old2": "A 0.1.0-alpha.2 não consegue retomar downloads interrompidos. Se a atualização nunca terminar numa conexão lenta, baixe a versão atual manualmente uma vez.",
+      "old3": "A partir da alpha.3, tudo chega sozinho.",
+      "logTitle": "Histórico de mudanças"
+    },
+    "log": {
+      "latest": "Mais recente",
+      "a4": {
+        "sum": "O ROME não trava mais ao ser fechado logo depois de abrir.",
+        "f1": "Fechar o ROME no primeiro segundo depois de abrir uma experiência podia terminar em um travamento (0xC0000374), e se havia uma atualização pronta, esse fechamento não a instalava.",
+        "f2": "Salvar uma cena ou um recurso a partir de um timer de um script ou plugin do editor, com outro timer pendente, podia derrubar o editor aleatoriamente. O bug estava nos timers e nos tweens da engine, e os dois foram corrigidos.",
+        "n1": "Até você instalar esta versão, a que você tem ainda pode travar se for fechada logo depois de abrir. Se isso acontecer, a atualização é instalada no próximo fechamento normal."
+      },
+      "fixes": "Correções",
+      "notes": "Notas",
+      "github": "Notas da versão no GitHub →",
+      "a3": {
+        "sum": "Os downloads de atualização não se perdem mais quando a conexão cai.",
+        "u1": "Se o download cair ou travar por um minuto, o ROME o retoma sozinho de onde parou, com esperas curtas entre as tentativas.",
+        "u2": "Se você fechar o ROME no meio de um download, da próxima vez que abri-lo ele continua dali. Cancelar agora pausa o download e mantém o que já foi baixado.",
+        "u3": "Ao terminar, o ROME confere o SHA-256 do arquivo completo antes de instalá-lo, como sempre."
+      },
+      "updates": "Atualizações",
+      "a2": {
+        "sum": "A primeira versão do ROME que se atualiza sozinha.",
+        "u1": "Ao iniciar, o ROME procura versões novas, baixa em segundo plano e confere o SHA-256.",
+        "u2": "A versão nova é instalada ao fechar o editor, ou na hora em Ajuda › Atualizações do ROME › Atualizar e reiniciar, que reabre a mesma experiência. Se algo falhar, a versão anterior volta.",
+        "u3": "As experiências são atualizadas ao serem abertas: o ROME troca a cópia delas do ROMEStudio e do GodotLuau pela sua e guarda a antiga na pasta .rome da experiência.",
+        "s1": "Menus suspensos em Peça, GUI, Script, Material, Cor, Grupo, Bloquear e Ancorar.",
+        "s2": "Caixas de ajuste para mover e girar, e o grupo Testar com F5, F6 e Shift+F5.",
+        "s3": "Atalhos do Studio: Ctrl+1 a Ctrl+5, Ctrl+L, Ctrl+G, Ctrl+Alt+G e Ctrl+U.",
+        "s4": "Botão + em cada linha do Explorer e janela Inserir objeto com busca, categorias e recentes. As peças novas aparecem na frente da câmera.",
+        "s5": "Abas de script com o ícone do seu tipo e um menu para fechar várias de uma vez.",
+        "s6": "Propriedades divididas em seções, com Atributos.",
+        "s7": "Ao abrir uma experiência, o mundo dela aparece, e as peças bloqueadas não podem mais ser selecionadas pelo viewport.",
+        "f1": "Fechar o editor com alterações não salvas na cena principal não o encerra mais de repente."
+      },
+      "studio": "Mais perto do Roblox Studio",
+      "a1": {
+        "sum": "A primeira alpha: o editor estilo Studio, os três modelos e o GodotLuau dentro, ainda sem atualizador."
+      },
+      "new": "Nova"
+    },
+    "lim": {
+      "title": "O que o ROME ainda não faz",
+      "lead": "É uma alpha, então aqui vai a lista sincera do que ainda falta ou não foi testado o bastante.",
+      "edTitle": "Plataformas e editor",
+      "e1": "Só o Windows x86_64 foi compilado e testado. As outras plataformas herdadas do Godot não foram validadas para o ROME.",
+      "e2": "A conversão do editor ainda está em andamento: algumas ferramentas avançadas estão desativadas e a interface ainda não reproduz todos os recursos do Studio.",
+      "e3": "A base é o Godot 4.8 beta 1. As mudanças no núcleo do Godot são trazidas para este fork e testadas à mão; elas não chegam automaticamente.",
+      "e4": "Os scripts são salvos com a extensão .lua mesmo contendo Luau, porque esse é o formato que o carregador da extensão integrada registra.",
+      "rbTitle": "Compatibilidade com o Roblox",
+      "r1": "O ROME e o GodotLuau são independentes do Roblox e não incluem nenhum dos seus serviços na nuvem.",
+      "r2": "Não há garantia de que qualquer experiência, plugin ou API do Roblox rode sem alterações.",
+      "r3": "O modelo Classic Obby foi testado rodando localmente; rodá-lo com cliente e servidor em processos separados ainda precisa de mais testes.",
+      "issues": "Achou um bug? Reporte em Issues →",
+      "disclaimer": "O ROME Engine é um projeto da Rocket Meteor / PimpoliDev. Não é afiliado, endossado nem patrocinado pela Roblox Corporation ou pela Godot Foundation. A licença MIT do Godot, seus autores e os avisos de suas dependências são mantidos no repositório."
+    },
+    "cta": {
+      "title": "Pronto para experimentar?",
+      "text": "Baixe a alpha e conte o que achou no servidor do Discord."
+    }
+  }
+}
