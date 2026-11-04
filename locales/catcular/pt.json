@@ -1,0 +1,35 @@
+{
+  "cat": {
+    "meta": {
+      "title": "CatCular para Android"
+    },
+    "nav": {
+      "download": "Baixar",
+      "install": "Como instalar"
+    },
+    "hero": {
+      "badge": "Para Android",
+      "lead": "Baixe o jogo para Android e instale em um minuto.",
+      "button": "Baixar APK",
+      "version": "Versão",
+      "autoAndroid": "O download começa sozinho. Se não começar, toque em Baixar APK.",
+      "onlyAndroid": "Este arquivo é para celulares Android."
+    },
+    "install": {
+      "title": "Instale passo a passo",
+      "lead": "O Android pede algumas confirmações porque o APK não vem do Google Play.",
+      "s1t": "Baixe",
+      "s1d": "Se o Chrome perguntar, toque em Fazer o download mesmo assim.",
+      "s2t": "Abra o APK",
+      "s2d": "Quando terminar, abra o APK do CatCular pela notificação ou pela pasta Downloads.",
+      "s3t": "Permita a fonte",
+      "s3d": "Se o celular disser que não pode instalar apps desta fonte, toque em Configurações, ative Permitir desta fonte e volte.",
+      "s4t": "Instale",
+      "s4d": "Toque em Instalar. Se o Play Protect avisar, toque em Mais detalhes e depois em Instalar mesmo assim."
+    },
+    "play": {
+      "title": "Já tem o CatCular do Google Play?",
+      "text": "Desinstale primeiro: o Android não deixa instalar este por cima."
+    }
+  }
+}
