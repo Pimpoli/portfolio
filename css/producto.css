@@ -183,6 +183,20 @@
 .step .code-window { margin-top: 10px; }
 .step .code-window pre { font-size: 13px; padding: 14px 16px 16px; }
 
+/* Pestañas de sistema encima de los pasos (CatCular) */
+.os-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+.os-tab {
+  min-height: 40px; padding: 0 18px; border-radius: 999px; cursor: pointer;
+  background: var(--surface-2); border: 1px solid var(--line); color: var(--muted);
+  font: inherit; font-size: 15px; font-weight: 600;
+  transition: color .2s, border-color .2s, background-color .2s;
+}
+.os-tab:hover { color: var(--text); border-color: var(--line-strong); }
+.os-tab[aria-selected="true"] {
+  color: var(--accent-text); border-color: color-mix(in srgb, var(--accent-text) 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
 .subhead { font-family: var(--font-display); font-size: 24px; font-weight: 700; margin: 48px 0 18px; }
 .subhead:first-child { margin-top: 0; }
 

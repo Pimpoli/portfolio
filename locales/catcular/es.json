@@ -1,23 +1,44 @@
 {
   "cat": {
     "meta": {
-      "title": "CatCular para Android"
+      "title": "CatCular — Descargar"
     },
     "nav": {
       "download": "Descargar",
       "install": "Cómo instalar"
     },
     "hero": {
-      "badge": "Para Android",
-      "lead": "Descarga el juego para Android e instálalo en un minuto.",
-      "button": "Descargar APK",
+      "lead": "Descarga el juego para tu móvil o tu ordenador, o juégalo en el navegador sin instalar nada.",
+      "android": "Descargar para Android",
+      "windows": "Descargar para Windows",
+      "linux": "Descargar para Linux",
+      "mac": "Descargar para Mac",
+      "web": "Jugar en el navegador",
+      "all": "Todas las versiones",
       "version": "Versión",
-      "autoAndroid": "La descarga empieza sola. Si no, toca Descargar APK.",
-      "onlyAndroid": "Este archivo es para móviles Android."
+      "free": "Gratis",
+      "updates": "Se actualiza solo",
+      "autoAndroid": "La descarga empieza sola. Si no, toca Descargar para Android."
+    },
+    "dl": {
+      "title": "Elige tu versión",
+      "lead": "Es el mismo juego en todas. Descárgalo una vez: lo nuevo se baja solo mientras juegas.",
+      "yours": "Tu sistema",
+      "apk": "Descargar APK",
+      "zip": "Descargar .zip",
+      "tar": "Descargar .tar.gz",
+      "androidText": "Para móviles Android de 64 bits. Android pide un par de confirmaciones porque no viene de Google Play.",
+      "winText": "Para Windows 10 y 11 de 64 bits. Descomprímelo y abre CatCular.exe.",
+      "linuxText": "Para Linux de 64 bits (x86_64). Descomprímelo y abre CatCular.x86_64.",
+      "macText": "Para Mac con chip de Apple o Intel. No está firmado por Apple, así que la primera vez hay que permitirlo."
+    },
+    "web": {
+      "title": "Juega sin instalar nada",
+      "text": "Funciona en el navegador del ordenador o del móvil."
     },
     "install": {
       "title": "Instálalo paso a paso",
-      "lead": "Android pide un par de confirmaciones porque el APK no viene de Google Play.",
+      "lead": "Elige tu sistema. Es cosa de un minuto.",
       "s1t": "Descárgalo",
       "s1d": "Si Chrome pregunta, toca Descargar de todos modos.",
       "s2t": "Abre el APK",
@@ -30,6 +51,30 @@
     "play": {
       "title": "¿Ya tienes CatCular de Google Play?",
       "text": "Desinstálalo primero: Android no deja instalar este encima."
+    },
+    "win": {
+      "s1t": "Descomprímelo",
+      "s1d": "Haz clic derecho en el .zip, elige Extraer todo y abre la carpeta.",
+      "s2t": "Abre CatCular.exe",
+      "s2d": "Si Windows SmartScreen avisa, haz clic en Más información y luego en Ejecutar de todas formas.",
+      "s3t": "Deja la carpeta junta",
+      "s3d": "CatCular.exe necesita a CatCular.pck al lado. Si quieres un acceso directo, créalo en vez de mover el .exe."
+    },
+    "linux": {
+      "s1t": "Descomprímelo",
+      "s1d": "Con tu gestor de archivos, o con esto en una terminal:",
+      "s2t": "Abre CatCular.x86_64",
+      "s2d": "Está dentro de la carpeta CatCular. Si con doble clic no se abre, ábrelo desde la terminal:"
+    },
+    "mac": {
+      "s1t": "Descomprímelo",
+      "s1d": "Abre el .zip y arrastra CatCular a Aplicaciones.",
+      "s2t": "Ábrelo una vez",
+      "s2d": "macOS dirá que no puede comprobarlo. Cierra el aviso sin moverlo a la papelera.",
+      "s3t": "Permítelo",
+      "s3d": "Ve a Ajustes del Sistema → Privacidad y seguridad, baja hasta el final y pulsa Abrir igualmente.",
+      "s4t": "Si dice que está dañado",
+      "s4d": "Abre Terminal, pega esto, pulsa Intro y vuelve a abrirlo:"
     }
   }
 }
